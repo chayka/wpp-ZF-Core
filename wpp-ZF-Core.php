@@ -116,3 +116,5 @@ try {
     // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
     echo '<span style="font-weight:bold;">WP Zend Library:</span> ' . nl2br($e);
 }
+
+require_once 'zf.php';

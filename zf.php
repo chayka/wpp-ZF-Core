@@ -1,107 +1,134 @@
 <?php
 
-define('ZF_MARKER', 'do');
-add_action('parse_request', 'zf_query_controller');
+require_once 'Zend/Application.php';
 
-function zf_query_controller($request) {
-    
-    $routes = array(
-        'api',
-        'user',
-        'users',
-        'question',
-        'questions',
-        'unanswered',
-        'ask-question',
-        'answer',
-        'article',
-        'articles',
-        'album',
-        'albums',
-        'widget',
-        'tag',
-        'tags',
-        'search',
-        'lucene',
-//        'equipment',
-//        'equipments',
-//        'profession',
-//        'professions',
-//        'work',
-//        'works',
-//        'location',
-//        'locations',
-//        'material',
-//        'materials',
-    );
-    
-//    print_r($request);
-    if(isset($request->query_vars['error'])){
-        unset($request->query_vars['error']);
-    }
-    parse_str($_SERVER['QUERY_STRING'], $params);
-    $isZF = empty($_SERVER['REQUEST_URI'])
-        || '/'==$_SERVER['REQUEST_URI']
-        || preg_match('%^\/(do|'.  join('|', $routes).')(\/|\z)%',$_SERVER['REQUEST_URI']);
-//        || preg_match('%^\/(do|'.  join('|', $routes).')\/|\z%',$_SERVER['REQUEST_URI']);
-    $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
-    if ($isZF || $isAPI/*isset($params[ZF_MARKER])*/) {
-//    die('(!)');
-//        die('<pre>'.print_r(array(
-//            '$isZF'=>$isZF,
-//            'empty' => empty($_SERVER['REQUEST_URI']),
-//            '/' => '/'==$_SERVER['REQUEST_URI'],
-//            '%^\/(do|'.  join('|', $routes).')\/|\z% '.$_SERVER['REQUEST_URI'] => preg_match('%^\/(do|'.  join('|', $routes).')\/|\z%',$_SERVER['REQUEST_URI']),
-//            '$isAPI'=>$isAPI,
-//            '$routes'=>$routes,
-//            '$_SERVER'=>$_SERVER
-//        ), true).'</pre>');
-        $request->query_vars['pagename']='zf';
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
-
-        $args = array(
-            'public' => false,
-            'publicly_queryable' => false,
-            'show_ui' => false,
-            'show_in_menu' => false,
-            'query_var' => false,
-            'rewrite' => false,
-            'capability_type' => 'post',
-            'has_archive' => true,
-            'hierarchical' => false,
-//            'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments')
-        );
-        register_post_type('zf', $args);
-        register_post_type('zf-api', $args);
-        if($isAPI/*isset ($params['api'])*/){
-            $GLOBALS['is_zf_api_call'] = true;            
-        }
-        global $wp_the_query, $wp_query, $wp_filter;
-        remove_filter ('the_content','wpautop');
-        $q = new ZF_Query();
-        $q->copyFrom($wp_the_query);
-//        $zf_uri = trim($params[ZF_MARKER], "/ ");
-//        $q->req_uri_zf = empty($zf_uri) ? '/' : '/' . $zf_uri . '/';
-        $zf_uri = preg_replace('%^\/do%', '', $_SERVER['REQUEST_URI']);
-        $q->req_uri_zf = $zf_uri;
-        $wp_the_query = $wp_query = $q;
-    }elseif(preg_match('%^\/(\d+)\/%', $_SERVER['REQUEST_URI'], $matches)){
-//        print_r($matches);
-        $post = get_post($matches[1]);
-//        print_r($post);
-        
-        $url = AnotherGuru::postPermalink($_SERVER['REQUEST_URI'], $post);
-        header('HTTP/1.0 301 Moved Permanently', true, 301);
-        header('Location: '.$url);
-        
-    }
-}
+add_action('parse_request', array('ZF_Query', 'parseRequest'));
 
 class ZF_Query extends WP_Query {
 
-    public $req_uri_original = '';
     public $req_uri_zf = '';
+    
+    protected static $applications = array();
+    protected static $routes = array();
+    
+    public static function registerApplication($id, $path, $routes, $env = 'production'){
+        self::$applications[$id] = array(
+            'path' => $path,
+            'environment' => $env,
+            'routes' => $routes,
+        );
+        
+        foreach($routes as $route){
+            self::$routes[$route] = $id;
+        }
+    }
+    
+    public static function parseRequest(){
+    
+        if(isset($request->query_vars['error'])){
+            unset($request->query_vars['error']);
+        }
+        parse_str($_SERVER['QUERY_STRING'], $params);
+        $isZF = empty($_SERVER['REQUEST_URI'])
+    //        || '/'==$_SERVER['REQUEST_URI']
+            || preg_match('%^\/('.  join('|', self::$routes).')(\/|\z)%',$_SERVER['REQUEST_URI']);
+        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
+        if ($isZF || $isAPI/*isset($params[ZF_MARKER])*/) {
+            $request->query_vars['pagename']='zf';
+            ini_set('display_errors', 1);
+            error_reporting(E_ALL);
+
+            $args = array(
+                'public' => false,
+                'publicly_queryable' => false,
+                'show_ui' => false,
+                'show_in_menu' => false,
+                'query_var' => false,
+                'rewrite' => false,
+                'capability_type' => 'post',
+                'has_archive' => true,
+                'hierarchical' => false,
+    //            'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments')
+            );
+            register_post_type('zf', $args);
+            register_post_type('zf-api', $args);
+            if($isAPI){
+                $GLOBALS['is_zf_api_call'] = true;            
+            }
+            global $wp_the_query, $wp_query, $wp_filter;
+            remove_filter ('the_content','wpautop');
+            $q = new ZF_Query();
+            $q->copyFrom($wp_the_query);
+            $zf_uri = preg_replace('%^\/do%', '', $_SERVER['REQUEST_URI']);
+            $q->req_uri_zf = $zf_uri;
+            $wp_the_query = $wp_query = $q;
+        }
+    }
+    
+    public static function processRequest($uri = ''){
+        if(!$uri){
+            $uri = $_SERVER['REQUEST_URI'];
+        }
+        $tmpUri = $_SERVER['REQUEST_URI'];
+        $_SERVER['REQUEST_URI'] = $uri;
+        $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'/';
+        
+        $appId = Util::getItem(self::$routes, $route);
+        if($appId){
+            $appInfo = Util::getItem(self::$applications, $appId);
+            
+            $application = Util::getItem($appInfo, 'application');
+            
+            $appPath = Util::getItem($appInfo, 'path');
+
+            $appEnv = getenv($appId.'_APPLICATION_ENV') ? 
+                getenv($appId.'_APPLICATION_ENV') : 
+                Util::getItem($appInfo, 'environment', 'production');
+
+            if(!$application){
+                
+                // Define path to application directory
+                defined($appId.'_APPLICATION_PATH')
+                    || define($appId.'_APPLICATION_PATH', $appPath);
+
+                // Define application environment
+                defined($appId.'_APPLICATION_ENV')
+                    || define($appId.'_APPLICATION_ENV', $appEnv);
+
+                // Ensure library/ is on include_path
+                set_include_path(implode(PATH_SEPARATOR, array_unique(array(
+                    realpath($appPath.'/../'),
+                    get_include_path(),
+                ))));
+
+                // Create application, bootstrap, and run
+            }
+
+            $application = new Zend_Application(
+                $appEnv,
+                $appPath . '/configs/application.ini'
+            );
+
+            self::$applications[$appId]['application'] = $application;
+
+            global $wp_the_query;
+            $the_q = $wp_the_query;
+            $front = Util::getFront();
+            $front->resetInstance();
+            //print_r($front);
+            $front->setParam('displayExceptions', true);
+            $front->returnResponse(true);
+            $application->bootstrap()->getBootStrap()->setupRouting();
+            $r = $front->dispatch();
+            $wp_the_query = $the_q;
+            //$r = $application->bootstrap()->getBootStrap()->run();
+            $_SERVER['REQUEST_URI'] = $tmpUri;
+            return $r;        
+        }
+        
+        return '';
+        
+    }
 
     function copyFrom(WP_Query $wp_query) {
         $vars = get_object_vars($wp_query);
@@ -114,16 +141,17 @@ class ZF_Query extends WP_Query {
         global $wp_the_query;
         global $wp_query;
 //        parent::get_posts();
-        $tmp = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = $this->req_uri_zf;
+//        $tmp = $_SERVER['REQUEST_URI'];
+//        $_SERVER['REQUEST_URI'] = $this->req_uri_zf;
 //        echo$this->req_uri_zf;
         try {
-            $zf_response = require_once WPP_ANOTHERGURU_PATH . 'zf-app/public/index.php';
+//            $zf_response = require_once WPP_ANOTHERGURU_PATH . 'zf-app/public/index.php';
+            $zf_response = self::processRequest();
 //            die($zf_response);
         }catch(Exception $e){
             echo '('.$e->getMessage().')';
         }
-        $_SERVER['REQUEST_URI'] = $tmp;
+//        $_SERVER['REQUEST_URI'] = $tmp;
 //        remove_all_filters();
         $posts = WpHelper::getPosts();
         if($posts){
@@ -256,13 +284,13 @@ class WP_Widget_ZF extends WP_Widget {
         $title = apply_filters('widget_title', empty($instance['title']) ? '' : $instance['title'], $instance, $this->id_base);
         $request_uri = empty($instance['uri']) ? '/' : $instance['uri'];
         $tmp = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = $request_uri;
         try {
-            echo include WPP_ANOTHERGURU_PATH . 'zf-app/public/index.php';
+//            echo include WPP_ANOTHERGURU_PATH . 'zf-app/public/index.php';
+            echo ZF_Query::processRequest($request_uri);
         } catch (Exception $e) {
+            $_SERVER['REQUEST_URI'] = $tmp;
             echo '(' . $e->getMessage() . ')';
         }
-        $_SERVER['REQUEST_URI'] = $tmp;
 
 //        echo $after_widget;
         // Reset the global $the_post as this query will have stomped on it
@@ -370,285 +398,5 @@ class ZF_Widget_Articles extends WP_Widget_ZF{
     }
 }
 
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Articles" );' ) );
-
-class ZF_Widget_Questions extends ZF_Widget_Articles{
-    public $action = 'questions'; 
-    public function __construct() {
-        parent::__construct('zf_questions', 'ZF: Вопросы', array(
-            'classname' => 'ZF_Widget_Questions',
-            'description' => "Записи из раздела Вопросы"
-        ));
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Questions" );' ) );
-
-class ZF_Widget_Profiles extends ZF_Widget_Articles{
-    public $action = 'profiles'; 
-    public $modes = array(
-        '0'=>'По умолчанию',
-        'new'=>'Новые',
-        'top'=>'Топ',
-        'consultants'=>'Консультанты',
-        'contractors'=>'Подрядчики'
-    );
-    
-    public function __construct() {
-        parent::__construct('zf_profiles', 'ZF: Пользователи', array(
-            'classname' => 'ZF_Widget_Profiles',
-            'description' => "Пользователи сайта"
-        ));
-    }
-//    function update($new_instance, $instance) {
-//        $instance['count'] = strip_tags($new_instance['count']);
-//        $instance['mode'] = strip_tags($new_instance['mode']);
-//        $params = array_intersect_key($new_instance, array_fill_keys(array(
-//            'count',
-//            'mode',
-//        ), null));
-//        $new_instance['uri'] = $this->generateUri('articles', $params);
-//        
-//        return parent::update($new_instance, $instance);
-//    }
-
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Profiles" );' ) );
-
-class ZF_Widget_Tags extends WP_Widget_ZF{
-    public $action = 'tags'; 
-    public $taxonomies = array(
-        '0'=>'Все',
-        'post_tag'=>'Метки',
-        'profession'=>'Профессии',
-        'work'=>'Виды работ',
-        'equipment'=>'Инструменты',
-        'material'=>'Материалы'
-    );
-    
-    public function __construct($id = 'zf_tags', $name = 'ZF: Метки', $opts = array(
-            'classname' => 'ZF_Widget_Tags',
-            'description' => "Метки"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $instance['count'] = strip_tags($new_instance['count']);
-        $instance['taxonomy'] = strip_tags($new_instance['taxonomy']);
-        $params = array_intersect_key($new_instance, array_fill_keys(array(
-            'count',
-            'taxonomy',
-        ), null));
-        $new_instance['uri'] = $this->generateUri($this->action, $params);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : 'Рубрики';
-        $count = isset($instance['count']) ? esc_attr($instance['count']) : '5';
-        $taxonomy = isset($instance['taxonomy']) ? esc_attr($instance['taxonomy']) : '0';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label>
-            <input id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('taxonomy'); ?>"><?php _e('Taxonomy:'); ?></label>
-            <select id="<?php echo $this->get_field_id('mode'); ?>" name="<?php echo $this->get_field_name('mode'); ?>">
-            <?php foreach($this->taxonomies as $value=>$label):?>    
-                <option value="<?php echo $value;?>" <?php if($value == $taxonomy):?>selected="selected"<?php endif;?>><?php echo $label?></option>
-            <?php endforeach;?>
-            </select>
-            </p>
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Tags" );' ) );
-
-class ZF_Widget_Page extends WP_Widget_ZF{
-    public $action = 'post';
-    public $classes = '';
-    public function __construct($id = 'zf_page', $name = 'ZF: Статическая страница', $opts = array(
-            'classname' => 'ZF_Widget_Page',
-            'description' => "Статическая страница"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $instance['id'] = strip_tags($new_instance['id']);
-        $instance['slug'] = strip_tags($new_instance['slug']);
-        $instance['classes'] = strip_tags($new_instance['classes']);
-        $params = array_intersect_key($new_instance, array_fill_keys(array(
-            'id',
-            'slug',
-            'classes',
-        ), null));
-        $new_instance['uri'] = $this->generateUri($this->action, $params);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : '';
-        $id = isset($instance['id']) ? esc_attr($instance['id']) : '';
-        $slug = isset($instance['slug']) ? esc_attr($instance['slug']) : '';
-        $classes = isset($instance['classes']) ? esc_attr($instance['classes']) : '';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('id'); ?>"><?php _e('Page ID:'); ?></label>
-            <input id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('slug'); ?>"><?php _e('Slug:'); ?></label>
-            <input id="<?php echo $this->get_field_id('slug'); ?>" name="<?php echo $this->get_field_name('slug'); ?>" type="text" value="<?php echo $slug; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('classes'); ?>"><?php _e('Html class:'); ?></label>
-            <input id="<?php echo $this->get_field_id('classes'); ?>" name="<?php echo $this->get_field_name('classes'); ?>" type="text" value="<?php echo $classes; ?>" /></p>
-
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Page" );' ) );
-
-class ZF_Widget_Banners extends WP_Widget_ZF{
-    public $action = 'banners'; 
-    public function __construct($id = 'zf_banners', $name = 'ZF: Баннеры', $opts = array(
-            'classname' => 'ZF_Widget_Banners',
-            'description' => "Баннеры"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $instance['ids'] = strip_tags($new_instance['ids']);
-        $instance['count'] = strip_tags($new_instance['count']);
-        $params = array_intersect_key($new_instance, array_fill_keys(array(
-            'ids',
-            'count',
-        ), null));
-        $new_instance['uri'] = $this->generateUri($this->action, $params);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : '';
-        $count = isset($instance['count']) ? esc_attr($instance['count']) : '2';
-        $ids = isset($instance['ids']) ? esc_attr($instance['ids']) : '';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('ids'); ?>"><?php _e('Attachment IDs:'); ?></label>
-            <input id="<?php echo $this->get_field_id('ids'); ?>" name="<?php echo $this->get_field_name('ids'); ?>" type="text" value="<?php echo $ids; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label>
-            <input id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" /></p>
-
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Banners" );' ) );
-
-class ZF_Widget_SearchHistory extends WP_Widget_ZF{
-    public $action = 'search-history'; 
-    
-    public function __construct($id = 'zf_search_history', $name = 'ZF: История поиска', $opts = array(
-            'classname' => 'ZF_Widget_SearchHistory',
-            'description' => "История поисковых запросов"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $instance['count'] = strip_tags($new_instance['count']);
-        $params = array_intersect_key($new_instance, array_fill_keys(array(
-            'count',
-        ), null));
-        $new_instance['uri'] = $this->generateUri($this->action, $params);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : '';
-        $count = isset($instance['count']) ? esc_attr($instance['count']) : '5';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label>
-            <input id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" /></p>
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_SearchHistory" );' ) );
-
-class ZF_Widget_ProfileMenu extends WP_Widget_ZF{
-    public $action = 'profile-menu'; 
-    
-    public function __construct($id = 'zf_profile_menu', $name = 'ZF: Меню профиля', $opts = array(
-            'classname' => 'ZF_Widget_ProfileMenu',
-            'description' => "Меню профиля пользователя, отображается только для самого пользователя"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $new_instance['uri'] = $this->generateUri($this->action);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : '';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_ProfileMenu" );' ) );
-
-class ZF_Widget_Numbers extends WP_Widget_ZF{
-    public $action = 'numbers';
-    public $classes = '';
-    public function __construct($id = 'zf_numbers', $name = 'ZF: Статистика', $opts = array(
-            'classname' => 'ZF_Widget_Numbers',
-            'description' => "Статистика по сайту"
-        )) {
-        parent::__construct($id, $name, $opts);
-    }
-    function update($new_instance, $instance) {
-        $instance['classes'] = strip_tags($new_instance['classes']);
-        $params = array_intersect_key($new_instance, array_fill_keys(array(
-            'classes',
-        ), null));
-        $new_instance['uri'] = $this->generateUri($this->action, $params);
-        
-        return parent::update($new_instance, $instance);
-    }
-
-    function form($instance) {
-        $title = isset($instance['title']) ? esc_attr($instance['title']) : '';
-        $classes = isset($instance['classes']) ? esc_attr($instance['classes']) : '';
-        ?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
-
-            <p><label for="<?php echo $this->get_field_id('classes'); ?>"><?php _e('Html class:'); ?></label>
-            <input id="<?php echo $this->get_field_id('classes'); ?>" name="<?php echo $this->get_field_name('classes'); ?>" type="text" value="<?php echo $classes; ?>" /></p>
-
-        <?php
-    }
-}
-
-add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Numbers" );' ) );
+//add_action( 'widgets_init', create_function( '', 'register_widget( "ZF_Widget_Articles" );' ) );
 

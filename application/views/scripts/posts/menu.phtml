@@ -1,0 +1,13 @@
+<ul id="<?php echo $this->menu->getId();?>" class="<?php $this->menu->addClass('menu'); echo join(' ',$this->menu->getClasses());?>">
+<?php
+foreach ($this->menu->getItems() as $itemId => $item){
+    if($item->isCurrent()){
+        $item->addClass('current-menu-item');
+    }
+    echo sprintf('<li id="%s" class="%s"><a href="%s">%s</a></li>',
+                $item->getId(), join(' ', $item->getClasses()), $item->getHref(), $item->getTitle()
+            );
+}
+?>
+    
+</ul>

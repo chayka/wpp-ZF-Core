@@ -62,7 +62,7 @@ class AclHelper {
     public static function isAllowed($privelege = null, $resource = null, $role = null) {
         global $wpdb, $current_user;
         if (empty($role)) {
-            $role = AG_UserModel::currentUser()->getRole();
+            $role = UserModel::currentUser()->getRole();
         }
         if (empty($resource)) {
             $resource = Util::getFront()->getRequest()->getControllerName();
@@ -105,7 +105,7 @@ class AclHelper {
     }
     
     public static function apiOwnershipRequired(/*AG_PostModel*/ $obj, $message = ''){
-        $user = AG_UserModel::currentUser();
+        $user = UserModel::currentUser();
         if($obj->getUserId() != $user->getId() && $user->getRole()!='administrator'){
             if(!$message){
                 $message = 'У вас недостаточно прав для модификации данного объекта';
@@ -115,12 +115,12 @@ class AclHelper {
     }
     
     public static function isNotOwner(/*AG_PostModel*/ $obj){
-        $user = AG_UserModel::currentUser();
+        $user = UserModel::currentUser();
         return ($obj->getUserId() != $user->getId() || $user->getRole()=='administrator');
     }
     
     public static function isAdmin(){
-        $user = AG_UserModel::currentUser();
+        $user = UserModel::currentUser();
         return ($user->getRole()=='administrator');
     }
 

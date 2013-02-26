@@ -1,9 +1,11 @@
 <?php
 
+require_once 'application/helpers/DbHelper.php';
+require_once 'application/helpers/JsonHelper.php';
 require_once 'application/models/posts/CommentModel.php';
-require_once 'application/helpers/LuceneHelper.php';
+//require_once 'application/helpers/LuceneHelper.php';
 
-class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInterface{
+class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReadyInterface*/{
 
     /**
      * Post Id
@@ -121,8 +123,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInt
         $this->title = $title;
     }
 
-    public function getContent() {
-        return $this->content;
+    public function getContent($wpautop = true) {
+        return $wpautop?wpautop($this->content):$this->content;
     }
 
     public function setContent($content) {
@@ -233,8 +235,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInt
         $this->terms = $terms;
     }
     
-    public function getMeta() {
-        return $this->meta;
+    public function getMeta($key = '') {
+        return $key?Util::getItem($this->meta, $key):$this->meta;
     }
 
     public function setMeta($meta) {
@@ -347,7 +349,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInt
         $dbRecord['post_title'] = $this->getTitle();
         $dbRecord['post_content'] = $this->getContent();
         $dbRecord['post_excerpt'] = $this->getExcerpt();
-        $dbRecord['description'] = $this->getDescription();
+//        $dbRecord['description'] = $this->getDescription();
         $dbRecord['post_status'] = $this->getStatus();
         $dbRecord['post_date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
         $dbRecord['post_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
@@ -401,8 +403,14 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInt
     }
 
 
-    public static function selectBySlug($slug){
-        $posts = self::selectPosts(array('name'=>$slug));
+    public static function selectBySlug($slug, $postType = ''){
+        $args = array('name'=>$slug);
+        if($postType){
+            $args['post_type'] = $postType;
+            $args['post_status'] = 'publish';
+        }
+        print_r($args);
+        $posts = self::selectPosts($args);
         return count($posts)?reset($posts):null;
     }
 
@@ -539,7 +547,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, LuceneReadyInt
         $jsonItem['post_title'] = $this->getTitle();
         $jsonItem['post_content'] = $this->getContent();
         $jsonItem['post_excerpt'] = $this->getExcerpt();
-        $jsonItem['description'] = $this->getDescription();
+//        $jsonItem['description'] = $this->getDescription();
         $jsonItem['post_status'] = $this->getStatus();
         $jsonItem['post_date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
         $jsonItem['post_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());

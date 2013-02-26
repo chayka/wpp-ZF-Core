@@ -1,6 +1,6 @@
 <?php
 
-require_once 'application/helpers/ErrorHelper.php';
+//require_once 'application/helpers/ErrorHelper.php';
 
 class WpHelper {
     private static $instance;
@@ -10,6 +10,7 @@ class WpHelper {
     private $navMenuId = '';
     private $sidebarStatic = false;
     private $sidebarId = '';
+    private $pageTemplate = '';
     private $request = null;
     private $query = null;
     private $trunk;
@@ -17,6 +18,14 @@ class WpHelper {
     
     private $posts = null;
     
+    public static function isAdmin(){
+        $userId = get_current_user_id();
+        if(!$userId) return false;
+        $user = get_user_by('id', $userId);
+        $isAdmin = in_array('administrator', $user->roles);
+        return $isAdmin;
+    }
+
     public function __construct() {
         $this->initNavMenuId();
         $this->initSideBarId();
@@ -120,16 +129,15 @@ class WpHelper {
         $this->notFound = $notFound;
     }
     
-    public static function getNotFound(){
-        return self::getInstance()->_getNotFound();
+    public function _getPageTemplate() {
+        return $this->pageTemplate;
     }
-    
-    public static function setNotFound($notFound = true){
-        Util::turnRendererOff();
-        return self::getInstance()->_setNotFound($notFound);
+
+    public function _setPageTemplate($pageTemplate) {
+        $this->pageTemplate = $pageTemplate;
     }
-    
-    public static function setQuery($query){
+
+        public static function setQuery($query){
         self::getInstance()->_setQuery($query);
     }
     
@@ -199,6 +207,23 @@ class WpHelper {
     
     public static function getPosts(){
         return self::getInstance()->_getPosts();
+    }
+    
+    public static function getNotFound(){
+        return self::getInstance()->_getNotFound();
+    }
+    
+    public static function setNotFound($notFound = true){
+        Util::turnRendererOff();
+        return self::getInstance()->_setNotFound($notFound);
+    }
+    
+    public static function getPageTemplate() {
+        return self::getInstance()->_getPageTemplate();
+    }
+
+    public function setPageTemplate($pageTemplate) {
+        self::getInstance()->_setPageTemplate($pageTemplate);
     }
     
     public function initNavMenuId($id = ''){
@@ -293,6 +318,32 @@ class WpHelper {
         if(!$userId){
             ErrorHelper::error('Необходимо авторизоваться на сайте', ErrorHelper::CODE_AUTH_REQUIRED);
         }
+    }
+    
+    public static function slug($title){
+        // Возвращаем результат.
+        $table = array( 
+            'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 
+            'Ё' => 'YO', 'Ж' => 'ZH', 'З' => 'Z', 'И' => 'I', 'Й' => 'J', 
+            'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P', 
+            'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 
+            'Ц' => 'C', 'Ч' => 'CH', 'Ш' => 'SH', 'Щ' => 'CSH', 'Ь' => '', 
+            'Ы' => 'Y', 'Ъ' => '', 'Э' => 'E', 'Ю' => 'YU', 'Я' => 'YA', 
+
+            'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 
+            'ё' => 'yo', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'j', 
+            'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 
+            'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 
+            'ц' => 'c', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'csh', 'ь' => '', 
+            'ы' => 'y', 'ъ' => '', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya', 
+        ); 
+
+        $title = str_replace( 
+            array_keys($table), 
+            array_values($table),$title 
+        ); 
+        $title = sanitize_title($title);
+        return $title;
     }
     
 }

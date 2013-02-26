@@ -23,6 +23,7 @@ class Log {
 	 * @var string Log filename
 	 */
 	protected static $logFn;
+        protected static $logDir;
 
 	/**
 	 * @var integer log level
@@ -107,6 +108,22 @@ class Log {
 	 * Sets log FileName
 	 * @param string fn
 	 */
+	public static function setDir($dir){
+		self::$logDir = $dir;
+	//	FileSystem::append(self::$logFn, self::fancyHeader(self::getSignature()));
+	} 
+	
+	public static function getDir(){
+		if(empty(self::$logDir)){
+			self::$logDir = PathHelper::getLogDir();
+		}
+		return self::$logDir;
+	}
+	
+	/**
+	 * Sets log FileName
+	 * @param string fn
+	 */
 	public static function setFn($fn){
 		self::$logFn = $fn;
 	//	FileSystem::append(self::$logFn, self::fancyHeader(self::getSignature()));
@@ -114,7 +131,7 @@ class Log {
 	
 	public static function getFn(){
 		if(empty(self::$logFn)){
-			self::$logFn = PathHelper::getLogDir() . '/' . date('Ymd') . '.log';
+			self::$logFn = self::getDir() . '/' . date('Ymd') . '.log';
 //			FileSystem::append(self::$logFn, self::fancyHeader('Session at '.date('H:i:s')));
 			FileSystem::append(self::$logFn, self::fancyHeader(self::getSignature()));
 		//	register_shutdown_function(array('Log', 'shutDownHandler'));

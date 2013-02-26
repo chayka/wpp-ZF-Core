@@ -1,0 +1,72 @@
+.box-sizing{
+    -moz-box-sizing: border-box; /* ��� Firefox */
+    -webkit-box-sizing: border-box; /* ��� Safari � Chrome */
+    box-sizing: border-box; /* ��� IE � Opera */
+}
+
+.box-shadow(@style, @c) when (iscolor(@c)) {
+  box-shadow:         @style @c;
+  -webkit-box-shadow: @style @c;
+  -moz-box-shadow:    @style @c;
+}
+
+.box-shadow(@style, @alpha: 50%) when (isnumber(@alpha)) {
+  .box-shadow(@style, rgba(0, 0, 0, @alpha));
+}
+
+.border-radius(@radius: 3px){
+  border-radius: @radius;  
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  -o-border-radius: @radius;
+}
+
+.gradient-vertical(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
+  background-color: @color;
+/*  background: -webkit-gradient(linear,
+                               left bottom,
+                               left top,
+                               color-stop(0, @start),
+                               color-stop(1, @stop));
+  background: -ms-linear-gradient(bottom,
+                                  @start,
+                                  @stop);
+  background: -moz-linear-gradient(center bottom,
+                                   @start 0%,
+                                   @stop 100%);
+  background: -o-linear-gradient(center bottom,
+                                   @start 0%,
+                                   @stop 100%);*/
+  *background-color: @stop;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@start), to(@stop));
+  background-image: -webkit-linear-gradient(top, @start, @stop);
+  background-image: -o-linear-gradient(top, @start, @stop);
+  background-image: linear-gradient(to top, @start, @stop);
+  background-image: -moz-linear-gradient(top, @start, @stop);
+  background-repeat: repeat-x;
+}
+
+.gradient-horizontal(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
+  background-color: @color;
+  background: -webkit-gradient(linear,
+                               right top,
+                               left top,
+                               color-stop(0, @stop),
+                               color-stop(1, @start));
+  background: -ms-linear-gradient(right,
+                                  @stop,
+                                  @start);
+  background: -moz-linear-gradient(left,
+                                   @start 0%,
+                                   @stop 100%);
+  background-image: -o-linear-gradient(left,
+                                   @start 0%,
+                                   @stop 100%);
+}
+.transform-rotate(@deg){
+    transform:rotate(@deg);
+    -ms-transform:rotate(@deg); /* IE 9 */
+    -moz-transform:rotate(@deg); /* Firefox */
+    -webkit-transform:rotate(@deg); /* Safari and Chrome */
+    -o-transform:rotate(@deg); /* Opera */
+}

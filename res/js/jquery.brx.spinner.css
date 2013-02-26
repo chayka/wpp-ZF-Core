@@ -1,0 +1,10 @@
+.brx_spinner{
+    padding: 5px 5px 8px 35px;
+    background-repeat: no-repeat;
+    background-position: 1px 1px;
+    background-image: url('../img/spinner28x28.gif');
+    min-height: 35px;
+    line-height: 31px;
+    vertical-align: middle;
+    display: none;
+}

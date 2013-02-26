@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Zend/Filter.php';
-require_once 'library/ZendB/Filter/StripSlashes.php';
+require_once 'ZendB/Filter/StripSlashes.php';
 
 class InputHelper {
 

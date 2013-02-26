@@ -1,0 +1,30 @@
+<div class="pagination pagination-mini" <?php if($this->model->getTotalPages()<=1):?>style="display: none;"<?php endif;?>>
+    <ul>
+<?php 
+    $links = array();
+    $links[] = array('text'=>'&larr;', 'link' => $this->model->getPreviousPageLink()?$this->model->getPreviousPageLink():'#');
+    if($this->model->getPackFirstPage() > 1){
+        $links[] = array('text'=>'1', 'link' => $this->model->getPageLink(1));
+        $links[] = array('text'=>'...', 'link' => $this->model->getPreviousPackLink());
+    }
+    for($i = $this->model->getPackFirstPage(); $i <= $this->model->getPackLastPage(); $i++){
+        $links[] = array('text'=>$i, 'link' => $this->model->getPageLink($i));
+    }
+    if($this->model->getPackLastPage() < $this->model->getTotalPages()){
+        $links[] = array('text'=>'...', 'link' => $this->model->getNextPackLink());
+        $links[] = array('text'=>$this->model->getTotalPages(), 'link' => $this->model->getPageLink($this->model->getTotalPages()));
+    }
+    $links[] = array('text'=>'&rarr;', 'link' => $this->model->getNextPageLink()?$this->model->getNextPageLink():'#');
+
+    foreach($links as $link){
+        if($link['link']){
+            $classes = $link['text'] == $this->model->getCurrentPage()? 'active ':'';
+            $classes.= $link['link'] == '#'? 'disabled ':''
+            ?>
+        <li class="<?php echo $classes;?>"><a href="<?php echo $link['link'];?>"><?php echo $link['text'];?></a></li>
+            <?php
+        }
+    }
+?>    
+    </ul>
+</div>

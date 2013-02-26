@@ -1,17 +1,25 @@
 <?php
 
 require_once 'Zend/Application.php';
+//require_once 'wp-admin/includes/theme.php';
 
 add_action('parse_request', array('ZF_Query', 'parseRequest'));
 
+//Template fallback
+//add_action("template_redirect", array('ZF_Query', 'themeRedirect'));
+add_filter('single_template', array('ZF_Query', 'singleTemplate'), 1, 2);
+
+
 class ZF_Query extends WP_Query {
 
-    public $req_uri_zf = '';
-    
+//    public $req_uri_zf = '';
+
+
     protected static $applications = array();
     protected static $routes = array();
+    protected static $widgets = array();
     
-    public static function registerApplication($id, $path, $routes, $env = 'production'){
+    public static function registerApplication($id, $path, $routes, $widgets = array(), $env = 'production'){
         self::$applications[$id] = array(
             'path' => $path,
             'environment' => $env,
@@ -21,19 +29,30 @@ class ZF_Query extends WP_Query {
         foreach($routes as $route){
             self::$routes[$route] = $id;
         }
+    
+        foreach($widgets as $widget){
+            self::$widgets[$widget] = $id;
+        }
     }
     
     public static function parseRequest(){
-    
         if(isset($request->query_vars['error'])){
             unset($request->query_vars['error']);
         }
         parse_str($_SERVER['QUERY_STRING'], $params);
-        $isZF = empty($_SERVER['REQUEST_URI'])
-    //        || '/'==$_SERVER['REQUEST_URI']
-            || preg_match('%^\/('.  join('|', self::$routes).')(\/|\z)%',$_SERVER['REQUEST_URI']);
-        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
+        $isZF = /*empty($_SERVER['REQUEST_URI'])
+            || '/'==$_SERVER['REQUEST_URI']
+            || */ preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
+//        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
+        $isAPI = Util::getItem($m, 1, false);
+        
+        if($isAPI){
+            $uri = preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
+            die(ZF_Query::processRequest($uri));
+        }
+        
         if ($isZF || $isAPI/*isset($params[ZF_MARKER])*/) {
+//            echo " ZF call detected ";
             $request->query_vars['pagename']='zf';
             ini_set('display_errors', 1);
             error_reporting(E_ALL);
@@ -59,24 +78,29 @@ class ZF_Query extends WP_Query {
             remove_filter ('the_content','wpautop');
             $q = new ZF_Query();
             $q->copyFrom($wp_the_query);
-            $zf_uri = preg_replace('%^\/do%', '', $_SERVER['REQUEST_URI']);
-            $q->req_uri_zf = $zf_uri;
+//            Util::print_r($q);
+//            $zf_uri = preg_replace('%^\/do%', '', $_SERVER['REQUEST_URI']);
+//            $q->req_uri_zf = $zf_uri;
             $wp_the_query = $wp_query = $q;
+            
+//            Util::print_r($wp_the_query);
         }
     }
     
-    public static function processRequest($uri = ''){
+    public static function processRequest($uri = '', $appId = null){
         if(!$uri){
             $uri = $_SERVER['REQUEST_URI'];
         }
         $tmpUri = $_SERVER['REQUEST_URI'];
         $_SERVER['REQUEST_URI'] = $uri;
-        $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'/';
-        
-        $appId = Util::getItem(self::$routes, $route);
+        if(!$appId){
+            $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'/';
+            $appId = Util::getItem(self::$routes, $route);
+        }
         if($appId){
             $appInfo = Util::getItem(self::$applications, $appId);
             
+//            Util::print_r($appInfo);
             $application = Util::getItem($appInfo, 'application');
             
             $appPath = Util::getItem($appInfo, 'path');
@@ -103,26 +127,32 @@ class ZF_Query extends WP_Query {
 
                 // Create application, bootstrap, and run
             }
-
             $application = new Zend_Application(
                 $appEnv,
                 $appPath . '/configs/application.ini'
             );
+            
+//            Util::print_r($application);
 
             self::$applications[$appId]['application'] = $application;
 
             global $wp_the_query;
-            $the_q = $wp_the_query;
-            $front = Util::getFront();
-            $front->resetInstance();
-            //print_r($front);
-            $front->setParam('displayExceptions', true);
-            $front->returnResponse(true);
-            $application->bootstrap()->getBootStrap()->setupRouting();
-            $r = $front->dispatch();
-            $wp_the_query = $the_q;
-            //$r = $application->bootstrap()->getBootStrap()->run();
+                $the_q = $wp_the_query;
+                try{
+                $front = Util::getFront();
+                $front->resetInstance();
+                //print_r($front);
+                $front->setParam('displayExceptions', true);
+                $front->returnResponse(true);
+                $application->bootstrap()->getBootStrap()->setupRouting();
+                $r = $front->dispatch();
+                $wp_the_query = $the_q;
+                //$r = $application->bootstrap()->getBootStrap()->run();
+            }catch(Exception $e){
+                return $e->getMessage();
+            }
             $_SERVER['REQUEST_URI'] = $tmpUri;
+            
             return $r;        
         }
         
@@ -130,6 +160,33 @@ class ZF_Query extends WP_Query {
         
     }
 
+//    public static function themeRedirect() {
+//        global $wp;
+//        $plugindir = dirname( __FILE__ );
+//        Log::func();
+//            Log::dir($wp, 'wp');
+//
+//        //A Specific Custom Post Type
+//        if ($wp->query_vars["post_type"] == 'zf') {
+//            $templatefilename = Util::getItem($wp->query_vars, 'page_template',  'single-zf.php');
+//            if (file_exists(TEMPLATEPATH . '/' . $templatefilename)) {
+//                $return_template = TEMPLATEPATH . '/' . $templatefilename;
+//            } else {
+//                $return_template = $plugindir . '/' . $templatefilename;
+//            }
+//
+//            global $post, $wp_query;
+////            echo $return_template;
+//            if (have_posts()) {
+//                include($return_template);
+//                die();
+//            } else {
+//                $wp_query->is_404 = true;
+//            }
+//        }
+//    }
+//    
+    
     function copyFrom(WP_Query $wp_query) {
         $vars = get_object_vars($wp_query);
         foreach ($vars as $name => $value) {
@@ -140,6 +197,8 @@ class ZF_Query extends WP_Query {
     function &get_posts() {
         global $wp_the_query;
         global $wp_query;
+        
+        $this->request = '';
 //        parent::get_posts();
 //        $tmp = $_SERVER['REQUEST_URI'];
 //        $_SERVER['REQUEST_URI'] = $this->req_uri_zf;
@@ -190,12 +249,12 @@ class ZF_Query extends WP_Query {
                 "post_parent" => 0,
                 "guid" => "",
                 "menu_order" => 1,
-                "post_type" => $GLOBALS['is_zf_api_call']?'zf-api':'zf',
+                "post_type" => 'zf',
                 "post_mime_type" => "",
                 "comment_count" => "0",
                 "ancestors" => array(),
                 "filter" => "",
-                "page_template" => "onecolumn-page.php",
+                "page_template" => WpHelper::getPageTemplate(),
                 "nav_menu_id" => WpHelper::getNavMenuId(),
                 "nav_menu" => WpHelper::getNavMenu(),
                 "sidebar_id" => WpHelper::getSideBarId(),
@@ -226,6 +285,7 @@ class ZF_Query extends WP_Query {
         global $wp_filter;
         unset($wp_filter['template_redirect']);
         add_filter('the_content', array('ZF_Query', 'theContent'), 100);
+//        Util::print_r($this->posts);
         return $this->posts;
     }
     
@@ -234,7 +294,94 @@ class ZF_Query extends WP_Query {
 //        remove_filter ('the_content','wpautop'); echo "!";
         return $content;
     }
+    
+    /**
+     * Retrieve the name of the highest priority template file that exists.
+     *
+     * Searches in the STYLESHEETPATH before TEMPLATEPATH so that themes which
+     * inherit from a parent theme can just overload one file.
+     *
+     * @since 2.7.0
+     *
+     * @param string|array $template_names Template file(s) to search for, in order.
+     * @param bool $load If true the template file will be loaded if it is found.
+     * @param bool $require_once Whether to require_once or require. Default true. Has no effect if $load is false.
+     * @return string The template filename if one is located.
+     */
+    public static function locateTemplate($template_names, $load = false, $require_once = true ) {
+        $located = '';
+        foreach ((array) $template_names as $template_name) {
+            if (!$template_name)
+                continue;
+            $dir = realpath(__DIR__ );
+            if (file_exists($dir . '/' . $template_name)) {
+                $located = $dir . '/' . $template_name;
+                break;
+            } else if (file_exists(STYLESHEETPATH . '/' . $template_name)) {
+                $located = STYLESHEETPATH . '/' . $template_name;
+                break;
+            } else if (file_exists(TEMPLATEPATH . '/' . $template_name)) {
+                $located = TEMPLATEPATH . '/' . $template_name;
+                break;
+            }  
+        }
 
+        if ($load && '' != $located)
+            load_template($located, $require_once);
+
+        return $located;
+    }
+    
+    /**
+     * Load a template part into a template
+     *
+     * Makes it easy for a theme to reuse sections of code in a easy to overload way
+     * for child themes.
+     *
+     * Includes the named template part for a theme or if a name is specified then a
+     * specialised part will be included. If the theme contains no {slug}.php file
+     * then no template will be included.
+     *
+     * The template is included using require, not require_once, so you may include the
+     * same template part multiple times.
+     *
+     * For the $name parameter, if the file is called "{slug}-special.php" then specify
+     * "special".
+     *
+     * @uses locate_template()
+     * @since 3.0.0
+     * @uses do_action() Calls 'get_template_part_{$slug}' action.
+     *
+     * @param string $slug The slug name for the generic template.
+     * @param string $name The name of the specialised template.
+     */
+    function getTemplatePart($slug, $name = null) {
+
+        $templates = array();
+        if (isset($name)){
+            $templates[] = "{$slug}-{$name}.php";
+        }
+        $templates[] = "{$slug}.php";
+
+        self::locateTemplate($templates, true, false);
+    }
+
+    public static function singleTemplate($template){
+//        echo 'single_template = '.$template;
+	$object = get_queried_object();
+
+	$templates = array();
+//        Log::dir($object, 'get_queried_object');
+        if(!empty($object->page_template)){
+            $templates[] = $object->page_template;
+        }
+        if(!empty($object->_wp_page_template)){
+            $templates[] = $object->_wp_page_template;
+        }
+	$templates[] = "single-{$object->post_type}.php";
+	$templates[] = "single.php";
+        return  self::locateTemplate($templates);
+    }
 }
 
 class WP_Widget_ZF extends WP_Widget {

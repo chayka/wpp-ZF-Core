@@ -75,5 +75,13 @@ class PaginationModel{
         return $this->getPageLink($page);
     }
     
-    
-}
+    public function render(){
+//    public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = ''){
+        $html = new Zend_View();
+        $html->setScriptPath(ZF_CORE_APPLICATION_PATH . '/views/scripts/posts/');
+
+        $html->assign('model', $this);
+        
+        return $html->render('pagination.phtml');
+    }
+}   

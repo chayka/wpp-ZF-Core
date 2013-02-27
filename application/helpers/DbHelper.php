@@ -1,12 +1,5 @@
 <?php
 
-interface DbRecordInterface{
-    public static function unpackDbRecord($dbRecord);
-    public function packDbRecord();
-    public function insert();
-    public function update();
-    public function delete();
-}
 /**
  * Description of DbHelper
  *

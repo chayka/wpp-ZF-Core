@@ -32,30 +32,33 @@ class ZF_Core{
         self::registerFilters();
 
         try {
+            $pluginDir = plugin_dir_path( __FILE__ );
             defined('ZF_CORE_APPLICATION_PATH') 
-                || define('ZF_CORE_APPLICATION_PATH', realpath(__DIR__ . '/application'));
+                || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
             defined('ZF_CORE_PATH') 
-                || define('ZF_CORE_PATH', plugin_dir_path(__FILE__));
+                || define('ZF_CORE_PATH', $pluginDir);
             defined('ZF_CORE_URL') 
                 || define( 'ZF_CORE_URL', preg_replace('%^[\w\d]+\:\/\/[\w\d\.]+%', '',plugin_dir_url(__FILE__)) );
             // Add /library directory to our include path
+            
             set_include_path(implode(PATH_SEPARATOR, array(
                 get_include_path(), 
-                realpath(__DIR__ . '/library'),
+                realpath($pluginDir . '/library'),
                 ZF_CORE_APPLICATION_PATH,
-                realpath(__DIR__)
+                realpath($pluginDir),
                 )));
-
+//            die( get_include_path());
             // Turn on autoloading, so we do not include each Zend Framework class
             require_once 'Zend/Loader/Autoloader.php';
             $autoloader = Zend_Loader_Autoloader::getInstance();
+            spl_autoload_register(array('ZF_Core', 'autoloader'));
 
             // Create registry object and setting it as the static instance in the Zend_Registry class
             $registry = new Zend_Registry();
             Zend_Registry::setInstance($registry);
 
             // Load configuration file and store the data in the registry
-            $configuration = new Zend_Config_Ini(__DIR__ . '/application/configs/application.ini', 'development');
+            $configuration = new Zend_Config_Ini($pluginDir . '/application/configs/application.ini', Util::isDevelopment()?'development':'production');
             Zend_Registry::set('configuration', $configuration);
 
             /*
@@ -69,9 +72,10 @@ class ZF_Core{
             // if everything went well, set a status flag
             define('WP_ZEND_LIBRARY', TRUE);
 
-            spl_autoload_register(array('ZF_Core', 'autoloader'));
             
             self::registerResources($minimize = false);
+            
+            require 'application/helpers/WpDbHelper.php';
 
         } catch (Exception $e) {
             // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
@@ -130,8 +134,8 @@ class ZF_Core{
         }else{
 //            global $zfCoreTree;
             if(empty(self::$zfCoreTree)){
-                self::$zfCoreTree = self::getClassTree(realpath(__DIR__ . '/application'));
-                self::$zfCoreTree = array_merge(self::$zfCoreTree, self::getClassTree(realpath(__DIR__ . '/library/ZendB')));
+                self::$zfCoreTree = self::getClassTree(realpath( ZF_CORE_APPLICATION_PATH));
+                self::$zfCoreTree = array_merge(self::$zfCoreTree, self::getClassTree(realpath(ZF_CORE_PATH . '/library/ZendB')));
     //            print_r($zfCoreTree);
             }
             if(isset(self::$zfCoreTree[$class])){

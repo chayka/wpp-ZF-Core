@@ -7,6 +7,14 @@ add_action('parse_request', array('ZF_Query', 'parseRequest'));
 
 //Template fallback
 //add_action("template_redirect", array('ZF_Query', 'themeRedirect'));
+add_filter('archive_template', array('ZF_Query', 'archiveTemplate'), 1, 2);
+add_filter('author_template', array('ZF_Query', 'authorTemplate'), 1, 2);
+add_filter('category_template', array('ZF_Query', 'categoryTemplate'), 1, 2);
+add_filter('tag_template', array('ZF_Query', 'tagTemplate'), 1, 2);
+add_filter('taxonomy_template', array('ZF_Query', 'taxonomyTemplate'), 1, 2);
+add_filter('page_template', array('ZF_Query', 'pageTemplate'), 1, 2);
+//add_filter('paged_template', array('AnotherGuru', 'pagedTemplate'), 1, 2);
+//add_filter('search_template', array('AnotherGuru', 'searchTemplate'), 1, 2);
 add_filter('single_template', array('ZF_Query', 'singleTemplate'), 1, 2);
 
 
@@ -214,6 +222,17 @@ class ZF_Query extends WP_Query {
 //        remove_all_filters();
         $posts = WpHelper::getPosts();
         if($posts){
+            $wpq = WpHelper::getQuery();
+            if($wpq){
+                if($wpq instanceof WP_Query){
+                    $this->copyFrom($wpq);
+                }  elseif (is_array($wpq)) {
+                    $this->query_vars = $this->fill_query_vars($wpq);
+//                Util::print_r($wpq);
+                }
+            }
+            
+//            Util::print_r($this->query_vars);
             global $post;
             $post = reset($posts);
             $this->posts = $posts;
@@ -221,15 +240,16 @@ class ZF_Query extends WP_Query {
             $this->post_count = count($this->posts);
             $this->current_post = -1;
 
-            $this->is_single = count($post) == 1;
+            $this->is_single = 0;
             $this->is_page = 0;
             $this->is_404 = 0;
-            $this->is_archive = 0;
+            $this->is_archive = 1;
             $this->is_home = 0;
+//            Util::print_r($posts);
         }else{
 //            echo $zf_response;
             $post_zf = array(
-                "ID" => 1,
+                "ID" => WpHelper::getPostId(),
                 "post_author" => 1,
                 "post_date" => '',
                 "post_date_gmt" => '',
@@ -277,9 +297,9 @@ class ZF_Query extends WP_Query {
             $this->is_404 = WpHelper::getNotFound();
             $this->is_archive = 0;
             $this->is_home = 0;
+            $this->queried_object = $post;
         }
         
-        $this->queried_object = $post;
 
 // эти 2 строки нужны, чтобы wordPress (особеннно в версии 3.x) не думал, что у него запросили нечто некорректное. 
         global $wp_filter;
@@ -313,9 +333,18 @@ class ZF_Query extends WP_Query {
         foreach ((array) $template_names as $template_name) {
             if (!$template_name)
                 continue;
-            $dir = realpath(__DIR__ );
-            if (file_exists($dir . '/' . $template_name)) {
-                $located = $dir . '/' . $template_name;
+            $dir = realpath(ZF_CORE_PATH);
+            foreach(self::$applications as $id => $app){
+                $path = $app['path'].'/views/wordpress/';
+                if (file_exists($path . $template_name)) {
+                    $located = $path . $template_name;
+                    break;
+                }
+            }
+//            if (file_exists($dir . '/' . $template_name)) {
+//                $located = $dir . '/' . $template_name;
+//                break;
+            if ($located) {
                 break;
             } else if (file_exists(STYLESHEETPATH . '/' . $template_name)) {
                 $located = STYLESHEETPATH . '/' . $template_name;
@@ -364,6 +393,89 @@ class ZF_Query extends WP_Query {
         $templates[] = "{$slug}.php";
 
         self::locateTemplate($templates, true, false);
+    }
+
+    public static function archiveTemplate($template){
+//        echo 'archive_template = '.$template;
+	$post_type = get_query_var('post_type');
+        
+//        echo "pt: $post_type";
+        $templates = array();
+
+        if ($post_type) {
+            $templates[] = "archive-{$post_type}.php";
+        }
+        $templates[] = 'archive.php';
+        return self::locateTemplate($templates);
+    }
+    
+    public static function authorTemplate($template){
+//        echo 'author_template = '.$template;
+	$author = get_queried_object();
+
+	$templates = array();
+
+	$templates[] = "author-{$author->user_nicename}.php";
+	$templates[] = "author-{$author->ID}.php";
+	$templates[] = 'author.php';
+        return self::locateTemplate($templates);
+    }
+    public static function categoryTemplate($template){
+//        echo 'category_template = '.$template;
+	$category = get_queried_object();
+
+	$templates = array();
+
+	$templates[] = "category-{$category->slug}.php";
+	$templates[] = "category-{$category->term_id}.php";
+	$templates[] = 'category.php';
+        return self::locateTemplate($templates);
+    }
+    public static function tagTemplate($template){
+//        echo 'tag_template = '.$template;
+	$tag = get_queried_object();
+
+	$templates = array();
+
+	$templates[] = "tag-{$tag->slug}.php";
+	$templates[] = "tag-{$tag->term_id}.php";
+	$templates[] = 'tag.php';
+        return self::locateTemplate($templates);
+    }
+    public static function taxonomyTemplate($template){
+//        echo 'taxonomy_template = '.$template;
+        $term = get_queried_object();
+	$taxonomy = $term->taxonomy;
+
+	$templates = array();
+
+	$templates[] = "taxonomy-$taxonomy-{$term->slug}.php";
+	$templates[] = "taxonomy-$taxonomy.php";
+	$templates[] = 'taxonomy.php';
+        return self::locateTemplate($templates);
+    }
+    public static function pageTemplate($template){
+//        echo 'page_template = '.$template;
+	$id = get_queried_object_id();
+        $template = get_page_template_slug();
+        $pagename = get_query_var('pagename');
+
+        if (!$pagename && $id) {
+            // If a static page is set as the front page, $pagename will not be set. Retrieve it from the queried object
+            $post = get_queried_object();
+            $pagename = $post->post_name;
+        }
+
+        $templates = array();
+        if ($template && 0 === validate_file($template))
+            $templates[] = $template;
+        if ($pagename)
+            $templates[] = "page-$pagename.php";
+        if ($id)
+            $templates[] = "page-$id.php";
+        $templates[] = 'page.php';
+
+        return  self::locateTemplate($templates);
     }
 
     public static function singleTemplate($template){

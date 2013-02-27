@@ -152,4 +152,11 @@ class Util {
         return str_replace('www.', '', $_SERVER['SERVER_NAME']);
     }
 
+    public static function isDevelopment(){
+        return in_array(Util::serverName(), array('wordpress.brx', 'wordpress.bbx'));
+    }
+
+    public static function isProduction(){
+        return !self::isDevelopment();
+    }
 }

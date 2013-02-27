@@ -4,6 +4,7 @@
 
 class WpHelper {
     private static $instance;
+    private $id = '1';
     private $title = '';
     private $description = '';
     private $navMenu = '';
@@ -41,6 +42,14 @@ class WpHelper {
     }
     
     
+    public function _getId() {
+        return $this->id;
+    }
+
+    public function _setId($id) {
+        $this->id = $id;
+    }
+
     public function _getTitle() {
         return $this->title;
     }
@@ -102,7 +111,12 @@ class WpHelper {
     }
 
     public function _setPosts($posts) {
-        $this->posts = $posts;
+        $wpPosts = array();
+        foreach ($posts as $post){
+           $wpPosts[]=($post instanceof PostModel)?
+                        $post->getWpPost():$post;
+        }
+        $this->posts = $wpPosts;
     }
     
     public function _getQuery() {
@@ -151,6 +165,14 @@ class WpHelper {
     
     public static function getTrunk(){
         return self::getInstance()->_getTrunk();
+    }
+
+    public static function setPostId($title){
+        self::getInstance()->_setId($title);
+    }
+    
+    public static function getPostId(){
+        return self::getInstance()->_getId();
     }
 
     public static function setPostTitle($title){

@@ -1,6 +1,6 @@
 <?php
 
-require_once 'application/helpers/DbHelper.php';
+require_once 'application/helpers/WpDbHelper.php';
 require_once 'application/helpers/JsonHelper.php';
 require_once 'application/models/posts/CommentModel.php';
 //require_once 'application/helpers/LuceneHelper.php';
@@ -292,7 +292,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
     }
 
     public static function unpackDbRecord( $wpRecord){
-        
+//        Util::print_r($wpRecord);
         $obj = new self();
 
         $obj->setId($wpRecord->ID);

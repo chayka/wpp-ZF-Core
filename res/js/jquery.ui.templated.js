@@ -193,8 +193,10 @@ $.resourceLoader = {
             return this.option(option, value);
         },
         
-        get: function(option){
+        get: function(option, defaultValue){
             return this.option(option);
+            var value = this.option(option);
+            return defaultValue != undefined && !value?defaultValue:this.option(option);
         },
         
         getTemplate: function(){
@@ -256,7 +258,7 @@ $.resourceLoader = {
                 var re2 = /\s*(\w+)\s*:\s*([^\s,]+)/;
                 var bindings = attachEvent.match(re1);
                 if(bindings && bindings.length > 0){
-                    for(var i in bindings){
+                    for(var i = 0; i < bindings.length; i++){
 //                        console.dir({'binding':bindings[i].match(re2)});
                         var binding = bindings[i].match(re2);
                         var eventId = binding[1];

@@ -20,7 +20,7 @@
         
         // Set up the widget
         _create: function() {
-            console.log('brx.spinner._create');
+            console.log('brx.placeholder._create');
             this.set('value', this.element.val());
             this.set('type', this.element.attr('type'));
             this.set('text', this.element.attr('placeholder')||this.get('text'));
@@ -50,6 +50,8 @@
                         if($.brx.utils.empty(this.element[0].value)){
                             this.element[0].value = this.get('text');
                             this.element.addClass('placeholder');
+                        }else if(!this.isPlaceholderValue()){
+                            this.element.removeClass('placeholder');
                         }
                     }, this))
                     .focus($.proxy(function(){
@@ -94,7 +96,7 @@
          
         // Use the _setOption method to respond to changes to options
         _setOption: function( key, value ) {
-            console.dir({'brx.loginForm._setOption':{key:key, value:value}});
+//            console.dir({'brx.loginForm._setOption':{key:key, value:value}});
             $.ui.templated.prototype._setOption.apply( this, arguments );
             switch( key ) {
 //                case "message":
@@ -113,7 +115,7 @@
         },
         
         setValue: function(event){
-            console.log('placeholder.setValue');
+//            console.log('placeholder.setValue');
             this.refresh();
         },
                 

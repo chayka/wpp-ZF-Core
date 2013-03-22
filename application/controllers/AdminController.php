@@ -10,7 +10,7 @@
  *
  * @author borismossounov
  */
-class AdminController extends Zend_Controller_Action{
+class ZFCore_AdminController extends Zend_Controller_Action{
 
     public function init(){
 

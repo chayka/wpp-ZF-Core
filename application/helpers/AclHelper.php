@@ -99,12 +99,12 @@ class AclHelper {
         }
     }
     
-    public static function isOwner(/*AG_PostModel*/ $obj){
+    public static function isOwner(/*PostModel*/ $obj){
         $user = UserModel::currentUser();
         return ($obj->getUserId() == $user->getId() || $user->getRole()=='administrator');
     }
     
-    public static function apiOwnershipRequired(/*AG_PostModel*/ $obj, $message = ''){
+    public static function apiOwnershipRequired(/*PostModel*/ $obj, $message = ''){
         $user = UserModel::currentUser();
         if($obj->getUserId() != $user->getId() && $user->getRole()!='administrator'){
             if(!$message){

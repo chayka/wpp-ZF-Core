@@ -422,7 +422,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
         foreach ($dbRecords as $dbRecord) {
             $posts[] = self::unpackDbRecord($dbRecord);
         }
-        
+        self::$postsFound=self::$wpQuery->found_posts;
         return $posts;
     }
 
@@ -443,27 +443,46 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
     }
     
     public static function postsFound(){
-        $wpFound = empty(self::$wpQuery->found_posts)? 0:self::$wpQuery->found_posts;
-        $sqlFound = empty(self::$postsFound)? 0:self::$postsFound;
-        return max(self::$wpQuery->found_posts, self::$postsFound);
+//        $wpFound = empty(self::$wpQuery->found_posts)? 0:self::$wpQuery->found_posts;
+//        $sqlFound = empty(self::$postsFound)? 0:self::$postsFound;
+        return (int)max(self::$wpQuery->found_posts, self::$postsFound);
     }
 
     public static function selectMeta($post_id, $key, $single){
         return get_post_meta($post_id, $key, $single);
     }
     
-    public function loadMeta(){
-        $meta = self::selectMeta($this->getId());
-        $this->unpackMeta($meta);
+    public function loadMeta($key = null, $single = false){
+        $meta = self::selectMeta($this->getId(), $key, $single);
+        $this->unpackMeta($meta, $key);
     }
     
     public static function selectTerms($postId, $taxonomy = 'post_tag', $args = array()){
         return wp_get_post_terms($postId, $taxonomy, $args);
     }
     
-    public function loadTerms($taxonomy = 'post_tag', $args = array('fields'=>'names')){
-        $this->terms[$taxonomy] = self::selectTerms($this->getId(), $taxonomy, $args);
+    public function loadTerms($taxonomy = '', $args = array('fields'=>'names')){
+        if($taxonomy){
+            $this->terms[$taxonomy] = self::selectTerms($this->getId(), $taxonomy, $args);
+        }else{
+            $taxonomies = $this->getTaxonomies();
+            foreach ($taxonomies as $t){
+                $this->terms[$t] = self::selectTerms($this->getId(), $t, $args);
+            }
+        }
         return $this->terms;
+    }
+    
+    public function getTaxonomies(){
+        $taxonomies = get_taxonomies(array(), 'objects');
+        $res = array();
+        foreach($taxonomies as $name => $taxonomy){
+            if(in_array($this->getType(), $taxonomy->object_type)){
+                $res[]=$name;
+            }
+        }
+        
+        return $res;
     }
     
     public function getTaxQuery($count = 3, $relation = 'OR'){

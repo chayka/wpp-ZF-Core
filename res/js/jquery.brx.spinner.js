@@ -25,7 +25,7 @@
  
         // Use the _setOption method to respond to changes to options
         _setOption: function( key, value ) {
-            console.dir({'brx.loginForm._setOption':{key:key, value:value}});
+//            console.dir({'brx.loginForm._setOption':{key:key, value:value}});
             $.ui.templated.prototype._setOption.apply( this, arguments );
             switch( key ) {
                 case "message":

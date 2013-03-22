@@ -3,6 +3,9 @@
 //require_once 'Zend/Acl/Role.php';
 
 //NlsHelper::load('application/models', 'UserModel');
+require_once 'application/helpers/JsonHelper.php';
+require_once 'application/helpers/WpDbHelper.php';
+
 /**
  * Class implemented to handle user actions and manipulations
  * Used for authentification, registration, update, delete and userpics management 

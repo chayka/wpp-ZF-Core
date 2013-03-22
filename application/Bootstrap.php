@@ -1,7 +1,8 @@
 <?php
 
-class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
+class ZFCore_Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
+    const MODULE = 'ZFCore';
 
     public function run(){
         $this->setupRouting();
@@ -12,9 +13,13 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     
     public function setupRouting(){
         $front = Util::getFront();
-        $router = $front->getRouter();
+        $cd = $front->getControllerDirectory();
+        $front->addControllerDirectory($cd['default'], self::MODULE);        
         
-        $router->addRoute('autocomplete-taxonomy', new Zend_Controller_Router_Route('autocomplete/taxonomy/:taxonomy', array('controller' => 'autocomplete', 'action'=>'taxonomy')));
+        $router = $front->getRouter();
+
+        $router->addRoute(self::MODULE, new Zend_Controller_Router_Route(':controller/:action/*', array('controller' => 'index', 'action'=>'index', 'module'=>self::MODULE)));
+        $router->addRoute('autocomplete-taxonomy', new Zend_Controller_Router_Route('autocomplete/taxonomy/:taxonomy', array('controller' => 'autocomplete', 'action'=>'taxonomy', 'module'=>self::MODULE)));
 
 //        $router->addRoute('api', new Zend_Controller_Router_Route('api/:controller/:action', array('controller' => 'index', 'action'=>'index')));
 //

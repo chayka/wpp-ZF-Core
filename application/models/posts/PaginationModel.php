@@ -4,6 +4,7 @@ class PaginationModel{
     protected $totalPages;
     protected $currentPage;
     protected $packSize = 10;
+    protected $itemsPerPage = 10;
     protected $pageLinkPattern = '/page/.page.';
     
     public function getTotalPages() {
@@ -28,6 +29,14 @@ class PaginationModel{
 
     public function setPackSize($packSize) {
         $this->packSize = $packSize;
+    }
+
+    public function getItemsPerPage() {
+        return $this->itemsPerPage;
+    }
+
+    public function setItemsPerPage($itemsPerPage) {
+        $this->itemsPerPage = $itemsPerPage;
     }
 
     public function getPageLinkPattern() {

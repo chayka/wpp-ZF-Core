@@ -4,9 +4,11 @@
 
 class WpHelper {
     private static $instance;
-    private $id = '1';
+    private $id = '0';
     private $title = '';
     private $description = '';
+    private $postType = 'zf';
+    private $postAuthor = 0;
     private $navMenu = '';
     private $navMenuId = '';
     private $sidebarStatic = false;
@@ -16,6 +18,8 @@ class WpHelper {
     private $query = null;
     private $trunk;
     private $notFound = false;
+    private $isArchive = false;
+    private $isSearch = false;
     
     private $posts = null;
     
@@ -64,6 +68,22 @@ class WpHelper {
 
     public function _setDescription($description) {
         $this->description = $description;
+    }
+
+    public function _getPostType() {
+        return $this->postType;
+    }
+
+    public function _setPostType($postType) {
+        $this->postType = $postType;
+    }
+
+    public function _getPostAuthor() {
+        return $this->postAuthor;
+    }
+
+    public function _setPostAuthor($postAuthor) {
+        $this->postAuthor = $postAuthor;
     }
 
     public function _getNavMenu() {
@@ -143,6 +163,22 @@ class WpHelper {
         $this->notFound = $notFound;
     }
     
+    public function _getIsArchive(){
+        return $this->isArchive;
+    }
+    
+    public function _setIsArchive($isArchive = true){
+        $this->isArchive = $isArchive;
+    }
+    
+    public function _getIsSearch(){
+        return $this->isSearch;
+    }
+    
+    public function _setIsSearch($isSearch = true){
+        $this->isSearch = $isSearch;
+    }
+    
     public function _getPageTemplate() {
         return $this->pageTemplate;
     }
@@ -189,6 +225,22 @@ class WpHelper {
     
     public static function getPostDescription(){
         return self::getInstance()->_getDescription();
+    }
+    
+    public static function setPostType($value){
+        self::getInstance()->_setPostType($value);
+    }
+    
+    public static function getPostType(){
+        return self::getInstance()->_getPostType();
+    }
+    
+    public static function setPostAuthor($value){
+        self::getInstance()->_setPostAuthor($value);
+    }
+    
+    public static function getPostAuthor(){
+        return self::getInstance()->_getPostAuthor();
     }
     
     public static function setNavMenu($value){
@@ -240,11 +292,29 @@ class WpHelper {
         return self::getInstance()->_setNotFound($notFound);
     }
     
+    public static function getIsArchive(){
+        return self::getInstance()->_getIsArchive();
+    }
+    
+    public static function setIsArchive($isArchive = true){
+//        Util::turnRendererOff();
+        return self::getInstance()->_setIsArchive($isArchive);
+    }
+    
+    public static function getIsSearch(){
+        return self::getInstance()->_getIsSearch();
+    }
+    
+    public static function setIsSearch($isSearch = true){
+//        Util::turnRendererOff();
+        return self::getInstance()->_setIsSearch($isSearch);
+    }
+    
     public static function getPageTemplate() {
         return self::getInstance()->_getPageTemplate();
     }
 
-    public function setPageTemplate($pageTemplate) {
+    public static function setPageTemplate($pageTemplate) {
         self::getInstance()->_setPageTemplate($pageTemplate);
     }
     

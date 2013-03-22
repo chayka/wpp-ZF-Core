@@ -73,7 +73,7 @@
         },
         
         postCreate: function(){
-            console.info('modalBox.postCreate');
+//            console.info('modalBox.postCreate');
             this.hide();
             this.getTemplate().dialog({
                 autoOpen: false,

@@ -90,28 +90,33 @@ $.resourceLoader = {
         return this;
     }
     
-    $.ui.createTemplatedWidget = function(widget, element){
+    $.ui.createTemplatedWidget = function(widget, element, options){
         if(widget){
+            options = options || {};
 //            $(element).restoreTemplatedAttrs();
             var m = widget.match(/([\w\d]+)\.([\w\d]+)/)
             if(m){
                 var namespace = m[1];
                 widget = m[2];
             }
-            var options = {};
+            element = element || $('<div></div>')[0];
+            var forbidden = ['id', 'class', 'style', 'href', 'src', 'widget' ];
 //            for(var i in element.attributes){
-//                var forbidden = ['id', 'class', 'style', 'href', 'src', ]
-//                if()
+//                var value = element.attributes[i].value;
+//                var key = element.attributes[i].name;
+//                if($.inArray(key, forbidden)<0){
+//                    options[key] = value;
+//                }
 //            }
-            var r = $(element)[widget]({}).data(widget);
+            var r = $(element)[widget](options).data(widget);
 //                console.dir({'$.ui.createTemplatedWidget': r});
             return r;
         }
         return null;
     }
     
-    $.fn.createTemplatedWidget = function(widget){
-        $.ui.createTemplatedWidget(widget, this);
+    $.fn.createTemplatedWidget = function(widget, options){
+        $.ui.createTemplatedWidget(widget, this, options);
         return this;
     }
     
@@ -140,6 +145,7 @@ $.resourceLoader = {
         options: { 
             templatePath: null,//"widget.tpl.html",
             template: null,
+            templateSelector: null,
             elementAsTemplate: false
         },
         
@@ -149,6 +155,16 @@ $.resourceLoader = {
         _create: function() {
 //            console.log('templated._create');
 //            this.option()
+            for(var i in this.options){
+                if(!$.isFunction(this.options[i])){
+                    if( this.element.attr(i)){
+                        this.options[i] = this.element.attr(i);
+                    }
+                    if( this.element.attr(i+'-array')){
+                        this.options[i] = this.element.attr(i+'-array').split(',');
+                    }
+                }
+            }
             this._initTemplated();
         },
         
@@ -177,6 +193,14 @@ $.resourceLoader = {
                 case "elementAsTemplate":
                     if(value){
                         this.setTemplate(this.element);
+                    }
+                    break;
+                case "templateSelector":
+                    if(value){
+                        var template = $(value).clone();
+                        if(template.length){
+                            this.setTemplate(template);
+                        }
                     }
                     break;
                 default:

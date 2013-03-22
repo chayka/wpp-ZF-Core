@@ -84,7 +84,7 @@ class ZF_Core{
 
         //require_once 'ZendB/Log.php';
         Log::setDir(ZF_CORE_PATH.'logs');
-        Log::start();
+//        Log::start();
         require_once 'zf.php';
 
         ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array('admin', 'autocomplete'));
@@ -195,11 +195,17 @@ class ZF_Core{
         wp_register_script( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.js', array('jquery-ui-templated'));
         wp_register_script( 'jquery-brx-modalBox', ZF_CORE_URL.'res/js/jquery.brx.modalBox.js', array('jquery-ui-dialog'));
         wp_register_script( 'jquery-brx-form', ZF_CORE_URL.'res/js/jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
-
-        wp_register_script( 'bootstrap', ZF_CORE_URL.($minimize?'res/js/vendors/bootstrap.min.js':'res/js/vendors/bootstrap.js'));
+        wp_register_script( 'jquery-brx-setupForm', ZF_CORE_URL.'res/js/jquery.brx.setupForm.js', array('jquery-brx-form'));
+        wp_register_style( 'admin-setupForm', ZF_CORE_URL.'res/css/bem-admin_setup_form.less');
+        wp_register_script( 'jquery-ui-datepicker-ru', ZF_CORE_URL.'res/js/jquery.ui.datepicker-ru.js');
+        wp_register_script( 'jquery-ui-progressbar', ZF_CORE_URL.'res/js/jquery.ui.progressbar.js');
+        wp_register_script( 'bootstrap', ZF_CORE_URL.($minimize?'res/js/vendors/bootstrap.min.js':'res/js/vendors/bootstrap.js'), array('jquery'));
         wp_register_style( 'bootstrap', ZF_CORE_URL.($minimize?'res/css/bootstrap.min.css':'res/css/bootstrap.css'));
         wp_register_style( 'bootstrap-responsive', ZF_CORE_URL.($minimize?'res/css/bootstrap-responsive.min.css':'res/css/bootstrap-responsive.css'));
+        wp_register_style( 'jquery-ui-smoothness', ZF_CORE_URL.'res/css/jquery-ui-1.9.2.smoothness.css');
 
+        wp_register_style( 'normalize', ZF_CORE_URL.'res/css/normalize.css');
+        
         wp_register_script( 'modenizr', ZF_CORE_URL.'res/js/vendors/modernizr-2.6.2.min.js');
 
         wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js');

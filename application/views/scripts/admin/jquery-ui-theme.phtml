@@ -1,0 +1,26 @@
+<div class="wrap bem-zf_core-admin">
+    <div id="icon-options-general" class="icon32">
+        <br/>
+    </div>
+    <h2>Выбор темы для jQueryUI</h2>
+    <form action="" method="POST" class="bem-zf_core-admin-jquery_ui_themes" style="display: none;">
+        <div class="theme_option_custom">
+            <input id="theme-custom" type="radio" name="theme" value="custom" <?php HtmlHelper::checked('custom'==$this->theme);?>/>
+            <label for="theme-custom">url файла со стилями относительно /wp-content/</label>
+            <br/>
+            <input name="theme_url" type="text" value="<?php echo $this->escape($this->themeUrl);?>"/>
+        </div>
+<?php foreach ($this->themes as $theme):
+    $thumbPath = ZF_CORE_URL.sprintf('res/css/jquery-ui/%s/images/%s.png', $theme, $theme);
+?>
+        <div class="theme_option">
+            <input id="theme-<?php echo $theme;?>" type="radio" name="theme" value="<?php echo $theme;?>" <?php HtmlHelper::checked($theme==$this->theme);?>/>
+            <label for="theme-<?php echo $theme;?>"><?php echo $theme;?></label>
+            <img src="<?php echo $thumbPath;?>"/>
+        </div>
+<?php endforeach;?>    
+        <div class="button_pane">
+            <button class="">Сохранить</button>
+        </div>
+    </form>
+</div>

@@ -400,10 +400,10 @@ class WpHelper {
 //        die(JsonHelper::packResponse($payload, 1, self::packErrorsToJson($errors)));
     }
     
-    public static function outputError($message = '', $code = 1){
-        ErrorHelper::error($message, $code);
-//        die(JsonHelper::packResponse(NULL, $code, $errorMsg));
-    }
+//    public static function outputError($message = '', $code = 1){
+//        JsonHelper::respondError($message, $code);
+////        die(JsonHelper::packResponse(NULL, $code, $errorMsg));
+//    }
     
     public static function apiAuthRequired(){
         $userId = get_current_user_id();

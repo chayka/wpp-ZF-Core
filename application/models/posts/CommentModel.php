@@ -1,9 +1,6 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+require_once 'application/helpers/JsonHelper.php';
 
 /**
  * Description of CommentModel
@@ -191,8 +188,8 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         $obj->setContent($wpRecord->comment_content);
         $obj->setKarma($wpRecord->comment_karma);
         $obj->setIsApproved($wpRecord->comment_approved);
-        $obj->setDtCreated(DateHelper::dbStrToDatetime($wpRecord->post_date));
-        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->post_date_gmt));
+        $obj->setDtCreated(DateHelper::dbStrToDatetime($wpRecord->comment_date));
+        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->comment_date_gmt));
         $obj->setAgent($wpRecord->comment_agent);
         $obj->setType($wpRecord->comment_type);
         

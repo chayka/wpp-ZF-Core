@@ -185,11 +185,11 @@
                                 $(this).dialog('close');
                         }},
                         {text: 'Зарегистрироваться', click: function(){
-                                $(document).trigger('loginForm.join');
+                                $(document).trigger('authForm.join');
                                 $(this).dialog('close');
                         }},
                         {text: 'Войти', click: function(){
-                                $(document).trigger('loginForm.login');
+                                $(document).trigger('authForm.login');
                                 $(this).dialog('close');
                         }}
                     ],

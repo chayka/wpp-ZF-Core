@@ -512,7 +512,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
         return $tax_query;
     }
     
-    public function loadComments($args){
+    public function loadComments($args = array()){
         $args['post_id'] = $this->getId();
         $defaults = array(
             'order' => 'ASC',

@@ -47,7 +47,7 @@
             }else{
                 this.element
                     .blur($.proxy(function(){
-                        if($.brx.utils.empty(this.element[0].value)){
+                        if($.brx.utils.empty(this.element[0].value)||this.element[0].value == this.get('text')){
                             this.element[0].value = this.get('text');
                             this.element.addClass('placeholder');
                         }else if(!this.isPlaceholderValue()){
@@ -82,6 +82,7 @@
                     this.get('fakePassword').removeClass(classname);
                 }, this);
             }
+//            this.element.blur();
         },
         
         val: function(value){

@@ -49,5 +49,33 @@ class JsonHelper {
     public static function respond($payload = '', $code = 0, $message = '') {
         return die(self::packResponse($payload, $code, $message));
     }
+    
+    public static function respondError($message = '', $code = 1, $payload = null){
+        self::respond($payload, $code, $message);
+    }
+    
+    public static function respondErrors($errors, $payload = null){
+        if($errors instanceof WP_Error){
+            $errors = self::packWpErrors($errors);
+        }
+        $count = count($errors);
+        if($count){
+            if(1 == $count){
+                $key = key($errors);
+                self::error($errors[$key], $key, $payload);
+            }
+            self::respond($payload, 'mass_errors', $errors);
+        }
+        self::respond($payload, 1, '');
+    }
+    
+    public static function packWpErrors(WP_Error $errors){
+        $codes = $errors->get_error_codes();
+        $json = array();
+        foreach ($codes as $code) {
+            $json[$code] = $errors->get_error_message($code);
+        }
+        return $json;
+    }
 
 }

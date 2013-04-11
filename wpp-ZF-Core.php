@@ -176,6 +176,7 @@ class ZF_Core{
     public static function registerActions(){
         add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
         add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
+        add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
         
     }
     
@@ -187,6 +188,7 @@ class ZF_Core{
         wp_register_script( 'jquery-ajax-uploader', ZF_CORE_URL.'res/js/vendors/jquery.ajaxfileupload.js', array('jquery'));
         wp_register_script( 'jquery-ajax-iframe-uploader', ZF_CORE_URL.'res/js/vendors/jquery.iframe-post-form.js', array('jquery'));
         wp_register_script( 'jquery-galleria', ZF_CORE_URL.'res/js/vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
+        wp_register_script( 'jquery-masonry', ZF_CORE_URL.'res/js/vendors/jquery.masonry.min.js', array('jquery'));
 
         wp_register_script( 'jquery-brx-utils', ZF_CORE_URL.'res/js/jquery.brx.utils.js', array('jquery'));
         wp_register_script( 'jquery-brx-placeholder', ZF_CORE_URL.'res/js/jquery.brx.placeholder.js', array('jquery', 'jquery-brx-utils'));
@@ -202,7 +204,6 @@ class ZF_Core{
         wp_register_script( 'bootstrap', ZF_CORE_URL.($minimize?'res/js/vendors/bootstrap.min.js':'res/js/vendors/bootstrap.js'), array('jquery'));
         wp_register_style( 'bootstrap', ZF_CORE_URL.($minimize?'res/css/bootstrap.min.css':'res/css/bootstrap.css'));
         wp_register_style( 'bootstrap-responsive', ZF_CORE_URL.($minimize?'res/css/bootstrap-responsive.min.css':'res/css/bootstrap-responsive.css'));
-        wp_register_style( 'jquery-ui-smoothness', ZF_CORE_URL.'res/css/jquery-ui-1.9.2.smoothness.css');
 
         wp_register_style( 'normalize', ZF_CORE_URL.'res/css/normalize.css');
         
@@ -210,12 +211,72 @@ class ZF_Core{
 
         wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js');
 
+//        wp_register_script('', $src)
+        
+        $jQueryThemes = array(
+            'black-tie',
+            'blitzer',
+            'cupertino',
+            'dark-hive',
+            'darkness',
+            'dot-luv',
+            'egg-plant',
+            'excite-bike',
+            'flick',
+            'hot-sneaks',
+            'humanity',
+            'le-frog',
+            'lightness',
+            'mint-choc',
+            'overcast',
+            'pepper-grinder',
+            'redmond',
+            'smoothness',
+            'south-street',
+            'start',
+            'sunny',
+            'swanky-purse',
+            'trontastic',
+            'vader',
+        );
+        
+        foreach($jQueryThemes as $theme){
+//          wp_register_style( 'jquery-ui-smoothness', ZF_CORE_URL.'res/css/jquery-ui-1.9.2.smoothness.css');
+            wp_register_style( 'jquery-ui-'.$theme, self::getJQueryUIThemeCss($theme));
+        }
+        wp_register_style( 'jquery-ui', self::getJQueryUIThemeCss());
+        
+        
+        
         require_once 'less.php';    
 
     }
 
+    public static function getJQueryUIThemeCss($theme = ''){
+        if(!$theme){
+            $theme = OptionHelper::getOption('jQueryUI.theme', 'smoothness');
+        }
+        $minimize = true;
+        $themeCss = $minimize?
+            'jquery-ui-1.9.2.custom.min.css':
+            'jquery-ui-1.9.2.custom.css';
+        $themeUrl = 'custom' == $theme? 
+            '/wp-content/'.OptionHelper::getOption('jQueryUI.themeUrl'):
+            ZF_CORE_URL.sprintf('res/css/jquery-ui/%s/%s', $theme, $themeCss);
+        return $themeUrl;
+    }
+
     public static function registerConsolePages() {
         add_menu_page('ZF Core', 'ZF Core', 'update_core', 'zf-core-admin', array('ZF_Core', 'renderConsolePageAdmin'), '', null); 
+        add_submenu_page('zf-core-admin', 
+                'jQueryUI theme', 'jQueryUI theme', 'update_core', 'zf-core-jqueryui-theme', 
+                array('ZF_Core', 'renderConsolePageJQueryUIThemeSelect'), '', null); 
+        add_submenu_page('zf-core-admin', 
+                'phpinfo()', 'phpinfo()', 'update_core', 'zf-core-phpinfo', 
+                array('ZF_Core', 'renderConsolePagePhpinfo'), '', null); 
+        add_submenu_page('zf-core-admin', 
+                'WP Hooks', 'WP Hooks', 'update_core', 'zf-core-wp-hooks', 
+                array('ZF_Core', 'renderConsolePageWpHooks'), '', null); 
     }
 
 
@@ -223,6 +284,45 @@ class ZF_Core{
        echo ZF_Query::processRequest('/admin/', 'ZF_CORE');	
     }
 
+    public static function renderConsolePageJQueryUIThemeSelect(){
+       echo ZF_Query::processRequest('/admin/jquery-ui-theme', 'ZF_CORE');	
+    }
+
+    public static function renderConsolePagePhpinfo(){
+       echo ZF_Query::processRequest('/admin/phpinfo', 'ZF_CORE');	
+    }
+
+    public static function renderConsolePageWpHooks(){
+       echo ZF_Query::processRequest('/admin/wp-hooks', 'ZF_CORE');	
+    }
+
+    public static function addJQueryWidgets(){
+        wp_enqueue_style('jquery-ui');
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('jquery-effects-fade');
+        wp_enqueue_script('jquery-effects-drop');
+        wp_enqueue_script('jquery-effects-blind');
+        wp_enqueue_script('jquery-ui-widget');
+        wp_enqueue_script('jquery-ui-templated');
+        wp_enqueue_script('jquery-brx-modalBox');
+        wp_enqueue_style('jquery-brx-spinner');
+        wp_enqueue_script('jquery-brx-spinner');
+        wp_print_scripts();
+        wp_print_styles();
+        
+        ?>
+                    
+        <div widget="generalSpinner"></div>
+        <div widget="modalBox"></div>    
+        <script>
+        jQuery(document).ready(function($) {
+            $.ui.parseWidgets('<?php echo ZF_CORE_URL?>res/js/');
+        });        
+        </script>
+                    
+        <?php
+    }
+    
 } 
     
 ZF_Core::initPlugin();

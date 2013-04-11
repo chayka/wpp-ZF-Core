@@ -53,9 +53,9 @@ class EmailHelper {
         return false;
     }
     
-    public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = ''){
+    public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = '', $scriptPath = '/views/scripts/email/'){
         $html = new Zend_View();
-        $html->setScriptPath(APPLICATION_PATH . '/views/scripts/email/');
+        $html->setScriptPath($scriptPath);
 //        print_r($params);
         foreach($params as $key => $value){
             $html->assign($key, $value);

@@ -2,6 +2,11 @@
 
 class String {
 
+    public static function capitalize($str){
+        return preg_replace('%\b(\w+)\b%e', 'ucwords(strtolower("$1"))', $str);
+//        return ucwords(strtolower($str));
+    }
+    
     public static function Cp12521toUtf8($str) {
         $enc = mb_detect_encoding($str, 'UTF-8,CP1251');
         $enc = $enc ? $enc : 'UTF-8';
@@ -29,19 +34,15 @@ class String {
     }
 
     public static function stripParamFromRequest($param, $str) {
-        //	���������� �������� �� ������ �������
         $request_uri = preg_replace(array('%' . $param . '=[^&]*&?%', '%&\z%', '%\?\z%'), '', $str);
         return $request_uri;
     }
 
     public static function find($needle, $haystack) {
-        //	���������� ��������� ����� ������ � ������
         return strpos($haystack, $needle) !== false;
     }
 
     public static function dateFormat($str, $date_format, $date_trans) {
-        //	��������� ���� ���������� � ������ ������ � ��� �������������
-        //	���������� � �����������
         $str = date($date_format, strtotime($str));
         if (!empty($date_trans))
             $str = str_replace(array_keys($date_trans), array_values($date_trans), $str);
@@ -67,7 +68,6 @@ class String {
     }
 
     public static function pcreDtPattern($date_pattern, $strict=0) {
-        //	�� �������� ��� ������� date() ������� pcre �������
         $d_p_elems = array('.', 'd', 'm', 'Y', 'H', 'i', 's', 'c');
         $p_p_elems = array('\.', '(\d{2})', '(\d{2})', '(\d{4})', '(\d{2})', '(\d{2})', '(\d{2})', '(\d{6})');
         if ($strict) {
@@ -80,9 +80,6 @@ class String {
     }
 
     public static function dateConvert($dt, $from, $to) {
-        //	��������� ������� � ����� �� ������� $from � ������ $to ��� ��������
-        //	$from � $to � ������� ������� date();
-        //	$dt ����� ���� � ������� $from|$to|unix timestamp
         if (empty($dt)) {
             return '';
         } elseif ($dt == 'NULL') {
@@ -135,7 +132,6 @@ class String {
     }
 
     public static function addHttp($str) {
-        //	��������� � ������ ������������� � �������� ��������� ������ http://
         if (!empty($str) && !str_find('http://', $str))
             $str = 'http://' . $str;
 
@@ -143,8 +139,6 @@ class String {
     }
 
     public static function getFirstWords($str, $char_len) {
-        //	���������� ��������� (������) ������ $str ���������
-        //	�� ����������� ���� �� ����������� �� ����� $char_le
         if (strlen($str) > $char_len) {
             do {
                 $last_space = strrpos($str, ' ');
@@ -158,8 +152,6 @@ class String {
     }
 
     public static function getLastWords($str, $char_len) {
-        //	���������� ��������� (�����) ������ $str ���������
-        //	�� ����������� ���� �� ����������� �� ����� $char_le
         if (strlen($str) > $char_len) {
             do {
                 $first_space = strpos($str, ' ');
@@ -173,7 +165,6 @@ class String {
     }
 
     public static function stripTags($str) {
-        // 	������� ������� ���� �� ������, strip_tags ����������� �������� ���� � ������ ���� ������
         $str = html_entity_decode($str);
         $str = preg_replace("%<(script|style)[^>]*>.*</\\1>%imUs", " ", $str);
         $nonspaceble = "\/?(b|i|u|font|span|strong|big|small|a)";
@@ -213,7 +204,6 @@ class String {
     }
 
     public static function ksor($str, $key) {
-        //  �������� ������ �������� ������
         $slen = strlen($str);
         $klen = strlen($key);
         $ret = "";
@@ -226,7 +216,6 @@ class String {
     }
 
     public static function glueOneDollar($str, $key) {
-        //  �������� ������ �������� ������
         $slen = strlen($str);
         $klen = strlen($key);
         //  $len=($slen>$klen)?$klen:$slen;

@@ -3,6 +3,12 @@
 require_once 'Zend/Filter.php';
 require_once 'ZendB/Filter/StripSlashes.php';
 
+interface InputReadyInterface{
+    public function unpackInput($input = array());
+    public function validateInput($input = array(), $action = 'create');
+    public function getValidationErrors();
+}
+
 class InputHelper {
 
     protected static $defChain;
@@ -37,6 +43,10 @@ class InputHelper {
         }
     }
 
+    public static function setParam($param, $value){
+        Util::getFront()->getRequest()->setParam($param, $value);
+    }
+    
     public static function getParam($param, $default = '') {
         self::initChains();
         $chain = Util::getItem(self::$chains, $param, self::$chains['*']);
@@ -82,6 +92,26 @@ class InputHelper {
                  .Util::getFront()->getRequest()->getActionName();
         }
         return Util::getItem($_SESSION['_stored'], $id, null);
+    }
+
+    public static function getModelInput($model, $input = array()){
+        if(empty($input)){
+            $input = self::getParams();
+        }
+        $dbRecord = $model->packDbRecord(false);
+        $input = array_intersect_key($input, $dbRecord);
+        return $input;
+    }
+    
+    public static function getModelFromInput($model){
+        $dbRecord = $model->packDbRecord(false);
+        $params = self::getParams();
+        $input = array_intersect_key($params, $dbRecord);
+        if($model->validateInput($input, self::getParam('action'))){
+            $model->unpackInput($input);
+        }
+        
+        return $model;
     }
 
 }

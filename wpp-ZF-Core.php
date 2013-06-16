@@ -27,6 +27,8 @@
 class ZF_Core{
     public static $zfCoreTree;
     
+    public static $adminBar = false;
+    
     public static function initPlugin(){
         self::registerActions();
         self::registerFilters();
@@ -53,6 +55,8 @@ class ZF_Core{
             $autoloader = Zend_Loader_Autoloader::getInstance();
             spl_autoload_register(array('ZF_Core', 'autoloader'));
 
+            FirebugHelper::getInstance();
+            
             // Create registry object and setting it as the static instance in the Zend_Registry class
             $registry = new Zend_Registry();
             Zend_Registry::setInstance($registry);
@@ -87,7 +91,13 @@ class ZF_Core{
 //        Log::start();
         require_once 'zf.php';
 
-        ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array('admin', 'autocomplete'));
+        ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array(
+            'admin', 'autocomplete', 
+            'post-model',
+            'comment-model',
+            'user-model',
+            'social', 'zf-setup'
+        ));
 
         
     }
@@ -136,7 +146,7 @@ class ZF_Core{
             if(empty(self::$zfCoreTree)){
                 self::$zfCoreTree = self::getClassTree(realpath( ZF_CORE_APPLICATION_PATH));
                 self::$zfCoreTree = array_merge(self::$zfCoreTree, self::getClassTree(realpath(ZF_CORE_PATH . '/library/ZendB')));
-    //            print_r($zfCoreTree);
+//                print_r(self::$zfCoreTree);die(realpath(ZF_CORE_PATH . '/library/ZendB'));
             }
             if(isset(self::$zfCoreTree[$class])){
                 include_once self::$zfCoreTree[$class]; 
@@ -185,14 +195,30 @@ class ZF_Core{
     }
     
     public static function registerResources($minimize = false){
+        wp_register_script( 'Underscore', ZF_CORE_URL.($minimize?'res/js/vendors/underscore.min.js':'res/js/vendors/underscore.js'), array('jquery'));
+        wp_register_script( 'Backbone', ZF_CORE_URL.($minimize?'res/js/vendors/backbone.min.js':'res/js/vendors/backbone.js'), array('jquery','underscore'));
+        wp_register_script( 'nls', ZF_CORE_URL.'res/js/vendors/nls.js', array('Underscore'));
+
+        wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment.min.js':'res/js/vendors/moment.js'));
+        
+        
+        wp_register_script( 'jquery-ui-templated', ZF_CORE_URL.'res/js/jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
+
+        wp_register_script( 'backbone-brx', ZF_CORE_URL.'res/js/backbone.brx.js', array('Backbone', 'nls', 'moment'));
+        wp_register_script( 'backbone-brx-model', ZF_CORE_URL.'res/js/backbone.brx.Model.js', array('Backbone', 'nls'));
+        wp_register_script( 'backbone-brx-view', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'jquery-ui-templated', 'backbone-brx-model'));
+        wp_register_script( 'backbone-brx-form', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'backbone-brx-view'));
+        
+        wp_register_script( 'backbone-brx-pagination', ZF_CORE_URL.'res/js/backbone.brx.Pagination.view.js', array('backbone-brx'));
+
+        
         wp_register_script( 'jquery-ajax-uploader', ZF_CORE_URL.'res/js/vendors/jquery.ajaxfileupload.js', array('jquery'));
         wp_register_script( 'jquery-ajax-iframe-uploader', ZF_CORE_URL.'res/js/vendors/jquery.iframe-post-form.js', array('jquery'));
         wp_register_script( 'jquery-galleria', ZF_CORE_URL.'res/js/vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
         wp_register_script( 'jquery-masonry', ZF_CORE_URL.'res/js/vendors/jquery.masonry.min.js', array('jquery'));
 
-        wp_register_script( 'jquery-brx-utils', ZF_CORE_URL.'res/js/jquery.brx.utils.js', array('jquery'));
+        wp_register_script( 'jquery-brx-utils', ZF_CORE_URL.'res/js/jquery.brx.utils.js', array('jquery', 'nls'));
         wp_register_script( 'jquery-brx-placeholder', ZF_CORE_URL.'res/js/jquery.brx.placeholder.js', array('jquery', 'jquery-brx-utils'));
-        wp_register_script( 'jquery-ui-templated', ZF_CORE_URL.'res/js/jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils'));
         wp_register_style( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.css');
         wp_register_script( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.js', array('jquery-ui-templated'));
         wp_register_script( 'jquery-brx-modalBox', ZF_CORE_URL.'res/js/jquery.brx.modalBox.js', array('jquery-ui-dialog'));
@@ -204,6 +230,7 @@ class ZF_Core{
         wp_register_script( 'bootstrap', ZF_CORE_URL.($minimize?'res/js/vendors/bootstrap.min.js':'res/js/vendors/bootstrap.js'), array('jquery'));
         wp_register_style( 'bootstrap', ZF_CORE_URL.($minimize?'res/css/bootstrap.min.css':'res/css/bootstrap.css'));
         wp_register_style( 'bootstrap-responsive', ZF_CORE_URL.($minimize?'res/css/bootstrap-responsive.min.css':'res/css/bootstrap-responsive.css'));
+
 
         wp_register_style( 'normalize', ZF_CORE_URL.'res/css/normalize.css');
         
@@ -277,6 +304,9 @@ class ZF_Core{
         add_submenu_page('zf-core-admin', 
                 'WP Hooks', 'WP Hooks', 'update_core', 'zf-core-wp-hooks', 
                 array('ZF_Core', 'renderConsolePageWpHooks'), '', null); 
+        add_submenu_page('zf-core-admin', 
+                'E-mail', 'E-mail settings', 'update_core', 'zf-core-email', 
+                array('ZF_Core', 'renderConsolePageEmailOptions'), '', null); 
     }
 
 
@@ -296,6 +326,10 @@ class ZF_Core{
        echo ZF_Query::processRequest('/admin/wp-hooks', 'ZF_CORE');	
     }
 
+    public static function renderConsolePageEmailOptions(){
+       echo ZF_Query::processRequest('/admin/email-options', 'ZF_CORE');	
+    }
+    
     public static function addJQueryWidgets(){
         wp_enqueue_style('jquery-ui');
         wp_enqueue_script('jquery');
@@ -317,10 +351,40 @@ class ZF_Core{
         <script>
         jQuery(document).ready(function($) {
             $.ui.parseWidgets('<?php echo ZF_CORE_URL?>res/js/');
+            if($.brx && $.brx.parseBackboneViews){
+                $.brx.parseBackboneViews();
+            }
         });        
         </script>
                     
         <?php
+    }
+    
+    public static function showAdminBar($show = true){
+        self::$adminBar = $show;
+        add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
+    }
+    
+    public static function hideAdminBar(){
+        self::$adminBar = false;
+        add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
+    }
+    
+    public static function showAdminBarToAdminOnly(){
+        self::$adminBar = 'admin';
+        add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
+    }
+    
+    public static function isAdminBarShown($show){
+        if(self::$adminBar){
+            if(self::$adminBar == 'admin'){
+                return current_user_can('administrator') || is_admin();
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
     
 } 

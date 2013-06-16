@@ -1,23 +1,43 @@
 <?php
 
 class EmailHelper {
-
-    public static function send($subject, $html, $to, $from = '', $cc = '', $bcc = ''){
-        $mailFrom = get_option('mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
-        $mailFromName = get_option('mail_from', $_SERVER['SERVER_NAME']);
-        $mailer = get_option('mailer', 'php');
-        $smtpHost = get_option('smtp_host', 'localhost');
-        $smtpPort = get_option('smtp_port', '25');
-        $smtpSsl  = get_option('smtp_ssl', 'none');
-        $smtpAuth  = get_option('smtp_auth', false);
-        $smtpUser  = get_option('smtp_user', '');
-        $smtpPass  = get_option('smtp_pass', '');
+    public static function send($subject, $html, $to, $from = '', $cc = '', $bcc = '', $linkToWebVersion = ''){
+        $mailFrom = get_option('EmailHelper.mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
+        $mailFromName = get_option('EmailHelper.mail_from', $_SERVER['SERVER_NAME']);
+        $mailer = get_option('EmailHelper.mailer', 'php');
+        $smtpHost = get_option('EmailHelper.smtp_host', 'localhost');
+        $smtpPort = get_option('EmailHelper.smtp_port', '25');
+        $smtpSsl  = get_option('EmailHelper.smtp_ssl', 'none');
+        $smtpAuth  = get_option('EmailHelper.smtp_auth', false);
+        $smtpUser  = get_option('EmailHelper.smtp_user', '');
+        $smtpPass  = get_option('EmailHelper.smtp_pass', '');
         
         $mail = new Zend_Mail('utf-8');
 
         // configure base stuff
         $mail->setSubject($subject);
 //        echo $html;
+        preg_match('%^.*wp-content\/%',plugin_dir_path(__FILE__), $m);
+        $contentDir = $m[0];
+//        $fn = $contentDir.'/themes/wpt-MCC/application/views/scripts/email/template.phtml';
+        $fn = get_template_directory().'/application/views/scripts/email/template.phtml';
+//        die(get_template_directory());
+        if(file_exists($fn)){
+            $view = new Zend_View();
+            $view->setBasePath(get_template_directory().'/application/views');
+            try{
+                $html = str_replace('<!--content-->', $html, $view->render('email/template.phtml'));
+            }catch(Exception $e){
+                JsonHelper::respond($e->getMessage());
+            }
+        }
+        if($linkToWebVersion){
+            $html = str_replace('[WEBVERSION]', $linkToWebVersion, $html);
+        }else{
+            $html = preg_replace('%<(p)[^>]*>[^<]*<a [^>]*href="\[WEBVERSION\]"[^>]*>[^<]*</a>[^<]*</p>%imUs', '', $html);
+//            $html = preg_replace('%<a [^>]*href="\[WEBVERSION\]"[^>]*>[^<]*</a>[^<]*</p>"%imUs', '', $html);
+//            die($html);
+        }
         $mail->setBodyHtml($html);
         $mail->setFrom($from?$from:$mailFrom, $from?null:$mailFromName);
         $mail->addTo($to);
@@ -29,6 +49,7 @@ class EmailHelper {
         }
 
         $config = $smtpAuth?array(
+            'host' => $smtpHost,
             'auth' => 'login',
             'username' => $smtpUser,
             'password' => $smtpPass,
@@ -41,29 +62,43 @@ class EmailHelper {
         }
             
         try{
-
-            $transport = 'smtp' == $mailer?
-                new Zend_Mail_Transport_Smtp($smtpHost, $config):
-                null;
+            $transport = null;
+            switch($mailer){
+                case 'smtp':
+                    $transport = new Zend_Mail_Transport_Smtp($smtpHost, $config);
+                    break;
+                case 'dkim':
+                    $transport = new Mail_Transport_Dkim($config);
+                    break;
+                default:
+                    $transport = null;
+            }
+//            $transport = 'smtp' == $mailer?
+//                new Zend_Mail_Transport_Smtp($smtpHost, $config):
+//                null;
             return $mail->send($transport);
         }catch(Exception $e){
-            die($e->getMessage());
+            JsonHelper::respondError($e->getMessage());
             return false;
         }
         return false;
     }
     
+
     public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = '', $scriptPath = '/views/scripts/email/'){
-        $html = new Zend_View();
-        $html->setScriptPath($scriptPath);
-//        print_r($params);
-        foreach($params as $key => $value){
-            $html->assign($key, $value);
+        try{
+            $html = new Zend_View();
+            $html->setScriptPath($scriptPath);
+            foreach($params as $key => $value){
+                $html->assign($key, $value);
+            }
+
+            $content = $html->render($template);
+            
+        }catch(Exception $e){
+            JsonHelper::respondError($e->getMessage());
         }
-        
-        $body = $html->render($template);
-        
-        return self::send($subject, $body, $to, $from, $cc, $bcc);
+        return self::send($subject, $content, $to, $from, $cc, $bcc);
     }
     
 //    public static function userRegistered($user, $password){
@@ -71,7 +106,6 @@ class EmailHelper {
 //                'user-registered.phtml', array('user' => $user, 'password' => $password), 
 //                $user->getEmail());
 //    }
-    
     
 }
 

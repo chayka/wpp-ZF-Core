@@ -6,6 +6,13 @@ require_once 'Zend/Acl/Resource.php';
 
 class AclHelper {
 
+    const ROLE_GUEST = 'guest';
+    const ROLE_SUBSCRIBER = 'subscriber';
+    const ROLE_CONTRIBUTOR = 'contributor';
+    const ROLE_AUTHOR = 'author';
+    const ROLE_EDITOR = 'editor';
+    const ROLE_ADMINISTRATOR = 'administrator';
+    
     protected static $acl = null;
     
     public static function getInstance() {
@@ -15,16 +22,19 @@ class AclHelper {
 
             // Add groups to the Role registry using Zend_Acl_Role
             // Guest does not inherit access controls
-            $acl->addRole(new Zend_Acl_Role('guest'));
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_GUEST));
 
             // Member inherits from guest
-            $acl->addRole(new Zend_Acl_Role('member'), 'guest');
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_SUBSCRIBER), 'guest');
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_CONTRIBUTOR), 'subscriber');
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_AUTHOR), 'contributor');
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_EDITOR), 'author');
 
             // Administrator does not inherit access controls
-            $acl->addRole(new Zend_Acl_Role('administrator'));
+            $acl->addRole(new Zend_Acl_Role(self::ROLE_ADMINISTRATOR));
 
 //            $acl->add(new Zend_Acl_Resource('answer'));
-//            $acl->add(new Zend_Acl_Resource('auth'));
+            $acl->add(new Zend_Acl_Resource('auth'));
 //            $acl->add(new Zend_Acl_Resource('autocomplete'));
 //            $acl->add(new Zend_Acl_Resource('comment'));
 //            $acl->add(new Zend_Acl_Resource('question'));
@@ -35,7 +45,7 @@ class AclHelper {
             $acl->allow(null, 'auth', array('login', 'logout', 'join', 'forgot-password', 'change-password', 'check-email', 'check-name'));
 
             // Guest may only view content
-            $acl->allow('guest', 'index');
+//            $acl->allow(self::ROLE_GUEST, 'index');
 
             // Member inherits view privilege from guest, but also needs additional privileges
 //            $acl->allow('member', 'search');
@@ -50,7 +60,7 @@ class AclHelper {
 //            $acl->deny('advert', 'user', 'register');
 
             // Administrator inherits nothing, but is allowed all privileges
-            $acl->allow('administrator');
+            $acl->allow(self::ROLE_ADMINISTRATOR);
 //            $acl->deny('administrator', 'user', 'register');
 
             self::$acl = $acl;
@@ -70,8 +80,29 @@ class AclHelper {
         if (empty($privelege)) {
             $privelege = Util::getFront()->getRequest()->getActionName();
         }
+//            die("role: $role, $resource, $privelege");
 
-        return self::getInstance()->isAllowed($role, $resource, $privelege);
+        $res = self::getInstance()->isAllowed($role, $resource, $privelege);
+        
+        return $res;
+            
+    }
+    
+    public static function denyAccess($message = ''){
+        $front = Util::getFront();
+        if(!$message){
+            $message = NlsHelper::_('Dear user, access to this page is forbidden for you.');
+        }
+        if($front->getParam('noViewRenderer')){
+            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED);
+        }else{
+            $view = new Zend_View();
+            $view->setScriptPath(ZF_CORE_APPLICATION_PATH.'/views/scripts');
+            $view->message = $message;
+            echo $view->render('acl/access-denied.phtml');
+            Util::turnRendererOff();
+        }
+        
     }
 
     public static function apiAuthRequired($message = ''){
@@ -80,8 +111,24 @@ class AclHelper {
             if(!$message){
                 $message = 'Необходимо авторизоваться на сайте';
             }
-            ErrorHelper::error($message, ErrorHelper::CODE_AUTH_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED);
         }
+    }
+    
+    public static function permissionRequired($message = '', $privelege = null, $resource = null, $role = null){
+        if(!self::isAllowed($privelege, $resource, $role)){
+            if(!$message){
+                $message = NlsHelper::_('Access denied');
+            }
+            self::denyAccess($message);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public static function userHasPermission($message = '', $privelege = null, $resource = null, $role = null){
+        return self::permissionRequired($message, $privelege, $resource, $role);
     }
     
     public static function isAuthorized(){
@@ -95,7 +142,7 @@ class AclHelper {
             if(!$message){
                 $message = 'Данная операция с собственным объектом невозможна';
             }
-            ErrorHelper::error($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
         }
     }
     
@@ -110,7 +157,7 @@ class AclHelper {
             if(!$message){
                 $message = 'У вас недостаточно прав для модификации данного объекта';
             }
-            ErrorHelper::error($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
         }
     }
     

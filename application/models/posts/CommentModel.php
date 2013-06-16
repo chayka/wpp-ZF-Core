@@ -1,13 +1,15 @@
 <?php
 
 require_once 'application/helpers/JsonHelper.php';
+require_once 'application/helpers/InputHelper.php';
+require_once 'application/helpers/WpDbHelper.php';
 
 /**
  * Description of CommentModel
  *
  * @author borismossounov
  */
-class CommentModel implements DbRecordInterface, JsonReadyInterface{
+class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface{
 
     protected $id;
     protected $postId;
@@ -27,6 +29,8 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
 
     protected $wpComment;
 
+    protected $validationErrors;
+    
 
     /**
      * PostModel constructor
@@ -41,7 +45,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         $this->setId(0);
         $date = new Zend_Date();
         $this->setDtCreated($date);
-        $this->setDtCreatedGMT($date);
+//        $this->setDtCreatedGMT($date);
         $this->setKarma(0);
     }
     
@@ -110,12 +114,13 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
     }
 
     public function getDtCreatedGMT() {
-        return $this->dtCreatedGMT;
+        return new Zend_Date(get_gmt_from_date(DateHelper::datetimeToDbStr($this->getDtCreated())));
+//        return $this->dtCreatedGMT;
     }
 
-    public function setDtCreatedGMT($dtCreatedGMT) {
-        $this->dtCreatedGMT = $dtCreatedGMT;
-    }
+//    public function setDtCreatedGMT($dtCreatedGMT) {
+//        $this->dtCreatedGMT = $dtCreatedGMT;
+//    }
 
     public function getContent() {
         return $this->content;
@@ -173,6 +178,43 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         $this->wpComment = $wpComment;
     }
 
+    public static function getDbIdColumn() {
+        return 'comment_ID';
+    }
+
+    public static function getDbTable() {
+        global $wpdb;
+        return $wpdb->comments;
+    }
+
+    public function getValidationErrors() {
+        return $this->validationErrors;
+    }
+
+    public function unpackInput($input = array()) {
+        if(empty($input)){
+            $input = InputHelper::getParams();
+        }
+        $input = array_merge($this->packJsonItem(), $input);
+
+        $this->setId(Util::getItem($input, 'id', 0));
+        $this->setPostId(Util::getItem($input, 'post_id'));
+        $this->setUserId(Util::getItem($input, 'user_id'));
+        $this->setParentId(Util::getItem($input, 'parent_id'));
+        $this->setAuthor(Util::getItem($input, 'author'));
+        $this->setEmail(Util::getItem($input, 'email'));
+        $this->setUrl(Util::getItem($input, 'url'));
+        $this->setContent(Util::getItem($input, 'content'));
+        $this->setKarma(Util::getItem($input, 'karma'));
+        $this->setIsApproved(Util::getItem($input, 'approved'));
+        $this->setType(Util::getItem($input, 'type'));
+        
+    }
+
+    public function validateInput($input = array(), $action = 'create') {
+        return true;
+    }
+
     public static function unpackDbRecord( $wpRecord){
         
         $obj = new self();
@@ -189,7 +231,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         $obj->setKarma($wpRecord->comment_karma);
         $obj->setIsApproved($wpRecord->comment_approved);
         $obj->setDtCreated(DateHelper::dbStrToDatetime($wpRecord->comment_date));
-        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->comment_date_gmt));
+//        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->comment_date_gmt));
         $obj->setAgent($wpRecord->comment_agent);
         $obj->setType($wpRecord->comment_type);
         
@@ -228,7 +270,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
 
     public function insert(){
         $this->setDtCreated(new Zend_Date());
-        $this->setDtCreatedGMT(new Zend_Date());
+//        $this->setDtCreatedGMT(new Zend_Date());
 	$this->setIp(preg_replace( '/[^0-9a-fA-F:., ]/', '',$_SERVER['REMOTE_ADDR'] ));
 	$this->setAgent(substr($_SERVER['HTTP_USER_AGENT'], 0, 254));
         $dbRecord = $this->packDbRecord(false);
@@ -237,7 +279,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         return $id;
     }
     
-    public function update(){
+    public function update($forUpdate = false){
         $dbRecord = $this->packDbRecord(true);
         unset($dbRecord['comment_date']);
         unset($dbRecord['comment_date_gmt']);
@@ -320,7 +362,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface{
         $jsonItem['parent_id'] = $this->getParentId();
         $jsonItem['type'] = $this->getType();
         $jsonItem['date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
-//        $jsonItem['comment_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
+        $jsonItem['date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
         
         return $jsonItem;
     }

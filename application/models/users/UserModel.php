@@ -4,6 +4,7 @@
 
 //NlsHelper::load('application/models', 'UserModel');
 require_once 'application/helpers/JsonHelper.php';
+require_once 'application/helpers/InputHelper.php';
 require_once 'application/helpers/WpDbHelper.php';
 
 /**
@@ -11,7 +12,7 @@ require_once 'application/helpers/WpDbHelper.php';
  * Used for authentification, registration, update, delete and userpics management 
  *
  */
-class UserModel implements DbRecordInterface, JsonReadyInterface{
+class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface{
     const SESSION_KEY = '_user';
 
     protected static $currentUser;
@@ -235,7 +236,15 @@ class UserModel implements DbRecordInterface, JsonReadyInterface{
         $this->wpUser = $wpUser;
     }
 
-        
+    public static function getDbIdColumn() {
+        return 'ID';
+    }
+
+    public static function getDbTable() {
+        global $wpdb;
+        return $wpdb->users;
+    }
+
     public static function unpackDbRecord( $wpRecord){
         
         $obj = new self();
@@ -264,7 +273,9 @@ class UserModel implements DbRecordInterface, JsonReadyInterface{
 
     public function packDbRecord($forUpdate = true){
         $dbRecord = array();
-        $dbRecord['ID'] = $this->getId();
+        if($forUpdate){
+            $dbRecord['ID'] = $this->getId();
+        }
         if(!empty($this->password)){
             $dbRecord['user_pass'] = $forUpdate?
                 wp_hash_password($this->getPassword()):
@@ -355,7 +366,13 @@ class UserModel implements DbRecordInterface, JsonReadyInterface{
 
     public static function selectUsers($wpUserQueryArgs){
         $users = array();
-        $dbRecords = get_users($wpUserQueryArgs);
+//        $dbRecords = get_users($wpUserQueryArgs);
+	$args = wp_parse_args( $wpUserQueryArgs );
+	$args['count_total'] = true;
+
+	$user_search = new WP_User_Query($args);
+
+	$dbRecords = (array) $user_search->get_results();
         foreach ($dbRecords as $dbRecord) {
             $users[] = self::unpackDbRecord($dbRecord);
         }
@@ -408,7 +425,40 @@ class UserModel implements DbRecordInterface, JsonReadyInterface{
         
         return $jsonItem;
     }
+    
+    public function getValidationErrors() {
+        return array();
+    }
 
+    public function unpackInput($input = array()) {
+        if(empty($input)){
+            $input = InputHelper::getParams();
+        }
+        $input = array_merge($this->packJsonItem(), $input);
+
+        $this->setId(Util::getItem($input, 'id', 0));
+        $this->setLogin(Util::getItem($input, 'user_login'));
+        $this->setEmail(Util::getItem($input, 'user_email'));
+        $this->setNicename(Util::getItem($input, 'nice_name'));
+        $this->setUrl(Util::getItem($input, 'user_url'));
+        $this->setDisplayName(Util::getItem($input, 'display_name'));
+        $this->setNickname(Util::getItem($input, 'nickname'));
+        $this->setFirstName(Util::getItem($input, 'first_name'));
+        $this->setLastName(Util::getItem($input, 'last_name'));
+        $this->setDescription(Util::getItem($input, 'description'));
+        $this->setRichEditing(Util::getItem($input, 'rich_editing'));        
+        $this->setRegistered(DateHelper::jsonStrToDatetime(Util::getItem($input, 'user_registered')));
+        $this->setRole(Util::getItem($input, 'role'));
+        $this->setJabber(Util::getItem($input, 'jabber'));
+        $this->setAim(Util::getItem($input, 'aim'));
+        $this->setYim(Util::getItem($input, 'yim'));
+        
+    }
+
+    public function validateInput($input = array(), $action = 'create') {
+        return true;
+    }
+    
     /**
      * returns true if the user is administrator
      *

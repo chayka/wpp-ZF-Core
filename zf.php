@@ -324,6 +324,7 @@ class ZF_Query extends WP_Query {
             $this->is_archive = WpHelper::getIsArchive();
             $this->is_home = 0;
             $this->queried_object = $post;
+            $this->queried_object_id = $post->ID;
         }
         
 

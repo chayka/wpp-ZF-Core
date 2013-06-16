@@ -5,7 +5,7 @@ require_once 'application/helpers/JsonHelper.php';
 require_once 'application/models/posts/CommentModel.php';
 //require_once 'application/helpers/LuceneHelper.php';
 
-class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReadyInterface*/{
+class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface /*, LuceneReadyInterface*/{
 
     /**
      * Post Id
@@ -60,7 +60,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
 //        echo "UserModel::init";
         $this->setId(0);
         $this->setDtCreated(new Zend_Date());
-        $this->setDtCreatedGMT(new Zend_Date());
+//        $this->setDtCreatedGMT(new Zend_Date());
         $this->setStatus('draft');
         $this->setCommentStatus('open');
         $this->setPingStatus('closed');
@@ -260,28 +260,30 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
     }
 
     public function getDtCreatedGMT() {
-        return $this->dtCreatedGMT;
+        return new Zend_Date(get_gmt_from_date(DateHelper::datetimeToDbStr($this->getDtCreated())));
+//        return $this->dtCreatedGMT;
     }
 
-    public function setDtCreatedGMT($dtCreatedGMT) {
-        $this->dtCreatedGMT = $dtCreatedGMT;
-    }
+//    public function setDtCreatedGMT($dtCreatedGMT) {
+//        $this->dtCreatedGMT = $dtCreatedGMT;
+//    }
 
     public function getDtModified() {
         return $this->dtModified;
     }
 
     public function setDtModified($dtModified) {
-        $this->dtModified = $dtModified;
+      $this->dtModified = $dtModified;
     }
 
     public function getDtModifiedGMT() {
-        return $this->dtModifiedGMT;
+        return new Zend_Date(get_gmt_from_date(DateHelper::datetimeToDbStr($this->getDtModified())));
+//        return $this->dtModifiedGMT;
     }
 
-    public function setDtModifiedGMT($dtModifiedGMT) {
-        $this->dtModifiedGMT = $dtModifiedGMT;
-    }
+//    public function setDtModifiedGMT($dtModifiedGMT) {
+//        $this->dtModifiedGMT = $dtModifiedGMT;
+//    }
 
     public function getWpPost() {
         return $this->wpPost;
@@ -289,6 +291,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
 
     public function setWpPost($wpPost) {
         $this->wpPost = $wpPost;
+    }
+    
+    public static function getDbIdColumn() {
+        return 'ID';
+    }
+
+    public static function getDbTable() {
+        global $wpdb;
+        return $wpdb->posts;
     }
 
     public static function unpackDbRecord( $wpRecord){
@@ -311,13 +322,13 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
         $obj->setToPing($wpRecord->to_ping);
         $obj->setPassword($wpRecord->post_password);
         $obj->setDtCreated(DateHelper::dbStrToDatetime($wpRecord->post_date));
-        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->post_date_gmt));
+//        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->post_date_gmt));
         $obj->setDtModified(DateHelper::dbStrToDatetime($wpRecord->post_modified));
-        $obj->setDtModifiedGMT(DateHelper::dbStrToDatetime($wpRecord->post_modified_gmt));
+//        $obj->setDtModifiedGMT(DateHelper::dbStrToDatetime($wpRecord->post_modified_gmt));
         $obj->setMenuOrder($wpRecord->menu_order);
         $obj->setMimeType($wpRecord->post_mime_type);
         $obj->setCommentStatus($wpRecord->comment_status);
-        $obj->setPassword($wpRecord->comment_count);
+        $obj->setCommentCount($wpRecord->comment_count);
         
         $obj->setWpPost($wpRecord);
         
@@ -333,6 +344,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
 //        $this->setDescription($meta['description'][0]);
 //        $this->setRichEditing($meta['rich_editing'][0]);        
     }
+    
 
     public function packDbRecord($forUpdate = true){
         $dbRecord = array();
@@ -364,7 +376,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
 
     public function insert(){
         $this->setDtCreated(new Zend_Date());
-        $this->setDtCreatedGMT(new Zend_Date());
+//        $this->setDtCreatedGMT(new Zend_Date());
         $dbRecord = $this->packDbRecord(false);
         $id = wp_insert_post($dbRecord);
         $this->setId($id);
@@ -372,6 +384,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
     }
     
     public function update(){
+        $this->setDtModified(new Zend_Date());
         $dbRecord = $this->packDbRecord(true);
         unset($dbRecord['post_created']);
         unset($dbRecord['post_created_gmt']);
@@ -558,7 +571,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
     
     public function packJsonItem() {
         $jsonItem = array();
-        $jsonItem['ID'] = $this->getId();
+        $jsonItem['id'] = $this->getId();
         $jsonItem['post_author'] = $this->getUserId();
         $jsonItem['post_parent'] = $this->getParentId();
         $jsonItem['post_type'] = $this->getType();
@@ -602,4 +615,45 @@ class PostModel implements DbRecordInterface, JsonReadyInterface /*, LuceneReady
         return $item;
     }
 
+    public function getValidationErrors() {
+        return array();
+    }
+
+    public function unpackInput($input = array()) {
+        if(empty($input)){
+            $input = InputHelper::getParams();
+        }
+        $input = array_merge($this->packJsonItem(), $input);
+
+        $this->setId(Util::getItem($input, 'id', 0));
+        $this->setUserId(Util::getItem($input, 'post_author'));
+        $this->setParentId(Util::getItem($input, 'post_parent'));
+        $this->setGuid(Util::getItem($input, 'guid'));
+        $this->setType(Util::getItem($input, 'post_type'));
+        $this->setSlug(Util::getItem($input, 'post_name'));
+        $this->setTitle(Util::getItem($input, 'post_title'));
+        $this->setContent(Util::getItem($input, 'post_content'));
+        $this->setContentFiltered(Util::getItem($input, 'post_content_filtered'));
+        $this->setExcerpt(Util::getItem($input, 'post_excerpt'));
+        $this->setStatus(Util::getItem($input, 'post_status'));        
+        $this->setPingStatus(Util::getItem($input, 'ping_status'));
+        $this->setPinged(Util::getItem($input, 'pinged'));
+        $this->setToPing(Util::getItem($input, 'to_ping'));
+        $this->setPassword(Util::getItem($input, 'post_password'));
+        $this->setDtCreated(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_date')));
+//        $this->setDtCreatedGMT(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_date_gmt')));
+        $this->setDtModified(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_modified')));
+//        $this->setDtModifiedGMT(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_modified_gmt')));
+        $this->setMenuOrder(Util::getItem($input, 'menu_order'));
+        $this->setMimeType(Util::getItem($input, 'post_mime_type'));
+        $this->setCommentStatus(Util::getItem($input, 'comment_status'));
+        $this->setCommentCount(Util::getItem($input, 'comment_count'));
+        
+    }
+
+    public function validateInput($input = array(), $action = 'create') {
+        return true;
+    }
+
+    
  }

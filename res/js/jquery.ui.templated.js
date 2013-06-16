@@ -78,6 +78,7 @@ $.resourceLoader = {
         v.find('[attachEvent]').each(function(i){$(this).storeAttr('attachEvent')});
         v.find('[widget]').each(function(i){$(this).storeAttr('widget')});
         v.find('[plugin]').each(function(i){$(this).storeAttr('plugin')});
+        v.find('[backbone-view]').each(function(i){$(this).storeAttr('backbone-view')});
         return v;
     }
     
@@ -87,6 +88,7 @@ $.resourceLoader = {
         this.find('[x-attachEvent]').each(function(i){$(this).restoreAttr('attachEvent')});
         this.find('[x-widget]').each(function(i){$(this).restoreAttr('widget')});
         this.find('[x-plugin]').each(function(i){$(this).restoreAttr('plugin')});
+        this.find('[x-backbone-view]').each(function(i){$(this).restoreAttr('backbone-view')});
         return this;
     }
     
@@ -149,7 +151,9 @@ $.resourceLoader = {
             templatePath: null,//"widget.tpl.html",
             template: null,
             templateSelector: null,
-            elementAsTemplate: false
+            elementAsTemplate: false,
+            uiFramework: 'jQueryUI',
+            nlsNamespace: ''
         },
         
 //        _parentPrototype: $.Widget.prototype,
@@ -260,7 +264,7 @@ $.resourceLoader = {
                     var widget = $.ui.createTemplatedWidget(widgetName, this);
                     var attachPoint = $(this).attr("attachPoint");
                     if(attachPoint){
-                        w.option(attachPoint, widget.element);
+                        w.option(attachPoint, widget.element || widget.$element);
 //                        console.dir({'[widget]attachPoint':{event: attachPoint, widget: w, element: $(this)}});
                         $(this).storeAttr('attachPoint');
                     }
@@ -314,6 +318,83 @@ $.resourceLoader = {
 //            console.dir({'widget':w});
         },
 
+        modal: function(options){
+            options = options || {};
+            var title = $.brx.utils.getItem(options, 'title', '');
+            var width = $.brx.utils.getItem(options, 'width', 560);
+            var height = $.brx.utils.getItem(options, 'height', 400);
+            var buttons = $.brx.utils.getItem(options, 'buttons', null);
+            var show = $.brx.utils.getItem(options, 'show', false);
+            switch(this.get('uiFramework')){
+                case 'bootstrap':
+                    var modal = this.get('modal')
+                        || $('<div class="modal hide fade"></div>').appendTo('body');
+                    var header = modal.find('.modal-header');
+                    if(!header.length){
+                        header = $('<div class="modal-header"></div>').appendTo(modal)
+                    }
+                    var closeButton = header.find('button.close') ;
+                    if(!closeButton.length){
+                        closeButton = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>')
+                        .appendTo(header);
+                    }
+                    var titleSpan = header.find('h3');
+                    if(!titleSpan.length){
+                        titleSpan =$('<h3></h3>').appendTo(header);
+                    }
+                    titleSpan.text(title);
+                    var body = modal.find('.modal-body');
+                    if(!body.length){
+                        body = $('<div class="modal-body"></div>').appendTo(modal);
+                    }
+                    modal.css({'width': width+'px', 'margin-left': -Math.floor(width/2)+'px'});
+                    this.getTemplate().appendTo(body);
+                    modal.hide();
+                    modal.modal({
+                            backdrop: true,
+                            show: show
+                        });
+                    this.set('modal', modal);
+                    break;  
+                default:
+                    this.getTemplate().dialog({
+                        autoOpen: this.get('popup'),
+//                        height: height,
+                        width: width,
+                        modal: show,
+                        resizable: false,
+                    });
+                    if(!this.get('popup')){
+                        this.getTemplate().dialog('close');
+                    }
+                    
+            }
+        },
+        
+        showModal: function(){
+            switch(this.get('uiFramework')){
+                case 'bootstrap':
+                    this.get('modal').modal('show');
+                    break;  
+                default:
+                    this.getTemplate().dialog('open');
+                    
+            }
+        },
+        
+        hideModal: function(){
+            switch(this.get('uiFramework')){
+                case 'bootstrap':
+                    this.get('modal').modal('hide');
+                    break;  
+                default:
+                    this.getTemplate().dialog('close');
+                    
+            }
+            
+        },
+        
+
         postCreate: function(){
             
         },
@@ -322,6 +403,13 @@ $.resourceLoader = {
             
         },
         
+        nls: function(key){
+            if( this.get('nlsNamespace').length){
+                key = this.get('nlsNamespace')+'.'+key;
+            }
+            
+            return window.nls._(key);
+        },
         
         // Use the destroy method to clean up any modifications your widget has made to the DOM
         destroy: function() {

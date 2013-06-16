@@ -26,6 +26,7 @@ class JsonHelper {
 
     public static function encode($value) {
         return json_encode(self::utf8encode($value));
+//        return json_encode($value);
     }
 
     public static function packObject($obj) {
@@ -62,7 +63,7 @@ class JsonHelper {
         if($count){
             if(1 == $count){
                 $key = key($errors);
-                self::error($errors[$key], $key, $payload);
+                self::respondError($errors[$key], $key, $payload);
             }
             self::respond($payload, 'mass_errors', $errors);
         }

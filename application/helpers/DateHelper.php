@@ -5,8 +5,8 @@ class DateHelper {
     const DB_DATE = 'yyyy-MM-dd';
     const DB_TIME = 'HH:mm:ss';
 
-    const JSON_DATETIME = 'dd.MM.yyyy HH:mm:ss';
-    const JSON_DATE = 'dd.MM.yyyy';
+    const JSON_DATETIME = 'yyyy-MM-ddTHH:mm:ss.000\'Z';
+    const JSON_DATE = 'yyyy-MM-dd';//'dd.MM.yyyy';
     const JSON_TIME = 'HH:mm:ss';
 
     /* dateToStr */
@@ -87,8 +87,36 @@ class DateHelper {
         return $zendDate;
     }
 
-    /* datetimeToObj */
-
+    public static function jsonDatetimeToDbStr($strDatetime){
+        $zendDate = self::jsonStrToDatetime($strDatetime);
+        return self::datetimeToDbStr($zendDate);
+    }
+    
+    public static function jsonDateToDbStr($strDate){
+        $zendDate = self::jsonStrToDate($strDate);
+        return self::dateToDbStr($zendDate);
+    }
+    
+    public static function jsonTimeToDbStr($strTime){
+        $zendDate = self::jsonStrToTime($strTime);
+        return self::timeToDbStr($zendDate);
+    }
+    
+    public static function dbDatetimeToJsonStr($strDatetime){
+        $zendDate = self::dbStrToDatetime($strDatetime);
+        return self::datetimeToJsonStr($zendDate);
+    }
+    
+    public static function dbDateToJsonStr($strDate){
+        $zendDate = self::dbStrToDate($strDate);
+        return self::dateToJsonStr($zendDate);
+    }
+    
+    public static function dbTimeToJsonStr($strTime){
+        $zendDate = self::dbStrToTime($strTime);
+        return self::timeToJsonStr($zendDate);
+    }
+    
     public static function difference(Zend_Date $date1, Zend_Date $date2 = null) {
         if(!$date2){
             $date2 = new Zend_Date();

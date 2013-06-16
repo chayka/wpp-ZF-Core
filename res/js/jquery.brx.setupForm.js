@@ -31,7 +31,7 @@
             event.preventDefault();
             var data = {};
             for (var field in this.get('setupOptions', {})){
-                data[field] = this.inputs(field).val();
+                data[field] = this.getFieldValue(field);
             }
             console.dir({save:data});
         

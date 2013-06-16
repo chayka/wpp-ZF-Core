@@ -173,38 +173,51 @@
         return result;
     }
     
+    $.brx.utils.errorHandlers = {};
+    
+    $.brx.utils.addErrorHandler = function(id, handler){
+        $.brx.utils.errorHandlers[id] = handler;
+    }
+    
     $.brx.utils.handleError = function(code, message){
-        switch(code){
-            case 'auth_required':
-                message = message || 
-                'Для выполнения данной операции необходимо авторизоваться на сайте';
-                window.modalDialog(message, null, {
-                    title: 'Требуется авторизация',
-                    buttons: [
-                        {text: 'Продолжить анонимно', click: function(){
-                                $(this).dialog('close');
-                        }},
-                        {text: 'Зарегистрироваться', click: function(){
-                                $(document).trigger('authForm.join');
-                                $(this).dialog('close');
-                        }},
-                        {text: 'Войти', click: function(){
-                                $(document).trigger('authForm.login');
-                                $(this).dialog('close');
-                        }}
-                    ],
-                    width: 400
-                });
-                return true;
-            case 'permission_required':
-                message = message || 
-                'У вас недостаточно прав для выполнения данной операции';
-                window.modalAlert(message);
-                return true;
-            case 'reputation_required':
-                break;
+        var res = false;
+        for(var id in $.brx.utils.errorHandlers){
+            var handler = $.brx.utils.errorHandlers[id];
+            res = res || handler(code, message);
         }
-        return false;
+        
+        return res;
+//        switch(code){
+//            case 'auth_required':
+//                message = message || 
+//                'Для выполнения данной операции необходимо авторизоваться на сайте';
+//                window.modalDialog(message, null, {
+//                    title: 'Требуется авторизация',
+//                    buttons: [
+//                        {text: 'Продолжить анонимно', click: function(){
+//                                $(this).dialog('close');
+//                        }},
+//                        {text: 'Зарегистрироваться', click: function(){
+//                                $(document).trigger('authForm.join');
+//                                $(this).dialog('close');
+//                        }},
+//                        {text: 'Войти', click: function(){
+//                                $(document).trigger('authForm.login');
+//                                $(this).dialog('close');
+//                        }}
+//                    ],
+//                    width: 400
+//                });
+//                return true;
+//            case 'permission_required':
+//                message = message || 
+//                'У вас недостаточно прав для выполнения данной операции';
+//                window.modalAlert(message);
+//                return true;
+//            case 'reputation_required':
+//                break;
+//        }
+//        return false;
     }
     
     $.brx.utils.handleErrors = function(data){
@@ -225,7 +238,11 @@
     }
 
     $.brx.utils.processFail = function(response){
+        if(!response.responseText){
+            return 'Empty response';
+        }
         var m = response.responseText?response.responseText.match(/<body[^>]*>([\s\S]*)<\/body>/m):null;
+        m = m?m:response.responseText?response.responseText.match(/<br\s*\/>\s*<b>[^<]+<\/b>\:\s*(.*)<br\s*\/>/m):null;
         var message = m?m[1].trim():null;
         return message;
     }
@@ -321,6 +338,10 @@
         return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
     }
     
+    $.brx.utils.fixDateTimezone = function (date) {
+        date.setHours(date.getHours(), -date.getTimezoneOffset());
+        return date;
+    }    
 /*
  * class FormatHelper{
     /**

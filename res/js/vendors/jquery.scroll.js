@@ -41,6 +41,48 @@
         };
     }
     
+    $.fixItem = function(id, $item, $bottomContainer, mode, offsetTop, offsetBottom){
+        offsetTop = undefined == offsetTop? 0 : offsetTop;
+        offsetBottom = undefined == offsetBottom? 0 : offsetBottom;
+        if('next' == $bottomContainer){
+            mode = 'margin';
+            $bottomContainer = $($item).next();
+        }else if('parent' == $bottomContainer || !$bottomContainer){
+            mode = 'padding'
+            $bottomContainer = $($item).parent();
+        }
+        var itemHeight = parseInt($item.css('margin-top')) 
+            + $item.height() 
+            + parseInt($item.css('margin-bottom'));
+        var bottomContainerHeight = parseInt($bottomContainer.css('margin-top')) 
+            + $bottomContainer.height() 
+            + parseInt($bottomContainer.css('margin-bottom'));
+        if(mode != undefined && mode){
+            $bottomContainer.css(mode+'-top', itemHeight+'px');
+        }
+//        var itemHeight = $item.height() + offsetBottom
+        var offset_1 = $item.offset().top - parseInt($item.css('margin-top'));
+        var offset_2 = $bottomContainer.offset().top + (bottomContainerHeight - itemHeight - offsetBottom);
+        if(offset_2 > offset_1){
+            $.addItemToScrollLayout(id, $($item), [
+                {
+                    since: 0,
+                    alias: 'top',
+                    css: {'position': 'absolute', 'top':offset_1+'px'}
+                },{
+                    since: offset_1 - offsetTop,
+                    alias: 'fixed',
+                    css: {'position': 'fixed', 'top':offsetTop+'px'}
+                },{
+                    since: offset_2,
+                    alias: 'bottom',
+                    css: {'position': 'absolute', 'top':(offset_2+offsetTop)+'px'}
+                }
+
+            ]);
+        }
+    }
+    
     $(document).scroll(function() {
         for(var id in $.scrollLayout){
            var item = $.scrollLayout[id];

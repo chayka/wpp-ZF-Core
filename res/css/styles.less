@@ -81,6 +81,30 @@
     -o-transform:rotate(@deg); /* Opera */
 }
 
+.sprite-icon(@url-background, @width, @height){
+    display: inline-block;
+    width: @width;
+    height: @height;
+    line-height: @height;
+    vertical-align: middle;
+    background-image: @url-background;
+    background-position: @width @height;
+    background-repeat: no-repeat;
+}
+
+.sprite-icon(@url-background, @width, @height, @num-x, @num-y){
+    .sprite-icon(@url-background, @width, @height);
+    background-size: (@width * @num-x) (@height * @num-y);
+}
+
+.sprite-offset(@offset-x, @offset-y){
+    background-position: (-@offset-x) (-@offset-y);
+}
+
+.sprite-offset(@x, @y, @width, @height){
+    background-position: (-@width * @x) (-@height * @y);
+}
+
 .clearfloat{
     clear: both;
 }

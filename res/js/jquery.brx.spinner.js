@@ -85,9 +85,9 @@
     $.widget( "brx.generalSpinner", $.brx.spinner, {
  
         postCreate: function(){
-            this.option('template')
-                .css('display', 'inline');
-        //    this.hide();
+            this.option('template');
+//                .css('display', 'inline');
+//            this.hide();
             this.element.dialog({
                autoOpen:false,
                closeOnEscape: false,

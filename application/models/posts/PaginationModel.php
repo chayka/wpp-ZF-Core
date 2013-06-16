@@ -48,11 +48,45 @@ class PaginationModel{
     }
 
     public function getPackFirstPage(){
-        return ceil($this->getCurrentPage() / $this->getPackSize()-1) * $this->getPackSize() + 1;
+        $packStart = 1;
+        $packFinish = $this->getTotalPages();
+
+        if($this->getPackSize() < $this->getTotalPages()){
+            $packStart = $this->getCurrentPage() - floor(($this->getPackSize() -1)/ 2);
+            $packFinish = $this->getCurrentPage() + ceil(($this->getPackSize() -1)/ 2);
+            $offset = 0;
+            if($packStart<1){
+                $offset = 1 - $packStart;
+            }
+            if($packFinish>$this->getTotalPages()){
+                $offset = $this->getTotalPages() - $packFinish;
+            }
+            $packStart+=$offset;
+            $packFinish+=$offset;
+        }
+        return $packStart;
+//        return ceil($this->getCurrentPage() / $this->getPackSize()-1) * $this->getPackSize() + 1;
     }
     
     public function getPackLastPage(){
-        return ceil($this->getCurrentPage() / $this->getPackSize()) * $this->getPackSize();
+        $packStart = 1;
+        $packFinish = $this->getTotalPages();
+
+        if($this->getPackSize() < $this->getTotalPages()){
+            $packStart = $this->getCurrentPage() - floor(($this->getPackSize() -1)/ 2);
+            $packFinish = $this->getCurrentPage() + ceil(($this->getPackSize() -1)/ 2);
+            $offset = 0;
+            if($packStart<1){
+                $offset = 1 - $packStart;
+            }
+            if($packFinish>$this->getTotalPages()){
+                $offset = $this->getTotalPages() - $packFinish;
+            }
+            $packStart+=$offset;
+            $packFinish+=$offset;
+        }
+        return $packFinish;
+//        return ceil($this->getCurrentPage() / $this->getPackSize()) * $this->getPackSize();
     }
     
     public function pageExists($page){
@@ -84,13 +118,20 @@ class PaginationModel{
         return $this->getPageLink($page);
     }
     
-    public function render(){
+    public function render($attrs = array(), $cssClass = '', $isJs = false ){
 //    public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = ''){
         $html = new Zend_View();
         $html->setScriptPath(ZF_CORE_APPLICATION_PATH . '/views/scripts/posts/');
 
         $html->assign('model', $this);
+        $html->assign('js', $isJs);
+        $html->assign('attributes', $attrs);
+        $html->assign('cssClass', $cssClass);
         
         return $html->render('pagination.phtml');
+    }
+    
+    public function renderJS($attrs = array(), $cssClass = ''){
+        return $this->render($attrs, $cssClass, true);
     }
 }   

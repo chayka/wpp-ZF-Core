@@ -438,4 +438,17 @@ class WpHelper {
         return $title;
     }
     
+    public static function getRootDir($path = ''){
+        if(!$path){
+            $caller = reset(debug_backtrace());
+            $path = Util::getItem($caller, 'file');
+        }
+        $dir = $path;
+        while(strlen($dir)&&!preg_match("%wp-content\\/(plugins|themes)\\/[^\\/]+$%", $dir)){
+            $dir = preg_replace('%\/[^\/]*$%', '', $dir);
+        }        
+        
+        return $dir;
+    }
+    
 }

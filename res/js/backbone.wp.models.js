@@ -25,6 +25,8 @@
                 pinged: '',
                 menu_order: '',
                 comment_status: '',
+                comment_count: 0,
+                post_mime_type: '',
                 terms: [],
                 comments: []
             };
@@ -34,6 +36,8 @@
         collectionFields: ['terms', 'comments'],
         
         dateFields: ['post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt'],
+        
+        userIdAttribute: 'post_author',
                 
         strings: {
 //            course_mode:{
@@ -45,14 +49,166 @@
         initialize: function(){
         },
         
-        getString: function(attr, defaultValue){
-            if(_.isUndefined(defaultValue)){
-                defaultValue = 'unknown';
-            }
-            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
-        }
+//        getString: function(attr, defaultValue){
+//            if(_.isUndefined(defaultValue)){
+//                defaultValue = 'unknown';
+//            }
+//            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
+//        },
 
-    });
+        setUserId: function(val){
+            return this.set('post_author', parseInt(val));
+        },
+                
+        getUserId: function(){
+            return parseInt(this.get('post_author', 0));
+        },
+        
+        setParentId: function(val){
+            return this.set('post_parent', parseInt(val));
+        },
+                
+        getParentId: function(){
+            return parseInt(this.get('post_parent', 0));
+        },
+        
+        setType: function(val){
+            return this.set('post_type', val);
+        },
+                
+        getType: function(){
+            return this.get('post_type', 0);
+        },
+        
+        setSlug: function(val){
+            return this.set('post_name', val);
+        },
+                
+        getSlug: function(){
+            return this.get('post_name', '');
+        },
+        
+        setTitle: function(val){
+            return this.set('post_title', val);
+        },
+                
+        getTitle: function(){
+            return this.get('post_title', '');
+        },
+        
+        setContent: function(val){
+            return this.set('post_content', val);
+        },
+                
+        getContent: function(){
+            return this.get('post_content', 0);
+        },
+        
+        setExcerpt: function(val){
+            return this.set('post_excerpt', val);
+        },
+                
+        getExcerpt: function(){
+            return this.get('post_excerpt', 0);
+        },
+        
+        setDate: function(val){
+            return this.set('post_date', val);
+        },
+                
+        getDate: function(){
+            return this.get('post_date', null);
+        },
+        
+        setStatus: function(val){
+            return this.set('post_status', val);
+        },
+                
+        getStatus: function(){
+            return this.get('post_status', 0);
+        },
+        
+        setDateGmt: function(val){
+            return this.set('post_date_gmt', val);
+        },
+                
+        getDateGmt: function(){
+            return this.get('post_date_gmt', null);
+        },
+        
+        setModified: function(val){
+            return this.set('post_modified', val);
+        },
+                
+        getModified: function(){
+            return this.get('post_modified', null);
+        },
+        
+        setModifiedGmt: function(val){
+            return this.set('post_modified_gmt', val);
+        },
+                
+        getModifiedGmt: function(){
+            return this.get('post_modified_gmt', null);
+        },
+                
+        setPingStatus: function(val){
+            return this.set('ping_status', val);
+        },
+                
+        getPingStatus: function(){
+            return this.get('ping_status', 'open');
+        },
+        
+        setToPing: function(val){
+            return this.set('to_ping', val);
+        },
+                
+        getToPing: function(){
+            return this.get('to_ping', '');
+        },
+        
+        setPinged: function(val){
+            return this.set('pinged', val);
+        },
+                
+        getPinged: function(){
+            return this.get('pinged', '');
+        },
+        
+        setMenuOrder: function(val){
+            return this.set('menu_order', val);
+        },
+                
+        getMenuOrder: function(){
+            return this.get('menu_order', 0);
+        },
+        
+        setCommentStatus: function(val){
+            return this.set('comment_status', val);
+        },
+                
+        getCommentStatus: function(){
+            return this.get('comment_status', 'open');
+        },
+        
+        setCommentCount: function(val){
+            return this.set('comment_count', val);
+        },
+                
+        getCommentCount: function(){
+            return this.get('comment_count', 0);
+        },
+        
+        setMimeType: function(val){
+            return this.set('post_mime_type', val);
+        },
+                
+        getMimeType: function(){
+            return this.get('post_mime_type', '');
+        },
+        
+});
 
     $.declare('wp.PostModels', $.brx.Collection, {
 
@@ -79,23 +235,24 @@
         defaults: function() {
             return {
 //                id: 0,
-                post_id: 0,
-                author: '',
-                email: '',
-                url: '',
-                user_id: 0,
-                content: '',
-                karma: '',
-                approved: null,
-                agent: null,
-                parent_id: null,
-                type: null,
-                date: null,
+                comment_post_ID: 0,
+                comment_author: '',
+                comment_email: '',
+                comment_url: '',
+                comment_content: '',
+                comment_karma: '',
+                comment_approved: null,
+                comment_agent: null,
+                comment_parent: 0,
+                comment_type: null,
+                comment_date: null,
+                comment_date_gmt: null,
+                user_id: 0
             };
             
         },
         
-        dateFields: ['date', 'date_gmt'],
+        dateFields: ['comment_date', 'comment_date_gmt'],
         
         strings: {
 //            course_mode:{
@@ -107,13 +264,122 @@
         initialize: function(){
         },
         
-        getString: function(attr, defaultValue){
-            if(_.isUndefined(defaultValue)){
-                defaultValue = 'unknown';
-            }
-            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
-        }
+//        getString: function(attr, defaultValue){
+//            if(_.isUndefined(defaultValue)){
+//                defaultValue = 'unknown';
+//            }
+//            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
+//        },
 
+        setPostId: function(val){
+            return this.set('comment_post_ID', parseInt(val));
+        },
+                
+        getPostId: function(){
+            return parseInt(this.get('comment_post_ID', 0));
+        },
+        
+        setAuthor: function(val){
+            return this.set('comment_author', val);
+        },
+                
+        getAuthor: function(){
+            return this.get('comment_author', '');
+        },
+        
+        setEmail: function(val){
+            return this.set('comment_email', val);
+        },
+                
+        getEmail: function(){
+            return this.get('comment_email', '');
+        },
+        
+        setUrl: function(val){
+            return this.set('comment_url', val);
+        },
+                
+        getUrl: function(){
+            return this.get('comment_url', '');
+        },
+        
+        setUserId: function(val){
+            return this.set('user_id', parseInt(val));
+        },
+                
+        getUserId: function(){
+            return parseInt(this.get('user_id', 0));
+        },
+        
+        setContent: function(val){
+            return this.set('comment_content', val);
+        },
+                
+        getContent: function(){
+            return this.get('comment_content', '');
+        },
+        
+        setKarma: function(val){
+            return this.set('comment_karma', val);
+        },
+                
+        getKarma: function(){
+            return this.get('comment_karma', 0);
+        },
+        
+        setApproved: function(val){
+            return this.set('comment_approved', val);
+        },
+                
+        getApproved: function(){
+            return this.get('comment_approved', false);
+        },
+        
+        setAgent: function(val){
+            return this.set('comment_agent', val);
+        },
+                
+        getAgent: function(){
+            return this.get('comment_agent', 0);
+        },
+        
+        setParentId: function(val){
+            return this.set('comment_parent', parseInt(val));
+        },
+                
+        getParentId: function(){
+            return parseInt(this.get('comment_parent', 0));
+        },
+        
+        setType: function(val){
+            return this.set('comment_type', val);
+        },
+                
+        getType: function(){
+            return this.get('comment_type', 0);
+        },
+        
+        setDate: function(val){
+            return this.set('comment_date', val);
+        },
+                
+        getDate: function(){
+            return this.get('comment_date', null);
+        },
+        
+        setDateGmt: function(val){
+            return this.set('comment_date_gmt', val);
+        },
+                
+        getDateGmt: function(){
+            return this.get('comment_date_gmt', null);
+        },
+        
+        getAuthorName: function(){
+            var user = this.getUserId()?$.wp.users.get(this.getUserId()):null;
+            var name = user?user.getDisplayName():this.getAuthor();
+            return name?name:'- unknown -';
+        }
     });
 
     $.declare('wp.CommentModels', $.brx.Collection, {
@@ -141,23 +407,26 @@
         defaults: function() {
             return {
 //                id: 0,
-                post_id: 0,
-                author: '',
-                email: '',
-                url: '',
-                user_id: 0,
-                content: '',
-                karma: '',
-                approved: null,
-                agent: null,
-                parent_id: null,
-                type: null,
-                date: null,
+                user_login: '',
+                user_nicename: '',
+                user_email: '',
+                user_url: '',
+                user_registered: '',
+                user_status: '',
+                display_name: '',
+                first_name: '',
+                last_name: '',
+                description: '',
+                role: 'guest',
+                jabber: '',
+                aim: '',
+                yim: '',
+                profile_link: ''
             };
             
         },
         
-        dateFields: ['date', 'date_gmt'],
+        dateFields: ['user_registered'],
         
         strings: {
 //            course_mode:{
@@ -169,13 +438,121 @@
         initialize: function(){
         },
         
-        getString: function(attr, defaultValue){
-            if(_.isUndefined(defaultValue)){
-                defaultValue = 'unknown';
-            }
-            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
+//        getString: function(attr, defaultValue){
+//            if(_.isUndefined(defaultValue)){
+//                defaultValue = 'unknown';
+//            }
+//            return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
+//        },
+        
+        setLogin: function(val){
+            return this.set('user_login', val);
+        },
+                
+        getLogin: function(){
+            return this.get('user_login', '');
+        },
+        
+        setNicename: function(val){
+            return this.set('user_nicename', val);
+        },
+                
+        getNicename: function(){
+            return this.get('user_nicename', '');
+        },
+        
+        setEmail: function(val){
+            return this.set('user_email', val);
+        },
+                
+        getEmail: function(){
+            return this.get('user_email', '');
+        },
+        
+        setUrl: function(val){
+            return this.set('user_url', val);
+        },
+                
+        getUrl: function(){
+            return this.get('user_url', '');
+        },
+        
+        setDtRegistered: function(val){
+            return this.set('user_registered', val);
+        },
+                
+        getDtRegistered: function(){
+            return this.get('user_registered', null);
+        },
+        
+        setStatus: function(val){
+            return this.set('user_status', val);
+        },
+                
+        getStatus: function(){
+            return this.get('user_status', 0);
+        },
+        
+        setDisplayName: function(val){
+            return this.set('display_name', val);
+        },
+                
+        getDisplayName: function(){
+            return this.get('display_name', '');
+        },
+        
+        setFirstName: function(val){
+            return this.set('user_login', val);
+        },
+                
+        getLastName: function(){
+            return this.get('user_login', '');
+        },
+        
+        setDescription: function(val){
+            return this.set('description', val);
+        },
+                
+        getDescription: function(){
+            return this.get('description', '');
+        },
+        
+        setRole: function(val){
+            return this.set('role', val);
+        },
+                
+        getRole: function(){
+            return this.get('role', 'guest');
+        },
+        
+        setJabber: function(val){
+            return this.set('jabber', val);
+        },
+                
+        getJabber: function(){
+            return this.get('jabber', '');
+        },
+        
+        setAim: function(val){
+            return this.set('aim', val);
+        },
+                
+        getAim: function(){
+            return this.get('aim', '');
+        },
+        
+        setYim: function(val){
+            return this.set('yim', val);
+        },
+                
+        getYim: function(){
+            return this.get('yim', '');
+        },
+                
+        getProfileLink: function(){
+            return this.get('profile_link', '');
         }
-
+        
     });
 
     $.declare('wp.UserModels', $.brx.Collection, {

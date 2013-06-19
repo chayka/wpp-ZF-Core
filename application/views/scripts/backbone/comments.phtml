@@ -1,0 +1,5 @@
+<script type="text/javascript">
+jQuery(document).ready(function($){
+    $.declare('<?php echo $this->populateId;?>', new $.wp.CommentModels(<?php echo JsonHelper::encode($this->comments)?>));
+});  
+</script>

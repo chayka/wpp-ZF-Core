@@ -129,7 +129,7 @@ $.resourceLoader = {
         if(basePath){
             $.resourceLoader.basePath = basePath;
         }
-        $('[widgetTemplate]').each(function(i){
+        $('[widgetTemplate],[backbone-view]').each(function(i){
             $(this).storeTemplatedAttrs();
         });
         $('[widget]').each(function(i){

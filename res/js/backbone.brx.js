@@ -21,14 +21,14 @@
         var options = null;
         
         if(parent){
-            options = _.getItem(parent, 'options', {});
+            options = $.extend(true, {}, _.getItem(parent, 'options', {}));
             if(parent.__super__){
-                options = $.extend(true, options, _.getItem(parent.__super__, 'options', {}));
+                options = $.extend(true, {}, options, _.getItem(parent.__super__, 'options', {}));
             }
             if(parent.prototype){
-                options = $.extend(true, options, _.getItem(parent.prototype, 'options', {}));
+//                options = $.extend( {}, options, _.getItem(parent.prototype, 'options', {}));
             }
-            options = $.extend(true, options, _.getItem(implementation, 'options', {}));
+            options = $.extend(true, {}, options, _.getItem(implementation, 'options', {}));
             implementation.options = options;
             if(_.has(parent, 'extend') && _.isFunction(parent.extend)){
                 root[part] = parent.extend(implementation);
@@ -41,6 +41,68 @@
         
         return;// root[part];
     }
+    
+    _.empty = function(value){
+        return 	!value
+        ||	value == ""
+        ||	value == "undefined"
+        ||	value == null
+        ||	value == "NaN"
+        ||	value == 0
+        ||	value == "0"
+        ||	value == {}
+        ||	value == []
+        ;
+    };
+    
+    _.getItem = function(obj, key, defaultValue){
+        var parts = (key+'').split('.');
+        var root = obj;
+        for(var i in parts){
+            var part = parts[i];
+            if(root[part]!=undefined){
+                root = root[part];
+            }else{
+                return defaultValue;
+            }
+        }
+        return root;
+//        return _.empty(obj[key])?defaultValue:obj[key];
+    };
+    
+    _.getVar = function(path, root){
+        root = root || window;
+        var parts = path.split('.');
+        for(var x in parts){
+            var part = parts[x];
+            if(!parseInt(x)  && part == '$'){
+                root = $;
+                continue;
+            }
+            if(root[part]!=undefined){
+                root = root[part];
+            }else{
+                return null;
+            }
+        }
+        return root;
+    };
+    
+    _.setVar = function(path, val, root){
+        var parts = path.split('.');
+        root = root || window;
+        var part = ''
+        for(var i = 0; i < parts.length; i++){
+            part = parts[i];
+            if(i == parts.length - 1){
+                break;
+            }
+            root[part] = root[part] || {}
+            root = root[part];
+        }
+        
+        return root[part] = val;
+    };
 
     $.brx = $.brx || {};
 
@@ -51,6 +113,8 @@
         dateFields: [],
         
         strings: {},
+        
+        userIdAttribute: 'user_id',
         
         nlsNamespace: '',
         
@@ -116,6 +180,14 @@
             return this.get(attr)?_.getItem(this, 'strings.'+attr+'.'+this.get(attr), defaultValue):defaultValue;
         },
                 
+        getInt: function(key){
+            return parseInt(this.get(key, 0));
+        },
+        
+        setInt: function(key, val){
+            return this.set(key, parserInt(val));
+        },
+                
         nls: function(key){
             if( this.nlsNamespace.length){
                 key = this.nlsNamespace + '.' + key;
@@ -127,6 +199,13 @@
         revert: function(){
             this.set(this.previousAttributes());
             this.trigger('revert', this);
+        },
+                
+        canModify: function(userIdAttr){
+            userIdAttr = userIdAttr || this.userIdAttribute;
+            var ownerId = parseInt(this.get(userIdAttr));
+            return ownerId && ownerId === parseInt($.wp.currentUser.id) 
+                || 'administrator' === $.wp.currentUser.role;
         }
         
     });
@@ -152,7 +231,8 @@
     });
     
 
-    $.brx.View = Backbone.View.extend({
+//    $.brx.View = Backbone.View.extend({
+    $.declare('brx.View', Backbone.View, {
         nlsNamespace: '',
         
         options:{
@@ -163,10 +243,10 @@
             Backbone.View.prototype.initialize.apply(this, arguments);
             if(this.options.templateSelector){
                 var template = $(this.options.templateSelector);
-                var element = $(template.html());
+                var element = $(template.prop('tagName').toLowerCase() == 'script' ?template.html():template[0]);
                 this.setElement(element);
+//                this._parseElement();
             }
-            this._parseElement();
             this.postCreate();
         },
         
@@ -190,6 +270,10 @@
             }
             return value || defaultValue;
         },
+                
+        getInt: function(key){
+            return parseInt(this.get(key, 0));
+        },
         
         set: function(key, value){
             if(!key) return this;
@@ -206,7 +290,11 @@
             return this;
             
         },
-        
+                
+        setInt: function(key, val){
+            return this.set(key, parserInt(val));
+        },
+                
         option: function(key, value){
             if(undefined == value){
                 return this.get(key);
@@ -231,6 +319,7 @@
         },
         
         setElement: function(element, delegate){
+            if(element == this.el && this.$el){ return }
             Backbone.View.prototype.setElement.apply(this, arguments);
             this._parseElement();
         },
@@ -242,7 +331,8 @@
         _parseElement: function(){
 //            console.log('templated._parseTemplate');
             var w = this;
-            $('[widget-template], [backbone-view-template]').storeTemplatedAttrs();
+            this.$el.restoreTemplatedAttrs();
+            $('[widget-template], [backbone-view-template]', w.el).storeTemplatedAttrs();
             $('[widget]', w.el).each(function(i){
                 var widgetName = $(this).attr("widget");
                 if(widgetName){
@@ -294,10 +384,10 @@
                         var binding = bindings[i].match(re2);
                         var eventId = binding[1];
                         var handlerId = binding[2];
-                        $(this).bind(eventId, $.proxy(w[handlerId], w));
+                        $(this).unbind(eventId).bind(eventId, $.proxy(w[handlerId], w));
                     }
                 }else{
-                    $(this).bind('click', $.proxy(w[attachEvent], w));
+                    $(this).unbind('click').bind('click', $.proxy(w[attachEvent], w));
                 }
 //                console.dir({'attachEvent':{event: attachEvent, widget: w, element: $(this)}});
                 $(this).storeAttr('attachEvent');
@@ -406,7 +496,8 @@
         
     }
 
-    $.brx.FormView = $.brx.View.extend({
+//    $.brx.FormView = $.brx.View.extend({
+    $.declare('brx.FormView', $.brx.View, {
         
         options: { 
             fields: {},
@@ -561,6 +652,63 @@
             }
         },
         
+        getFieldVisibleValue: function(fieldId){
+            if(this.inputs(fieldId).is('select')){
+                return this.inputs(fieldId).find('option:selected').text();
+            }
+            if(this.inputs(fieldId).is('input[type=radio]')){
+                return this.fields(fieldId).find('input[type=radio]:checked').next().text();
+            }
+            if(this.inputs(fieldId).is('input[type=checkbox]')){
+                return this.fields(fieldId).find('input[type=chekbox]:checked').next().text();
+            }
+            if(!$.brx.utils.empty(window.tinyMCE) &&
+                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+                return this.getTinyMceContent(fieldId);
+            }
+            return this.inputs(fieldId).data('placeholder')?
+                this.inputs(fieldId).data('placeholder').val():
+                this.inputs(fieldId).val();
+        },
+        
+        getFieldValue: function(fieldId){
+            if(this.inputs(fieldId).is('select')){
+                return this.inputs(fieldId).val();
+            }
+            if(this.inputs(fieldId).is('input[type=radio]')){
+                return this.fields(fieldId).find('input[type=radio]:checked').val();
+            }
+            if(this.inputs(fieldId).is('input[type=checkbox]')){
+                return this.fields(fieldId).find('input[type=chekbox]:checked').val();
+            }
+            if(!$.brx.utils.empty(window.tinyMCE) &&
+                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+                return this.getTinyMceContent(fieldId);
+            }
+            return this.inputs(fieldId).data('placeholder')?
+                this.inputs(fieldId).data('placeholder').val():
+                this.inputs(fieldId).val();
+        },
+
+        setFieldValue: function(fieldId, value){
+            if(this.inputs(fieldId).is('select')){
+                return this.inputs(fieldId).val(value);
+            }
+            if(this.inputs(fieldId).is('input[type=radio]')){
+                return this.setRadioValue(value, fieldId);
+            }
+            if(this.inputs(fieldId).is('input[type=checkbox]')){
+                return this.setCheckboxState(fieldId, value);
+            }
+            if(!$.brx.utils.empty(window.tinyMCE) &&
+                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+                return this.setTinyMceContent(fieldId, value);
+            }
+            return this.inputs(fieldId).data('placeholder')?
+                this.inputs(fieldId).data('placeholder').val(value):
+                this.inputs(fieldId).val(value);
+        },
+
         setupRemoteAutoComplete: function(jInput, url){
             jInput.remoteAutocomplete(url);
         },
@@ -666,44 +814,6 @@
             }
         },
         
-        getFieldVisibleValue: function(fieldId){
-            if(this.inputs(fieldId).is('select')){
-                return this.inputs(fieldId).find('option:selected').text();
-            }
-            if(this.inputs(fieldId).is('input[type=radio]')){
-                return this.fields(fieldId).find('input[type=radio]:checked').next().text();
-            }
-            if(this.inputs(fieldId).is('input[type=checkbox]')){
-                return this.fields(fieldId).find('input[type=chekbox]:checked').next().text();
-            }
-            if(!$.brx.utils.empty(window.tinyMCE) &&
-                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
-                return this.getTinyMceContent(fieldId);
-            }
-            return this.inputs(fieldId).data('placeholder')?
-                this.inputs(fieldId).data('placeholder').val():
-                this.inputs(fieldId).val();
-        },
-        
-        getFieldValue: function(fieldId){
-            if(this.inputs(fieldId).is('select')){
-                return this.inputs(fieldId).val();
-            }
-            if(this.inputs(fieldId).is('input[type=radio]')){
-                return this.fields(fieldId).find('input[type=radio]:checked').val();
-            }
-            if(this.inputs(fieldId).is('input[type=checkbox]')){
-                return this.fields(fieldId).find('input[type=chekbox]:checked').val();
-            }
-            if(!$.brx.utils.empty(window.tinyMCE) &&
-                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
-                return this.getTinyMceContent(fieldId);
-            }
-            return this.inputs(fieldId).data('placeholder')?
-                this.inputs(fieldId).data('placeholder').val():
-                this.inputs(fieldId).val();
-        },
-
         checkLength: function ( fieldId, fieldLabel, min, max, messageTemplate ) {
             fieldLabel = fieldLabel || this.labels(fieldId).text().replace(':', '');
             min = min || this.fields(fieldId).attr('check-length-min') || 0;
@@ -874,67 +984,6 @@
         return matched;
     };
     
-    _.empty = function(value){
-        return 	!value
-        ||	value == ""
-        ||	value == "undefined"
-        ||	value == null
-        ||	value == "NaN"
-        ||	value == 0
-        ||	value == "0"
-        ||	value == {}
-        ||	value == []
-        ;
-    };
-    
-    _.getItem = function(obj, key, defaultValue){
-        var parts = key.split('.');
-        var root = obj;
-        for(var i in parts){
-            var part = parts[i];
-            if(root[part]!=undefined){
-                root = root[part];
-            }else{
-                return defaultValue;
-            }
-        }
-        return root;
-//        return _.empty(obj[key])?defaultValue:obj[key];
-    };
-    
-    _.getVar = function(path, root){
-        root = root || window;
-        var parts = path.split('.');
-        for(var x in parts){
-            var part = parts[x];
-            if(!parseInt(x)  && part == '$'){
-                root = $;
-                continue;
-            }
-            if(root[part]!=undefined){
-                root = root[part];
-            }else{
-                return null;
-            }
-        }
-        return root;
-    };
-    
-    _.setVar = function(path, val, root){
-        var parts = path.split('.');
-        root = root || window;
-        var part = ''
-        for(var i = 0; i < parts.length; i++){
-            part = parts[i];
-            if(i == parts.length - 1){
-                break;
-            }
-            root[part] = root[part] || {}
-            root = root[part];
-        }
-        
-        return root[part] = val;
-    };
 
 }(jQuery));
 

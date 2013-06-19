@@ -14,6 +14,10 @@ require_once 'application/helpers/WpDbHelper.php';
  */
 class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface{
     const SESSION_KEY = '_user';
+    
+    protected static $userCacheById = array();
+    protected static $userCacheByEmail = array();
+    protected static $userCacheByLogin = array();
 
     protected static $currentUser;
     
@@ -39,7 +43,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     
     protected $displayName;
     
-    protected $nickname;
+//    protected $nickname;
     
     protected $firstName;
     
@@ -140,13 +144,13 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->displayName = $displayName;
     }
 
-    public function getNickname() {
-        return $this->nickname;
-    }
-
-    public function setNickname($nickname) {
-        $this->nickname = $nickname;
-    }
+//    public function getNickname() {
+//        return $this->nickname;
+//    }
+//
+//    public function setNickname($nickname) {
+//        $this->nickname = $nickname;
+//    }
 
     public function getFirstName() {
         return $this->firstName;
@@ -227,6 +231,10 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     public function setYim($yim) {
         $this->yim = $yim;
     }
+    
+    public function getProfileLink(){
+        return get_author_posts_url($this->getId(), $this->getNicename());
+    }
 
     public function getWpUser() {
         return $this->wpUser;
@@ -255,7 +263,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $obj->setNicename($wpRecord->nice_name);
         $obj->setUrl($wpRecord->user_url);
         $obj->setDisplayName($wpRecord->display_name);
-        $obj->setNickname($wpRecord->nickname);
+//        $obj->setNickname($wpRecord->nickname);
         $obj->setFirstName($wpRecord->first_name);
         $obj->setLastName($wpRecord->last_name);
         $obj->setDescription($wpRecord->description);
@@ -267,6 +275,10 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $obj->setYim($wpRecord->yim);
         
         $obj->setWpUser($wpRecord);
+        
+        self::$userCacheById[$obj->getId()] = $obj;
+        self::$userCacheByEmail[$obj->getEmail()] = $obj->getId();
+        self::$userCacheByLogin[$obj->getLogin()] = $obj->getId();
         
         return $obj;
     }
@@ -286,7 +298,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $dbRecord['user_url'] = $this->getUrl();
         $dbRecord['user_email'] = $this->getEmail();
         $dbRecord['display_name'] = $this->getDisplayName();
-        $dbRecord['nickname'] = $this->getNickname();
+//        $dbRecord['nickname'] = $this->getNickname();
         $dbRecord['first_name'] = $this->getFirstName();
         $dbRecord['last_name'] = $this->getLastName();
         $dbRecord['description'] = $this->getDescription();
@@ -330,7 +342,12 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return boolean
      */
     public static function deleteById($userId = 0, $reassignUserId = 0) {
-
+        $item = Util::getItem(self::$userCacheById, $userId);
+        if($item){
+            unset(self::$userCacheByEmail[$item->getEmail()]);
+            unset(self::$userCacheByLogin[$item->getLogin()]);
+            unset(self::$userCacheById[$userId]);
+        }
         return wp_delete_user( $userId, $reassignUserId );
     }
 
@@ -339,7 +356,13 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param integer $id
      * @return UserModel 
      */
-    public static function selectById($id){
+    public static function selectById($id, $useCache = true){
+        if($useCache){
+            $item = Util::getItem(self::$userCacheById, $id);
+            if($item){
+                return $item;
+            }
+        }
         $wpRecord = get_user_by('id', $id);
         return $wpRecord?self::unpackDbRecord($wpRecord):null;
     }
@@ -349,12 +372,26 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param string $login
      * @return UserModel 
      */
-    public static function selectByLogin($login){
+    public static function selectByLogin($login, $useCache = true){
+        if($useCache){
+            $id = Util::getItem(self::$userCacheByLogin, $login);
+            $item = Util::getItem(self::$userCacheById, $id);
+            if($item){
+                return $item;
+            }
+        }
         $wpRecord = get_user_by('login', $login);
         return $wpRecord?self::unpackDbRecord($wpRecord):null;
     }
 
-    public static function selectByEmail($email){
+    public static function selectByEmail($email, $useCache = true){
+        if($useCache){
+            $id = Util::getItem(self::$userCacheByEmail, $email);
+            $item = Util::getItem(self::$userCacheById, $id);
+            if($item){
+                return $item;
+            }
+        }
         $wpRecord = get_user_by('email', $email);
         return $wpRecord?self::unpackDbRecord($wpRecord):null;
     }
@@ -406,13 +443,13 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     
     public function packJsonItem() {
         $jsonItem = array();
-        $jsonItem['ID'] = $this->getId();
+        $jsonItem['id'] = $this->getId();
         $jsonItem['user_login'] = $this->getLogin();
         $jsonItem['user_nicename'] = $this->getNicename();
         $jsonItem['user_url'] = $this->getUrl();
         $jsonItem['user_email'] = $this->getEmail();
         $jsonItem['display_name'] = $this->getDisplayName();
-        $jsonItem['nickname'] = $this->getNickname();
+//        $jsonItem['nickname'] = $this->getNickname();
         $jsonItem['first_name'] = $this->getFirstName();
         $jsonItem['last_name'] = $this->getLastName();
         $jsonItem['description'] = $this->getDescription();
@@ -422,6 +459,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['jabber'] = $this->getJabber();
         $jsonItem['aim'] = $this->getAim();
         $jsonItem['yim'] = $this->getYim();
+        $jsonItem['profile_link'] = $this->getProfileLink();
         
         return $jsonItem;
     }
@@ -442,7 +480,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->setNicename(Util::getItem($input, 'nice_name'));
         $this->setUrl(Util::getItem($input, 'user_url'));
         $this->setDisplayName(Util::getItem($input, 'display_name'));
-        $this->setNickname(Util::getItem($input, 'nickname'));
+//        $this->setNickname(Util::getItem($input, 'nickname'));
         $this->setFirstName(Util::getItem($input, 'first_name'));
         $this->setLastName(Util::getItem($input, 'last_name'));
         $this->setDescription(Util::getItem($input, 'description'));
@@ -521,5 +559,48 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
 	wp_password_change_notification($this->getWpUser());
     }
+    
+    public static function flushCache(){
+        self::$userCacheByEmail = array();
+        self::$userCacheByLogin = array();
+        self::$userCacheById = array();
+    }
+    
+    public static function getUserCacheById($id = 0){
+        if($id){
+            return Util::getItem(self::$userCacheById, $id);
+        }
+        return self::$userCacheById;
+    }
+    
+    public static function getUserCacheByEmail($email = ''){
+        if($email){
+            $id = Util::getItem(self::$userCacheByEmail, $email);
+            return Util::getItem(self::$userCacheById, $id, null);
+        }
+        $ret = array();
+        foreach(self::$userCacheByEmail as $email => $id){
+            $item = Util::getItem(self::$userCacheById, $id);
+            if($item){
+                $ret[$email] = $item;
+            }
+        }
+        return $ret;
+    }
 
- }
+    public static function getUserCacheByLogin($login = ''){
+        if($login){
+            $id = Util::getItem(self::$userCacheByLogin, $login);
+            return Util::getItem(self::$userCacheById, $id, null);
+        }
+        $ret = array();
+            foreach(self::$userCacheByLogin as $login => $id){
+                $item = Util::getItem(self::$userCacheById, $id);
+                if($item){
+                    $ret[$login] = $item;
+                }
+            }
+        return $ret;
+    }
+
+}

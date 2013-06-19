@@ -32,6 +32,7 @@ class RestController extends Zend_Rest_Controller{
         $class = $this->getModelClassName();
         $model = new $class();
         $model = InputHelper::getModelFromInput($model);
+//        Util::print_r($model); die();
         $errors = $model->getValidationErrors();
         if($errors){
             JsonHelper::respondErrors($errors);

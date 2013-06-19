@@ -107,6 +107,7 @@ class InputHelper {
         $dbRecord = $model->packDbRecord(false);
         $params = self::getParams();
         $input = array_intersect_key($params, $dbRecord);
+//        Util::print_r($input); die();
         if($model->validateInput($input, self::getParam('action'))){
             $model->unpackInput($input);
         }

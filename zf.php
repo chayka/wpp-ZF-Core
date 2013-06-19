@@ -51,9 +51,9 @@ class ZF_Query extends WP_Query {
             unset($request->query_vars['error']);
         }
         parse_str($_SERVER['QUERY_STRING'], $params);
-        $isZF = /*empty($_SERVER['REQUEST_URI'])
-            || '/'==$_SERVER['REQUEST_URI']
-            || */ preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
+        $isZF = in_array('index', self::$routes) 
+                && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI'])
+                || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
 //        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
         $isAPI = Util::getItem($m, 1, false);
         
@@ -105,7 +105,7 @@ class ZF_Query extends WP_Query {
         $tmpUri = $_SERVER['REQUEST_URI'];
         $_SERVER['REQUEST_URI'] = $uri;
         if(!$appId){
-            $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'/';
+            $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'index';
             $appId = Util::getItem(self::$routes, $route);
         }
         if($appId){
@@ -192,32 +192,6 @@ class ZF_Query extends WP_Query {
         
     }
 
-//    public static function themeRedirect() {
-//        global $wp;
-//        $plugindir = dirname( __FILE__ );
-//        Log::func();
-//            Log::dir($wp, 'wp');
-//
-//        //A Specific Custom Post Type
-//        if ($wp->query_vars["post_type"] == 'zf') {
-//            $templatefilename = Util::getItem($wp->query_vars, 'page_template',  'single-zf.php');
-//            if (file_exists(TEMPLATEPATH . '/' . $templatefilename)) {
-//                $return_template = TEMPLATEPATH . '/' . $templatefilename;
-//            } else {
-//                $return_template = $plugindir . '/' . $templatefilename;
-//            }
-//
-//            global $post, $wp_query;
-////            echo $return_template;
-//            if (have_posts()) {
-//                include($return_template);
-//                die();
-//            } else {
-//                $wp_query->is_404 = true;
-//            }
-//        }
-//    }
-//    
     
     function copyFrom(WP_Query $wp_query) {
         $vars = get_object_vars($wp_query);

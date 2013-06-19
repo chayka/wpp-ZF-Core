@@ -30,7 +30,9 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     protected $wpComment;
 
     protected $validationErrors;
-    
+
+    protected static $commentsCacheById = array();
+    protected static $commentsCacheByPostId = array();
 
     /**
      * PostModel constructor
@@ -45,6 +47,12 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $this->setId(0);
         $date = new Zend_Date();
         $this->setDtCreated($date);
+        $user = UserModel::currentUser();
+        $this->setUserId($user->getId());
+        $this->setAuthor($user->getDisplayName());
+        $this->setEmail($user->getEmail());
+        $this->setUrl($user->getUrl());
+        $this->setIsApproved(0);
 //        $this->setDtCreatedGMT($date);
         $this->setKarma(0);
     }
@@ -167,7 +175,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     }
 
     public function setParentId($parentId) {
-        $this->parent = $parentId;
+        $this->parentId = $parentId;
     }
 
     public function getWpComment() {
@@ -198,17 +206,19 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $input = array_merge($this->packJsonItem(), $input);
 
         $this->setId(Util::getItem($input, 'id', 0));
-        $this->setPostId(Util::getItem($input, 'post_id'));
-        $this->setUserId(Util::getItem($input, 'user_id'));
-        $this->setParentId(Util::getItem($input, 'parent_id'));
-        $this->setAuthor(Util::getItem($input, 'author'));
-        $this->setEmail(Util::getItem($input, 'email'));
-        $this->setUrl(Util::getItem($input, 'url'));
-        $this->setContent(Util::getItem($input, 'content'));
-        $this->setKarma(Util::getItem($input, 'karma'));
-        $this->setIsApproved(Util::getItem($input, 'approved'));
-        $this->setType(Util::getItem($input, 'type'));
-        
+        if(!$this->getId()){
+            $this->setPostId(Util::getItem($input, 'comment_post_ID'));
+        }
+//        $this->setUserId(Util::getItem($input, 'user_id'));
+        $this->setParentId(Util::getItem($input, 'comment_parent'));
+        $user = UserModel::currentUser();
+        $this->setAuthor(Util::getItem($input, 'comment_author', $user->getDisplayName()));
+        $this->setEmail(Util::getItem($input, 'comment_email', $user->getEmail()));
+        $this->setUrl(Util::getItem($input, 'comment_url', $user->getUrl()));
+        $this->setContent(Util::getItem($input, 'comment_content'));
+        $this->setKarma(Util::getItem($input, 'comment_karma'));
+        $this->setIsApproved(Util::getItem($input, 'comment_approved'));
+        $this->setType(Util::getItem($input, 'comment_type'));
     }
 
     public function validateInput($input = array(), $action = 'create') {
@@ -236,6 +246,9 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $obj->setType($wpRecord->comment_type);
         
         $obj->setWpComment($wpRecord);
+        
+        self::$commentsCacheById[$obj->getId()] = $obj;
+        self::$commentsCacheByPostId[$obj->getPostId()][$obj->getId()]=$obj->getId();
         
         return $obj;
     }
@@ -274,6 +287,8 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
 	$this->setIp(preg_replace( '/[^0-9a-fA-F:., ]/', '',$_SERVER['REMOTE_ADDR'] ));
 	$this->setAgent(substr($_SERVER['HTTP_USER_AGENT'], 0, 254));
         $dbRecord = $this->packDbRecord(false);
+//        Util::print_r($dbRecord);
+//        die();
         $id = wp_insert_comment($dbRecord);
         $this->setId($id);
         return $id;
@@ -297,6 +312,11 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
      * @return boolean
      */
     public static function deleteById($commentId = 0, $forceDelete = 0) {
+        $item = Util::getItem(self::$commentsCacheById, $commentId);
+        if($item){
+            unset(self::$commentsCacheByPostId[$item->getPostId()][$item->getId()]);
+            unset(self::$commentsBy[$item->getId()]);
+        }
         return wp_delete_comment( $commentId, $forceDelete );
     }
 
@@ -305,7 +325,13 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
      * @param integer $id
      * @return CommentModel 
      */
-    public static function selectById($id){
+    public static function selectById($id, $useCache = true){
+        if($useCache){
+            $record = Util::getItem(self::$commentsCacheById, $id);
+            if($record){
+                return $record;
+            }
+        }
         $wpRecord = get_comment($id);
         return $wpRecord?self::unpackDbRecord($wpRecord):null;
     }
@@ -349,21 +375,58 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     public function packJsonItem() {
         $jsonItem = array();
         $jsonItem['id'] = $this->getId();
-        $jsonItem['post_id'] = $this->getPostId();
-        $jsonItem['author'] = $this->getAuthor();
-        $jsonItem['email'] = $this->getEmail();
-        $jsonItem['url'] = $this->getUrl();
+        $jsonItem['comment_post_ID'] = $this->getPostId();
+        $jsonItem['comment_author'] = $this->getAuthor();
+        $jsonItem['comment_email'] = $this->getEmail();
+        $jsonItem['comment_url'] = $this->getUrl();
 //        $jsonItem['comment_author_IP'] = $this->getIp();
         $jsonItem['user_id'] = $this->getUserId();
-        $jsonItem['content'] = $this->getContent();
-        $jsonItem['karma'] = $this->getKarma();
-        $jsonItem['approved'] = $this->getIsApproved();
-        $jsonItem['agent'] = $this->getAgent();
-        $jsonItem['parent_id'] = $this->getParentId();
-        $jsonItem['type'] = $this->getType();
-        $jsonItem['date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
-        $jsonItem['date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
+        $jsonItem['comment_content'] = $this->getContent();
+        $jsonItem['comment_karma'] = $this->getKarma();
+        $jsonItem['comment_approved'] = $this->getIsApproved();
+        $jsonItem['comment_agent'] = $this->getAgent();
+        $jsonItem['comment_parent'] = $this->getParentId();
+        $jsonItem['comment_type'] = $this->getType();
+        $jsonItem['comment_date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
+        $jsonItem['comment_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
         
         return $jsonItem;
     }
+
+    public static function flushCache(){
+        self::$commentsCacheById = array();
+        self::$commentsCacheByPostId = array();
+    }
+    
+    public static function getCommentsCacheById($id = 0){
+        if($id){
+            return Util::getItem(self::$commentsCacheById, $id);
+        }
+        return self::$commentsCacheById;
+    }
+    
+    public static function getCommentsCacheByPostId($postId = 0){
+        $ret = array();
+
+        if($postId){
+            $commentIds = Util::getItem(self::$commentsCacheByPostId, $postId);
+            foreach($commentIds as $id){
+                $item = Util::getItem(self::$commentsCacheById, $id);
+                if($item){
+                    $ret[$id] = $item;
+                }
+            }
+            
+            return $ret;
+        }
+        
+        foreach (self::$commentsCacheByPostId as $postId=>$commentIds){
+            if($postId){
+                $ret[$postId] = self::getCommentsCacheByPostId($postId);
+            }
+        }
+        
+        return $ret;
+    }
+
 }

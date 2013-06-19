@@ -208,6 +208,7 @@ class ZF_Core{
         wp_register_script( 'backbone-brx-model', ZF_CORE_URL.'res/js/backbone.brx.Model.js', array('Backbone', 'nls'));
         wp_register_script( 'backbone-brx-view', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'jquery-ui-templated', 'backbone-brx-model'));
         wp_register_script( 'backbone-brx-form', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'backbone-brx-view'));
+        wp_register_script( 'backbone-wp-models', ZF_CORE_URL.'res/js/backbone.wp.models.js', array('backbone-brx'));
         
         wp_register_script( 'backbone-brx-pagination', ZF_CORE_URL.'res/js/backbone.brx.Pagination.view.js', array('backbone-brx'));
 
@@ -341,6 +342,7 @@ class ZF_Core{
         wp_enqueue_script('jquery-brx-modalBox');
         wp_enqueue_style('jquery-brx-spinner');
         wp_enqueue_script('jquery-brx-spinner');
+        wp_enqueue_script('backbone-wp-models');
         wp_print_scripts();
         wp_print_styles();
         

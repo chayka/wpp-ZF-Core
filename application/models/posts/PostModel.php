@@ -46,6 +46,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     protected $dtModifiedGMT;
     
     protected $wpPost;
+    
+    protected static $postsCacheById = array();
+    protected static $postsCacheBySlug = array();
 
     /**
      * PostModel constructor
@@ -332,6 +335,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         
         $obj->setWpPost($wpRecord);
         
+        self::$postsCacheById[$obj->getId()] = $obj;
+        self::$postsCacheBySlug[$obj->getSlug()] = $obj->getId();
+        
         return $obj;
     }
 
@@ -402,6 +408,11 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return boolean
      */
     public static function deleteById($postId = 0, $forceDelete = 0) {
+        $item = Util::getItem(self::$postsCacheById, $postId);
+        if($item){
+            unset(self::$postsCacheBySlug[$item->getSlug()]);
+            unset(self::$postsCacheById[$postId]);
+        }
         return wp_delete_post( $postId, $forceDelete );
     }
 
@@ -410,13 +421,26 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param integer $id
      * @return PostModel 
      */
-    public static function selectById($id){
+    public static function selectById($id, $useCache = true){
+        if($useCache){
+            $item = Util::getItem(self::$postsCacheById, $id);
+            if($item){
+                return $item;
+            }
+        }
         $wpRecord = get_post($id);
         return $wpRecord?self::unpackDbRecord($wpRecord):null;
     }
 
 
-    public static function selectBySlug($slug, $postType = ''){
+    public static function selectBySlug($slug, $postType = '', $useCache = true){
+        if($useCache){
+            $id = Util::getItem(self::$postsCacheBySlug, $slug);
+            $item = Util::getItem(self::$postsCacheById, $id);
+            if($item){
+                return $item;
+            }
+        }
         $args = array('name'=>$slug);
         if($postType){
             $args['post_type'] = $postType;
@@ -579,7 +603,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['post_title'] = $this->getTitle();
         $jsonItem['post_content'] = $this->getContent();
         $jsonItem['post_excerpt'] = $this->getExcerpt();
-//        $jsonItem['description'] = $this->getDescription();
         $jsonItem['post_status'] = $this->getStatus();
         $jsonItem['post_date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
         $jsonItem['post_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
@@ -588,6 +611,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['pinged'] = $this->getPinged();
         $jsonItem['menu_order'] = $this->getMenuOrder();
         $jsonItem['comment_status'] = $this->getCommentStatus();
+        $jsonItem['comment_count'] = $this->getCommentCount();
+        $jsonItem['post_mime_type'] = $this->getMimeType();
         $jsonItem['terms'] = $this->getTerms();
 //        if($this->getMeta()){
 //            $jsonItem['meta'] = $this->getMeta();
@@ -633,21 +658,21 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->setSlug(Util::getItem($input, 'post_name'));
         $this->setTitle(Util::getItem($input, 'post_title'));
         $this->setContent(Util::getItem($input, 'post_content'));
-        $this->setContentFiltered(Util::getItem($input, 'post_content_filtered'));
+//        $this->setContentFiltered(Util::getItem($input, 'post_content_filtered'));
         $this->setExcerpt(Util::getItem($input, 'post_excerpt'));
         $this->setStatus(Util::getItem($input, 'post_status'));        
         $this->setPingStatus(Util::getItem($input, 'ping_status'));
         $this->setPinged(Util::getItem($input, 'pinged'));
         $this->setToPing(Util::getItem($input, 'to_ping'));
         $this->setPassword(Util::getItem($input, 'post_password'));
-        $this->setDtCreated(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_date')));
+//        $this->setDtCreated(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_date')));
 //        $this->setDtCreatedGMT(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_date_gmt')));
         $this->setDtModified(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_modified')));
 //        $this->setDtModifiedGMT(DateHelper::jsonStrToDatetime(Util::getItem($input, 'post_modified_gmt')));
         $this->setMenuOrder(Util::getItem($input, 'menu_order'));
-        $this->setMimeType(Util::getItem($input, 'post_mime_type'));
+//        $this->setMimeType(Util::getItem($input, 'post_mime_type'));
         $this->setCommentStatus(Util::getItem($input, 'comment_status'));
-        $this->setCommentCount(Util::getItem($input, 'comment_count'));
+//        $this->setCommentCount(Util::getItem($input, 'comment_count'));
         
     }
 
@@ -655,5 +680,33 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return true;
     }
 
+    public static function flushCache(){
+        self::$postsCacheById = array();
+        self::$postsCacheBySlug = array();
+    }
     
+    public static function getPostsCacheById($id = 0){
+        if($id){
+            return Util::getItem(self::$postsCacheById, $id);
+        }
+        return self::$postsCacheById;
+    }
+
+    public static function getPostsCacheBySlug($slug = ''){
+        if($slug){
+            $id = Util::getItem(self::$postsCacheBySlug, $slug);
+            return $id?self::getPostsCacheById($id):null;
+        }
+        
+        $ret = array();
+        
+        foreach (self::$postsCacheBySlug as $slug => $id){
+            $item = $id?self::getPostsCacheById($id):null;
+            if($item){
+                $ret[$slug]=$id;
+            }
+        }
+        
+        return $ret;
+    }
  }

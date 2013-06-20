@@ -185,7 +185,7 @@
         },
         
         setInt: function(key, val){
-            return this.set(key, parserInt(val));
+            return this.set(key, parseInt(val));
         },
                 
         nls: function(key){
@@ -206,6 +206,18 @@
             var ownerId = parseInt(this.get(userIdAttr));
             return ownerId && ownerId === parseInt($.wp.currentUser.id) 
                 || 'administrator' === $.wp.currentUser.role;
+        },
+                
+        showSpinner: function(message, id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.show', message, id);
+        },
+                
+        hideSpinner: function(id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.hide', id);
         }
         
     });
@@ -227,6 +239,18 @@
         parse: function(response, options){
             this.total = parseInt(response.payload.total);
             return response.payload.items;
+        },
+                
+        showSpinner: function(message, id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.show', message, id);
+        },
+                
+        hideSpinner: function(id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.hide', id);
         }
     });
     
@@ -292,11 +316,11 @@
         },
                 
         setInt: function(key, val){
-            return this.set(key, parserInt(val));
+            return this.set(key, parseInt(val));
         },
                 
         option: function(key, value){
-            if(undefined == value){
+            if(undefined === value){
                 return this.get(key);
             }else{
                 return this.set(key, value);
@@ -443,8 +467,20 @@
             }
             
             return window.nls._(key);
-        }
+        },
 
+                
+        showSpinner: function(message, id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.show', message, id);
+        },
+                
+        hideSpinner: function(id){
+            id = id || '*';
+            id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
+            Backbone.Events.trigger('brx.MultiSpinner.hide', id);
+        }
     });
 
     $.brx.createBackboneView = function(view, element, options){
@@ -728,14 +764,14 @@
             }
         },
         
-        showSpinner: function(text){
-            window.showSpinner(text);
-        },
-        
-        hideSpinner: function(){
-            window.hideSpinner();
-        },
-        
+//        showSpinner: function(text){
+//            window.showSpinner(text);
+//        },
+//        
+//        hideSpinner: function(){
+//            window.hideSpinner();
+//        },
+//        
         showFieldSpinner: function(fieldId, text){
             this.options.inputs[fieldId].addClass('ui-autocomplete-loading');
             this.setFormFieldStateHint(fieldId, text);

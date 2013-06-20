@@ -212,6 +212,8 @@ class ZF_Core{
         
         wp_register_script( 'backbone-brx-pagination', ZF_CORE_URL.'res/js/backbone.brx.Pagination.view.js', array('backbone-brx'));
 
+        wp_register_script( 'backbone-brx-spinners', ZF_CORE_URL.'res/js/brx.spinners.view.js', array('backbone-brx'));
+        wp_register_style( 'backbone-brx-spinners', ZF_CORE_URL.'res/css/brx.spinners.view.less');
         
         wp_register_script( 'jquery-ajax-uploader', ZF_CORE_URL.'res/js/vendors/jquery.ajaxfileupload.js', array('jquery'));
         wp_register_script( 'jquery-ajax-iframe-uploader', ZF_CORE_URL.'res/js/vendors/jquery.iframe-post-form.js', array('jquery'));

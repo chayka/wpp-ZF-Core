@@ -51,11 +51,13 @@ class ZF_Query extends WP_Query {
             unset($request->query_vars['error']);
         }
         parse_str($_SERVER['QUERY_STRING'], $params);
-        $isZF = in_array('index', self::$routes) 
+        $isZF = isset(self::$routes['index']) 
                 && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI'])
                 || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
 //        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
         $isAPI = Util::getItem($m, 1, false);
+//        Util::print_r(self::$routes);
+//        die($isZF);
         
         if($isAPI){
             $uri = preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
@@ -105,7 +107,7 @@ class ZF_Query extends WP_Query {
         $tmpUri = $_SERVER['REQUEST_URI'];
         $_SERVER['REQUEST_URI'] = $uri;
         if(!$appId){
-            $route = preg_match('%^\/([^\/]*)%', $uri, $m)?$m[1]:'index';
+            $route = preg_match('%^\/([^\/]+)%', $uri, $m)?$m[1]:'index';
             $appId = Util::getItem(self::$routes, $route);
         }
         if($appId){

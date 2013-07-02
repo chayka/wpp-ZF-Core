@@ -138,14 +138,12 @@ class String {
         return $str;
     }
 
-    public static function getFirstWords($str, $char_len) {
+    public static function getFirstWords($str, $char_len, $append = '...') {
         if (strlen($str) > $char_len) {
-            do {
-                $last_space = strrpos($str, ' ');
-                if ($last_space === false)
-                    break;
-                $str = substr($str, 0, $last_space);
-            }while ($last_space > $char_len);
+            $pos = mb_strpos($str, ' ', $char_len);
+            if($pos){
+                $str = mb_substr($str, 0, $pos).$append;
+            }
         }
 
         return $str;

@@ -47,6 +47,7 @@ class ZF_Query extends WP_Query {
     }
     
     public static function parseRequest(){
+        BlockadeHelper::inspectUri($_SERVER['REQUEST_URI']);
         if(isset($request->query_vars['error'])){
             unset($request->query_vars['error']);
         }
@@ -114,7 +115,7 @@ class ZF_Query extends WP_Query {
             $appInfo = Util::getItem(self::$applications, $appId);
             
 //            Util::print_r($appInfo);
-            $application = Util::getItem($appInfo, 'application');
+            $app = Util::getItem($appInfo, 'application');
             
             $appPath = Util::getItem($appInfo, 'path');
 
@@ -122,7 +123,7 @@ class ZF_Query extends WP_Query {
                 getenv($appId.'_APPLICATION_ENV') : 
                 Util::getItem($appInfo, 'environment', 'production');
 
-            if(!$application){
+            if(!$app){
                 
                 // Define path to application directory
                 defined($appId.'_APPLICATION_PATH')
@@ -140,20 +141,6 @@ class ZF_Query extends WP_Query {
 
                 // Create application, bootstrap, and run
             }
-//            Util::print_r(array(
-//               'appEnv' =>$appEnv,
-//               'appPath' =>$appPath,
-//            ));
-//            Zend_Loader_Autoloader::getInstance()->setAutoloaders(array());
-//            Zend_Loader_Autoloader::resetInstance();
-//            Zend_Controller_Front::getInstance()->resetInstance();
-//            $rlc = new Zend_Config(array(), true);
-//            $rlc->resourceloader = new Zend_Loader_Autoloader_Resource(array(
-//                'namespace' => '',
-//                'basePath'  => SEARCH_ENGINE_APPLICATION_PATH
-//            ));
-//            $config = new Zend_Config_Ini($appPath . '/configs/application.ini', $appEnv);
-//            $config->merge($rlc);
             $application = new Zend_Application(
                 $appEnv,
 //                $config

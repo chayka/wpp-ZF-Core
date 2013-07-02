@@ -26,6 +26,7 @@
                 menu_order: '',
                 comment_status: '',
                 comment_count: 0,
+                reviews_count: 0,
                 post_mime_type: '',
                 terms: [],
                 comments: []
@@ -200,13 +201,21 @@
             return this.get('comment_count', 0);
         },
         
+        setReviewsCount: function(val){
+            return this.set('reviews_count', val);
+        },
+                
+        getReviewsCount: function(){
+            return this.get('reviews_count', 0);
+        },
+        
         setMimeType: function(val){
             return this.set('post_mime_type', val);
         },
                 
         getMimeType: function(){
             return this.get('post_mime_type', '');
-        },
+        }
         
 });
 
@@ -237,11 +246,12 @@
 //                id: 0,
                 comment_post_ID: 0,
                 comment_author: '',
-                comment_email: '',
-                comment_url: '',
+                comment_author_email: '',
+                comment_author_url: '',
                 comment_content: '',
                 comment_karma: '',
-                comment_approved: null,
+                comment_karma_delta: '',
+                comment_approved: '0',
                 comment_agent: null,
                 comment_parent: 0,
                 comment_type: null,
@@ -284,23 +294,35 @@
         },
                 
         getAuthor: function(){
+            var user = this.getUser();
+            if(user){
+                return user.getDisplayName() || user.getLogin();
+            }
             return this.get('comment_author', '');
         },
         
         setEmail: function(val){
-            return this.set('comment_email', val);
+            return this.set('comment_author_email', val);
         },
                 
         getEmail: function(){
-            return this.get('comment_email', '');
+            var user = this.getUser();
+            if(user){
+                return user.getEmail();
+            }
+            return this.get('comment_author_email', '');
         },
         
         setUrl: function(val){
-            return this.set('comment_url', val);
+            return this.set('comment_author_url', val);
         },
                 
         getUrl: function(){
-            return this.get('comment_url', '');
+            var user = this.getUser();
+            if(user){
+                return user.getUrl();
+            }
+            return this.get('comment_author_url', '');
         },
         
         setUserId: function(val){
@@ -309,6 +331,17 @@
                 
         getUserId: function(){
             return parseInt(this.get('user_id', 0));
+        },
+                
+        getUser: function(){
+            if(this.getUserId()){
+                var users = _.getVar('$.wp.users');
+                if(users){
+                    return users.get(this.getUserId());
+                }
+            }
+            
+            return null;
         },
         
         setContent: function(val){
@@ -320,11 +353,19 @@
         },
         
         setKarma: function(val){
-            return this.set('comment_karma', val);
+            return this.setInt('comment_karma', val);
         },
                 
         getKarma: function(){
-            return this.get('comment_karma', 0);
+            return this.getInt('comment_karma', 0);
+        },
+        
+        setKarmaDelta: function(val){
+            return this.setInt('comment_karma_delta', val);
+        },
+                
+        getKarmaDelta: function(){
+            return this.getInt('comment_karma_delta', 0);
         },
         
         setApproved: function(val){
@@ -379,7 +420,55 @@
             var user = this.getUserId()?$.wp.users.get(this.getUserId()):null;
             var name = user?user.getDisplayName():this.getAuthor();
             return name?name:'- unknown -';
-        }
+        },
+                
+        vote: function(delta, callback){
+            var url = delta > 0? 
+                '/api/comment/vote-up/':
+                '/api/comment/vote-down/';
+            $.ajax(url, {
+                data:{
+                    id: this.id
+                },
+                dataType: 'json',
+                type: 'post'
+            })
+
+            .done($.proxy(function(data){
+//                this.hideSpinner('sendQRL');
+                if(0 == data.code){
+                    this.set(data.payload);
+                }else{
+                    var message = data.message 
+                        || 'Voting failed';
+                    $.brx.modalAlert(message);//'Пароль изменен');
+                }
+            },this))
+
+            .fail($.proxy(function(response){
+//                this.hideSpinner('sendQRL');
+                var message = $.brx.utils.processFail(response) 
+                    || 'Voting failed';
+//                this.setMessage(message, true);
+                $.brx.modalAlert(message);//'Пароль изменен');
+            },this))
+
+            .always($.proxy(function(){
+//                this.getSpinner().hide($.proxy(this.showMessage, this));
+//                this.enableInputs();
+                if(_.isFunction(callback)){
+                    callback.apply(null, arguments);
+                }
+            },this));
+        },
+                
+        voteUp: function(callback){
+            this.vote(1, callback);
+        },
+                
+        voteDown: function(callback){
+            this.vote(-1, callback);
+        },
     });
 
     $.declare('wp.CommentModels', $.brx.Collection, {

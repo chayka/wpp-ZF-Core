@@ -185,7 +185,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function getRole() {
-        return $this->role;
+        return $this->role?$this->role:key(get_user_meta( $this->getId(), 'wp_capabilities', true ));
     }
 
     public function setRole($role) {

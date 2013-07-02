@@ -123,9 +123,9 @@ $.resourceLoader = {
     }
     
     $.ui.parseWidgets = function(basePath){
-        if(window.tb_init){
-            $('[widget=button]').removeAttr('widget').button();
-        }
+//        if(window.tb_init){
+//            $('[widget=button]').removeAttr('widget').button();
+//        }
         if(basePath){
             $.resourceLoader.basePath = basePath;
         }

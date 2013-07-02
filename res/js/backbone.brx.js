@@ -157,10 +157,10 @@
             for(i in this.dateFields){
                 field = this.dateFields[i];
                 if(_.has(attrs, field) && !_.isDate(attrs[field])){
-                    if(_.isString(attrs[field])){
+                    if(_.isString(attrs[field]) && attrs[field]){
                         attrs[field] = Date.parse(attrs[field]);
                     }
-                    if(_.isNumber(attrs[field])){
+                    if(_.isNumber(attrs[field]) && attrs[field]){
                         attrs[field] = new Date(attrs[field]);
                     }
                 }
@@ -205,7 +205,7 @@
             userIdAttr = userIdAttr || this.userIdAttribute;
             var ownerId = parseInt(this.get(userIdAttr));
             return ownerId && ownerId === parseInt($.wp.currentUser.id) 
-                || 'administrator' === $.wp.currentUser.role;
+                || 'administrator' === $.wp.currentUser.getRole();
         },
                 
         showSpinner: function(message, id){
@@ -272,6 +272,17 @@
 //                this._parseElement();
             }
             this.postCreate();
+        },
+                
+        beautifyButtons: function(){
+            switch($.brx.getOption('ZfCore.uiFramework')){
+                case 'bootstrap':
+                    this.$('button').addClass('btn');
+                    break;
+                case 'jQueryUI':
+                    this.$('button').button();
+                    break;
+            }
         },
         
         postCreate: function(){
@@ -744,10 +755,85 @@
                 this.inputs(fieldId).data('placeholder').val(value):
                 this.inputs(fieldId).val(value);
         },
+                
+        setupFieldChecks: function(fieldId){
+            this.inputs(fieldId).blur($.proxy(function(event){
+                event === undefined || !this.getFieldValue(fieldId) || this.checkField(fieldId);
+            }, this));
+            this.inputs(fieldId).focus($.proxy(function(event){
+                this.setFormFieldStateClear(fieldId);
+            }, this));
+        },
+                
+        setupFieldsChecks: function(){
+            for(var fieldId in this.options.fields){
+                if(this.inputs(fieldId).is('textarea, input[type=text], input[type=password]')){
+                    this.setupFieldChecks(fieldId);
+                }
+            }
+        },
+                
+        createPlaceholderFromLabel: function(fieldId){
+            var label = this.labels(fieldId);
+            var text = label?label.text():'';
+            if(text){
+                text.replace(/\s*(\:|\.\.\.)\s*$/, '');
+                this.inputs(fieldId).placeholder({'text': text+'...'});
+            }
+        },
+                
+        createPlaceholdersFromLabels: function(){
+            for(var fieldId in this.options.fields){
+                if(this.inputs(fieldId).is('textarea, input[type=text]')){
+                    this.createPlaceholderFromLabel(fieldId);
+                }
+            }
+            
+        },
+                
+        setLabelText: function(fieldId, text){
+            var label = this.labels(fieldId);
+            if(label){
+                label.text(text);
+            }
+            var placeholder = this.inputs(fieldId).data('placeholder');
+            if(placeholder){
+                placeholder.option('text', text).refresh();
+            }
+        },
 
         setupRemoteAutoComplete: function(jInput, url){
             jInput.remoteAutocomplete(url);
         },
+                
+        resizeTextarea: function(fieldId){
+            setTimeout($.proxy(function(fieldId){
+                var textarea = this.inputs(fieldId);
+                textarea.css('height', 'auto');
+                var height = textarea.css('box-sizing')==='border-box'?
+                    parseInt(textarea.css('borderTopWidth')) +
+                    parseInt(textarea.css('paddingTop')) +
+                    textarea.prop('scrollHeight')+
+                    parseInt(textarea.css('paddingBottom')) +
+                    parseInt(textarea.css('borderBottomWidth')):
+                    textarea.prop('scrollHeight');
+                textarea.css('height', height+'px');
+            },this, fieldId),0);
+        },
+                
+        setupResizableTextarea: function(fieldId) {
+            var textarea = this.inputs(fieldId);
+            textarea.bind('change',  $.proxy(this.resizeTextarea, this, fieldId));
+            textarea.bind('input',  $.proxy(this.resizeTextarea, this, fieldId));
+            textarea.bind('cut',     $.proxy(this.resizeTextarea, this, fieldId));
+            textarea.bind('paste',   $.proxy(this.resizeTextarea, this, fieldId));
+            textarea.bind('drop',    $.proxy(this.resizeTextarea, this, fieldId));
+            textarea.bind('keydown', $.proxy(this.resizeTextarea, this, fieldId));
+
+//            textarea.focus();
+//            textarea.select();
+            this.resizeTextarea(fieldId);
+        },                
         
         render: function(){
         },
@@ -794,7 +880,7 @@
         
         showMessage: function(){
             if(this.option('message.text.length')){
-                window.modalAlert(this.options.message.text, '', this.options.message.isError? 'ui-icon-alert':'ui-icon-info');
+                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
             }
         },
         
@@ -953,6 +1039,7 @@
         
         checkField: function(fieldId){
             valid = true;
+            this.setFormFieldStateClear(fieldId);
             value = this.getFieldValue(fieldId);
             if(valid && this.fields(fieldId).attr('check-required')){
                 valid = valid && this.checkRequired(fieldId);
@@ -978,6 +1065,7 @@
         },
 
         checkFields: function(fieldIds){
+            fieldIds = fieldIds || _.keys(this.options.inputs);
             var valid = true;
             for(var i in fieldIds){
                 var fieldId = fieldIds[i];
@@ -1020,6 +1108,11 @@
         return matched;
     };
     
+    $.brx.options = {};
+    
+    $.brx.getOption = function(key, def){
+        return _.getItem($.brx.options, key, def);
+    };
 
 }(jQuery));
 

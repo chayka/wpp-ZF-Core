@@ -6,7 +6,7 @@
  */
 
 /**
- * Description of OptionHelper_SearchEngine
+ * Description of OptionHelper
  *
  * @author borismossounov
  */

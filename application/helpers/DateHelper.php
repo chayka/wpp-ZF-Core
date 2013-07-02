@@ -12,39 +12,48 @@ class DateHelper {
     /* dateToStr */
 
     public static function dateToDbStr($zendDate) {
-        return $zendDate->toString(self::DB_DATE);
+        return $zendDate->setTimezone('UTC')->toString(self::DB_DATE);
     }
 
     /* timeToStr */
 
     public static function timeToDbStr($zendDate) {
-        return $zendDate->toString(self::DB_TIME);
+        return $zendDate->setTimezone('UTC')->toString(self::DB_TIME);
     }
 
     /* datetimeToStr */
 
     public static function datetimeToDbStr($zendDate) {
-        return $zendDate->toString(self::DB_DATETIME);
+        return $zendDate->setTimezone('UTC')->toString(self::DB_DATETIME);
     }
 
     /* dateToObj */
 
     public static function dbStrToDate($strDate) {
-        $zendDate = new Zend_Date($strDate, self::DB_DATE);
+        $zendDate = new Zend_Date();
+        $zendDate->setTimezone('UTC');
+        $zendDate->setDate($strDate, self::DB_DATE);
+        $zendDate->setTime('00:00:00', self::DB_TIME);
         return $zendDate;
     }
 
     /* timeToObj */
 
     public static function dbStrToTime($strTime) {
-        $zendDate = new Zend_Date($strTime, self::DB_TIME);
+        $zendDate = new Zend_Date();
+        $zendDate->setTimezone('UTC');
+//        $zendDate->setDate($strTime, self::DB_TIME);
+        $zendDate->setTime($strTime, self::DB_TIME);
         return $zendDate;
     }
 
     /* datetimeToObj */
 
     public static function dbStrToDatetime($strDatetime) {
-        $zendDate = new Zend_Date($strDatetime, self::DB_DATETIME);
+        $zendDate = new Zend_Date();
+        $zendDate->setTimezone('UTC');
+        $zendDate->setDate($strDatetime, self::DB_DATETIME);
+        $zendDate->setTime($strDatetime, self::DB_DATETIME);
         return $zendDate;
     }
 
@@ -170,6 +179,13 @@ class DateHelper {
         $d2['year']-=$d1['year'];
 
         return $d2;
+    }
+    
+    public static function fixTimezone(Zend_Date $date){
+        if($_SESSION['timezone']){
+            $date->setTimezone($_SESSION['timezone']);
+        }
+        return $date;
     }
 
 }

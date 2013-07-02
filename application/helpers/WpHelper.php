@@ -320,7 +320,7 @@ class WpHelper {
     
     public function initNavMenuId($id = ''){
         $this->navMenuId = null;
-        if(!$id){
+        if(!$id && Util::getFront()->getRequest()){
             $controller = Util::getFront()->getRequest()->getControllerName();
             $action = Util::getFront()->getRequest()->getActionName();
             if(has_nav_menu($controller.'-'.$action)){
@@ -341,7 +341,7 @@ class WpHelper {
         global $wp_registered_sidebars;
         $this->sidebarId = null;
 
-        if(!$id){
+        if(!$id && Util::getFront()->getRequest()){
             $controller = Util::getFront()->getRequest()->getControllerName();
             $action = Util::getFront()->getRequest()->getActionName();
             if(isset($wp_registered_sidebars[$controller.'-'.$action])){

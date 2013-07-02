@@ -25,7 +25,7 @@
                 
         show: function(message){
             message = message || 'Loading...';
-            this.set('message', message);
+            this.setMessage( message);
             this.$el.show('fade', {}, 300);
         },
         

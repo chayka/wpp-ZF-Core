@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: WP ZF Core
+  Plugin Name: wpp-ZF-Core
   Description: Integration of Zend Framework into Wordpress - this plugin makes the Zend Framework library available to Wordpress themes and plugins.
   Author: Boris Mossounov
   Version: 1.0
@@ -96,7 +96,10 @@ class ZF_Core{
             'post-model',
             'comment-model',
             'user-model',
-            'social', 'zf-setup'
+            'social', 'zf-setup',
+            'timezone',
+            'options',
+            'blockade',
         ));
 
         
@@ -182,11 +185,25 @@ class ZF_Core{
         $title = sanitize_title($title);
         return $title;
     }
+    
+    public static function autoSlug($post){
+        if(!$post['post_name'] && $post['post_status']=='draft'){
+            $post['post_name'] = self::slug($post['post_title']);
+        }else{
+            $post['post_name'] = self::slug(urldecode($post['post_name']));
+        }
+        return $post;
+    }    
 
     public static function registerActions(){
         add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
         add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
         add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
+        session_start();
+        if(empty($_SESSION['timezone'])){
+            add_action('wp_footer', array('ZF_Core', 'fixTimezone'));
+        }
+        add_filter('wp_insert_post_data', array('ZF_Core', 'autoSlug'), 10, 1 );
         
     }
     
@@ -199,9 +216,19 @@ class ZF_Core{
         wp_register_script( 'Backbone', ZF_CORE_URL.($minimize?'res/js/vendors/backbone.min.js':'res/js/vendors/backbone.js'), array('jquery','underscore'));
         wp_register_script( 'nls', ZF_CORE_URL.'res/js/vendors/nls.js', array('Underscore'));
 
-        wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment.min.js':'res/js/vendors/moment.js'));
+        wp_register_script( 'require', ZF_CORE_URL.($minimize?'res/js/vendors/require.min.js':'res/js/vendors/require.js'));
+        wp_register_script( 'moment-base', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/moment.min.js':'res/js/vendors/moment/moment.js'), array());
+        wp_register_script( 'moment-lang', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/lang/'.$lang.'.js':'res/js/vendors/moment/lang/'.$lang.'.js'), array());
         
-        
+        $lang = NlsHelper::getLang();
+//        die($lang);
+        $diskFile = ZF_CORE_PATH.'res/js/vendors/moment/lang/'.$lang.'.js';
+//        die(file_exists($diskFile));
+        if($lang!='en' && file_exists($diskFile)){
+            wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/lang/'.$lang.'.js':'res/js/vendors/moment/lang/'.$lang.'.js'), array('moment-base'));
+        }else{
+            wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/moment.min.js':'res/js/vendors/moment/moment.js'));
+        }
         wp_register_script( 'jquery-ui-templated', ZF_CORE_URL.'res/js/jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
 
         wp_register_script( 'backbone-brx', ZF_CORE_URL.'res/js/backbone.brx.js', array('Backbone', 'nls', 'moment'));
@@ -225,8 +252,11 @@ class ZF_Core{
         wp_register_style( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.css');
         wp_register_script( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.js', array('jquery-ui-templated'));
         wp_register_script( 'jquery-brx-modalBox', ZF_CORE_URL.'res/js/jquery.brx.modalBox.js', array('jquery-ui-dialog'));
+        wp_register_style( 'backbone-brx-modals', ZF_CORE_URL.'res/css/brx.modals.view.less', array());
+        wp_register_script( 'backbone-brx-modals', ZF_CORE_URL.'res/js/brx.modals.view.js', array('jquery-ui-dialog', 'backbone-brx'));
         wp_register_script( 'jquery-brx-form', ZF_CORE_URL.'res/js/jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
         wp_register_script( 'jquery-brx-setupForm', ZF_CORE_URL.'res/js/jquery.brx.setupForm.js', array('jquery-brx-form'));
+        wp_register_script( 'backbone-brx-optionsForm', ZF_CORE_URL.'res/js/brx.OptionsForm.view.js', array('backbone-brx'));
         wp_register_style( 'admin-setupForm', ZF_CORE_URL.'res/css/bem-admin_setup_form.less');
         wp_register_script( 'jquery-ui-datepicker-ru', ZF_CORE_URL.'res/js/jquery.ui.datepicker-ru.js');
         wp_register_script( 'jquery-ui-progressbar', ZF_CORE_URL.'res/js/jquery.ui.progressbar.js');
@@ -310,6 +340,9 @@ class ZF_Core{
         add_submenu_page('zf-core-admin', 
                 'E-mail', 'E-mail settings', 'update_core', 'zf-core-email', 
                 array('ZF_Core', 'renderConsolePageEmailOptions'), '', null); 
+        add_submenu_page('zf-core-admin', 
+                'Blockade', 'Blockade', 'update_core', 'zf-core-blockade', 
+                array('ZF_Core', 'renderConsolePageBlockadeOptions'), '', null); 
     }
 
 
@@ -333,6 +366,10 @@ class ZF_Core{
        echo ZF_Query::processRequest('/admin/email-options', 'ZF_CORE');	
     }
     
+    public static function renderConsolePageBlockadeOptions(){
+       echo ZF_Query::processRequest('/admin/blockade-options', 'ZF_CORE');	
+    }
+    
     public static function addJQueryWidgets(){
         wp_enqueue_style('jquery-ui');
         wp_enqueue_script('jquery');
@@ -345,15 +382,22 @@ class ZF_Core{
         wp_enqueue_style('jquery-brx-spinner');
         wp_enqueue_script('jquery-brx-spinner');
         wp_enqueue_script('backbone-wp-models');
+        wp_enqueue_style('backbone-brx-modals');
+        wp_enqueue_script('backbone-brx-modals');
         wp_print_scripts();
-        wp_print_styles();
+        wp_print_styles(); 
         
+        $options = array(
+            'uiFramework' =>is_admin()?'jQueryUI':get_site_option('ZfCore.uiFramework', '')
+        );
+                
         ?>
                     
         <div widget="generalSpinner"></div>
         <div widget="modalBox"></div>    
         <script>
         jQuery(document).ready(function($) {
+            $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);
             $.ui.parseWidgets('<?php echo ZF_CORE_URL?>res/js/');
             if($.brx && $.brx.parseBackboneViews){
                 $.brx.parseBackboneViews();
@@ -362,6 +406,25 @@ class ZF_Core{
         </script>
                     
         <?php
+    }
+    
+    public static function fixTimezone(){
+        if(1):?>
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+//                var visitortime = new Date();
+//                var visitortimezone = "GMT " + -visitortime.getTimezoneOffset()/60;
+                $.ajax({
+                    type: "GET",
+                    url: "/api/timezone/",
+                    data: 'offset='+ (-(new Date()).getTimezoneOffset()/60),
+                    success: function(){
+//                        location.reload();
+                    }
+                });
+            });
+        </script>
+        <?php endif;
     }
     
     public static function showAdminBar($show = true){

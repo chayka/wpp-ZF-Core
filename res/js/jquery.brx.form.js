@@ -258,7 +258,7 @@
         
         showMessage: function(){
             if(this.options.message.text.length){
-                window.modalAlert(this.options.message.text, '', this.options.message.isError? 'ui-icon-alert':'ui-icon-info');
+                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
             }
 //            if(this.messageBox.text()){
 //                this.messageBox.show();

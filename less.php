@@ -44,10 +44,11 @@ class LessCss{
         $style = Util::getItem($wp_styles->registered, $handle);
 
         if($style && strpos($style->src, '.less')){
+            wp_enqueue_script('less');
+            wp_print_scripts('less');
             if(!self::$wrapperRendered){
                 self::renderWrapper();
             }
-            wp_enqueue_script('less');
             return sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">renderLessCss("%s");</script>', $style->src, $style->src)."\r";
         }
 

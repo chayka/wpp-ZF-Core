@@ -1,0 +1,47 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+?>
+<div class="wrap bem-zf_core-admin">
+    <div id="icon-options-general" class="icon32">
+        <br/>
+    </div>
+    <h2>Блокировка сайта</h2>
+</div>
+
+<div class="bem-admin_setup_form " backbone-view="brx.OptionsForm" scope="site" prefix="BlockadeHelper" style="display: none;">
+    <div class="form_fields">
+        <div class="form_field field_is_blocked" attachpoint="fields.isBlocked">
+            <label>Блокировка сайта:</label>
+            <span class="form_field-input_box">
+                <select>
+                    <option value="0">Сайт разблокирован</option>
+                    <option value="1">Сайт заблокирован</option>
+                </select>
+            </span>
+            <div class="form_field-tips"></div>
+        </div>
+        <div class="form_field field_title" attachpoint="fields.title">
+            <label>Заголовок:</label>
+            <span class="form_field-input_box">
+                <input type="text"/>
+            </span>
+            <div class="form_field-tips"></div>
+        </div>
+        <div class="form_field field_message" attachpoint="fields.message">
+            <label>Сообщение:</label>
+            <span class="form_field-input_box">
+                <textarea>
+                </textarea>
+            </span>
+            <div class="form_field-tips"></div>
+        </div>
+    </div>
+    <div class="button_pane">
+        <button widget="button" attachevent="saveOptions">Применить</button>
+    </div>
+</div>
+<?php ZF_Core::addJQueryWidgets();?>

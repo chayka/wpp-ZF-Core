@@ -36,6 +36,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     protected $commentStatus;
     protected $commentCount;
     protected $comments;
+    protected $reviewsCount;
     protected $terms;
     protected $meta;
     protected $imageData;
@@ -283,7 +284,45 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return new Zend_Date(get_gmt_from_date(DateHelper::datetimeToDbStr($this->getDtModified())));
 //        return $this->dtModifiedGMT;
     }
-
+    
+    public function getReviewsCount() {
+        if(!$this->reviewsCount){
+            $this->reviewsCount = get_post_meta($this->getId(), 'reviews_count', true);
+        }
+        return $this->reviewsCount?$this->reviewsCount:0;
+    }
+    
+    public function setReviewsCount($value) {
+        $this->reviewsCount = $value;
+    }
+    
+    public function incReviewsCount(){
+        if(!$this->getId()){
+            return 0;
+        }
+        $visited = Util::getItem($_SESSION, 'visited', array());
+        $today = date('Y-m-d');
+        foreach ($visited as $date => $posts) {
+            if($date != $today){
+                unset($_SESSION['visited'][$date]);
+            }
+        }
+        if(!$_SESSION['visited'][$today]){
+            $_SESSION['visited'][$today] = array();
+        }
+        
+        $visit = Util::getItem($_SESSION['visited'][$today], $this->getId(), false);
+        
+        if(!$visit){
+            $this->getReviewsCount();
+            $this->reviewsCount++;
+            update_post_meta($this->getId(), 'reviews_count', $this->reviewsCount);
+            $_SESSION['visited'][$today][$this->getId()] = true;
+        }
+        
+        return $this->reviewsCount;
+    }
+    
 //    public function setDtModifiedGMT($dtModifiedGMT) {
 //        $this->dtModifiedGMT = $dtModifiedGMT;
 //    }
@@ -612,6 +651,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['menu_order'] = $this->getMenuOrder();
         $jsonItem['comment_status'] = $this->getCommentStatus();
         $jsonItem['comment_count'] = $this->getCommentCount();
+        $jsonItem['reviews_count'] = $this->getReviewsCount();
         $jsonItem['post_mime_type'] = $this->getMimeType();
         $jsonItem['terms'] = $this->getTerms();
 //        if($this->getMeta()){

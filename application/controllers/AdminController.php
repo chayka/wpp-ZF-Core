@@ -19,7 +19,7 @@ class ZFCore_AdminController extends Zend_Controller_Action{
 //        Util::turnRendererOff();
         wp_enqueue_style('zf-core-admin', ZF_CORE_URL.'res/css/bem-zf_core_admin.less');
         wp_enqueue_style('admin-setupForm');
-        wp_enqueue_script('jquery-brx-setupForm');
+        wp_enqueue_script('backbone-brx-optionsForm');
 //        echo "Hi, i'm admin area";
     }
     
@@ -135,7 +135,7 @@ class ZFCore_AdminController extends Zend_Controller_Action{
                         $callback = sprintf('%s %s %s', $cls, $delimiter, $method);
                     }else{
 //                        $r = $this->ReflectionFunctionFactory($function);
-//                        $r = new ReflectionMethod("SearchEngine", 'addMetaBoxSearchOptions');
+//                        $r = new ReflectionMethod("wpp_BRX_SearchEngine", 'addMetaBoxSearchOptions');
 //                        $file = $r->getFileName();
 //                        $startLine = $r->getStartLine();
 //                        $ref = sprintf('%s (%d)', $file, $startLine);
@@ -163,6 +163,12 @@ class ZFCore_AdminController extends Zend_Controller_Action{
         ksort($tables);
         
         $this->view->tables=$tables;
+    }
+    
+    public function blockadeOptionsAction(){
+        wp_enqueue_style('admin-setupForm');
+        wp_enqueue_script('backbone-brx-optionsForm');
+        
     }
     
 }

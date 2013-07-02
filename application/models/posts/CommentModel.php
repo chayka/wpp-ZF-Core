@@ -23,13 +23,14 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     protected $dtCreatedGMT;
     protected $content;
     protected $karma;
+    protected $karmaDelta;
     protected $isApproved;
     protected $agent;
     protected $type;
 
     protected $wpComment;
 
-    protected $validationErrors;
+    protected $validationErrors = array();
 
     protected static $commentsCacheById = array();
     protected static $commentsCacheByPostId = array();
@@ -48,10 +49,13 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $date = new Zend_Date();
         $this->setDtCreated($date);
         $user = UserModel::currentUser();
-        $this->setUserId($user->getId());
-        $this->setAuthor($user->getDisplayName());
-        $this->setEmail($user->getEmail());
-        $this->setUrl($user->getUrl());
+        if($user && $user->getId()){
+            $this->setUserId($user->getId());
+            $this->setAuthor($user->getDisplayName());
+            $this->setEmail($user->getEmail());
+            $this->setUrl($user->getUrl());
+        }
+        $this->setDtCreated(new Zend_Date());
         $this->setIsApproved(0);
 //        $this->setDtCreatedGMT($date);
         $this->setKarma(0);
@@ -80,8 +84,16 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     public function setUserId($userId) {
         $this->userId = $userId;
     }
+    
+    public function getUser(){
+        return $this->getUserId()?UserModel::selectById($this->getUserId()):null;
+    }
 
     public function getAuthor() {
+        $user = $this->getUser();
+        if($user && $user->getId()){
+            return $user->getDisplayName()?$user->getDisplayName():$user->getLogin();
+        }
         return $this->author;
     }
 
@@ -90,6 +102,10 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     }
 
     public function getEmail() {
+        $user = $this->getUser();
+        if($user && $user->getId()){
+            return $user->getEmail();
+        }
         return $this->email;
     }
 
@@ -98,6 +114,10 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     }
 
     public function getUrl() {
+        $user = $this->getUser();
+        if($user && $user->getId()){
+            return $user->getUrl();
+        }
         return $this->url;
     }
 
@@ -145,7 +165,93 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     public function setKarma($karma) {
         $this->karma = $karma;
     }
-
+    
+    public function getKarmaDelta(){
+        if(!$this->getId()){
+            return 0;
+        }
+//        echo ' get ';
+//        Util::print_r($_SESSION);
+        $votes = Util::getItem($_SESSION, 'comment_votes', array());
+        $today = date('Y-m-d/').get_current_user_id();
+        foreach ($votes as $date => $comments) {
+            if($date != $today){
+                unset($_SESSION['comment_votes'][$date]);
+            }
+        }
+        if(!$_SESSION['comment_votes'][$today]){
+            $_SESSION['comment_votes'][$today] = array();
+        }
+        
+        return Util::getItem($_SESSION['comment_votes'][$today], $this->getId(), 0);
+    }
+    
+    public function setKarmaDelta($delta){
+        if(!$this->getId()){
+            return 0;
+        }
+        $today = date('Y-m-d/').get_current_user_id();
+        $votes = Util::getItem($_SESSION, 'comment_votes', array());
+        foreach ($votes as $date => $comments) {
+            if($date != $today){
+                unset($_SESSION['comment_votes'][$date]);
+            }
+        }
+        if(!$_SESSION['comment_votes'][$today]){
+            $_SESSION['comment_votes'][$today] = array();
+        }
+        
+//        echo ' set ';
+//        Util::print_r($_SESSION);
+        
+        $_SESSION['comment_votes'][$today][$this->getId()] = $delta;
+    }
+    
+    public function vote($delta){
+        global $wpdb;
+        if(!$this->getId()){
+            return 0;
+        }
+        
+        $vote = $this->getKarmaDelta();
+        if($delta > 1){
+            $delta = 1;
+        }elseif($delta < -1){
+            $delta = -1;
+        }
+//        printf('[vote: %d, delta: %d]', $vote, $delta);
+        
+        if(($delta > 0 && $vote <=0) 
+        || ($delta < 0 && $vote >=0)){
+            $table = self::getDbTable();
+            $idCol = self::getDbIdColumn();
+            $sql = WpDbHelper::prepare("
+                UPDATE $table
+                SET comment_karma = comment_karma + (%d)
+                WHERE $idCol = %d
+                ", $delta, $this->getId());
+            if($wpdb->query($sql)){
+                $sqlKarma = WpDbHelper::prepare("
+                SELECT comment_karma FROM $table
+                WHERE $idCol = %d
+                ", $this->getId());
+                $this->setKarma($wpdb->get_var($sqlKarma));
+                $this->setKarmaDelta($vote+$delta);
+                return $delta;
+            }
+        }
+        
+        return 0;
+    }
+    
+    public function voteUp(){
+        return $this->vote(1);
+    }
+    
+    public function voteDown(){
+        return $this->vote(-1);
+    }
+    
     public function getIsApproved() {
         return $this->isApproved;
     }
@@ -205,23 +311,105 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         }
         $input = array_merge($this->packJsonItem(), $input);
 
-        $this->setId(Util::getItem($input, 'id', 0));
+//        $this->setId(Util::getItem($input, 'id', 0));
+        $this->setContent(Util::getItem($input, 'comment_content'));
+
         if(!$this->getId()){
             $this->setPostId(Util::getItem($input, 'comment_post_ID'));
+            
+            $parentId = Util::getItem($input, 'comment_parent', 0);
+            $parentStatus = ( 0 < $parentId ) ? wp_get_comment_status($parentId) : '';
+            $this->setParentId(( 'approved' == $parentStatus || 'unapproved' == $parentStatus ) ? $parentId : 0);
+
+            $user = UserModel::currentUser();
+            if($user && $user->getId()){
+                $this->setUserId($user->getId());
+                $this->setAuthor($user->getDisplayName()?$user->getDisplayName():$user->getLogin());
+                $this->setEmail($user->getEmail());
+                $this->setUrl($user->getUrl());
+            }else{
+                $this->setUserId(0);
+                $this->setAuthor(Util::getItem($input, 'comment_author'));
+                $this->setEmail(Util::getItem($input, 'comment_author_email'));
+                $this->setUrl(Util::getItem($input, 'comment_author_url'));
+            }
+            $this->setType(Util::getItem($input, 'comment_type', ''));
+            $dbRec = $this->packDbRecord(false);
+            unset($dbRec['comment_approved']);
+            $this->setIsApproved(wp_allow_comment($dbRec));
         }
-//        $this->setUserId(Util::getItem($input, 'user_id'));
-        $this->setParentId(Util::getItem($input, 'comment_parent'));
-        $user = UserModel::currentUser();
-        $this->setAuthor(Util::getItem($input, 'comment_author', $user->getDisplayName()));
-        $this->setEmail(Util::getItem($input, 'comment_email', $user->getEmail()));
-        $this->setUrl(Util::getItem($input, 'comment_url', $user->getUrl()));
-        $this->setContent(Util::getItem($input, 'comment_content'));
-        $this->setKarma(Util::getItem($input, 'comment_karma'));
-        $this->setIsApproved(Util::getItem($input, 'comment_approved'));
-        $this->setType(Util::getItem($input, 'comment_type'));
+        
     }
 
     public function validateInput($input = array(), $action = 'create') {
+        if('create' == $action){
+            $postId = Util::getItem($input, 'comment_post_ID', 0);
+            $post = get_post($postId);
+
+            if (empty($post->comment_status)) {
+                do_action('comment_id_not_found', $postId);
+                exit;
+            }
+
+            // get_post_status() will get the parent status for attachments.
+            $status = get_post_status($post);
+
+            $status_obj = get_post_status_object($status);
+            $msgCommentsClosed = __('Sorry, comments are closed for this item.');
+            if (!comments_open($postId)) {
+                $this->validationErrors['comment_closed'] = $msgCommentsClosed;
+                return false;
+            } elseif ('trash' == $status) {
+                $this->validationErrors['comment_on_trash'] = $msgCommentsClosed;
+                return false;
+            } elseif (!$status_obj->public && !$status_obj->private) {
+                $this->validationErrors['comment_on_draft'] = $msgCommentsClosed;
+                return false;
+            } elseif (post_password_required($postId)) {
+                $this->validationErrors['comment_on_password_protected'] = $msgCommentsClosed;
+                return false;
+            } 
+
+            // If the user is logged in
+            $user = wp_get_current_user();
+            if ($user->exists()) {
+                if (current_user_can('unfiltered_html')) {
+                    if (wp_create_nonce('unfiltered-html-comment_' . $postId) != $_POST['_wp_unfiltered_html_comment']) {
+                        kses_remove_filters(); // start with a clean slate
+                        kses_init_filters(); // set up the filters
+                        InputHelper::permitHtml('comment_content');
+                    }
+                }
+            } else {
+                if (get_option('comment_registration') || 'private' == $status){
+                    $this->validationErrors[ErrorHelper::CODE_AUTH_REQUIRED] = __('Sorry, you must be logged in to post a comment.');
+                    return false;
+                }else{
+                    if (!Util::getItem($input, 'comment_author')) {
+                        $this->validationErrors['comment_author'] = 'Необходимо заполнить';
+                    }
+                    if (!Util::getItem($input, 'comment_author_email')) {
+                        $this->validationErrors['comment_author_email'] = 'Необходимо заполнить';
+                    }
+                }
+            }
+
+            if (!Util::getItem($input, 'comment_content')) {
+                $this->validationErrors['comment_content'] = 'Введите комментарий';
+            }
+            
+            if(!empty($this->validationErrors)){
+                return false;
+            }
+            
+        }elseif('update' == $action){
+            AclHelper::apiOwnershipRequired($this);
+            if (!Util::getItem($input, 'comment_content')) {
+                $this->validationErrors['comment_content'] = 'Введите комментарий';
+                return false;
+            }
+        }
+        
         return true;
     }
 
@@ -298,7 +486,8 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $dbRecord = $this->packDbRecord(true);
         unset($dbRecord['comment_date']);
         unset($dbRecord['comment_date_gmt']);
-        return wp_update_comment($dbRecord);
+        wp_update_comment($dbRecord);
+        return true;
     }
     
     public function delete($forceDelete = 0){
@@ -377,18 +566,19 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $jsonItem['id'] = $this->getId();
         $jsonItem['comment_post_ID'] = $this->getPostId();
         $jsonItem['comment_author'] = $this->getAuthor();
-        $jsonItem['comment_email'] = $this->getEmail();
-        $jsonItem['comment_url'] = $this->getUrl();
+        $jsonItem['comment_author_email'] = $this->getEmail();
+        $jsonItem['comment_author_url'] = $this->getUrl();
 //        $jsonItem['comment_author_IP'] = $this->getIp();
         $jsonItem['user_id'] = $this->getUserId();
         $jsonItem['comment_content'] = $this->getContent();
         $jsonItem['comment_karma'] = $this->getKarma();
+        $jsonItem['comment_karma_delta'] = $this->getKarmaDelta();
         $jsonItem['comment_approved'] = $this->getIsApproved();
         $jsonItem['comment_agent'] = $this->getAgent();
         $jsonItem['comment_parent'] = $this->getParentId();
         $jsonItem['comment_type'] = $this->getType();
-        $jsonItem['comment_date'] = DateHelper::datetimeToDbStr($this->getDtCreated());
-        $jsonItem['comment_date_gmt'] = DateHelper::datetimeToDbStr($this->getDtCreatedGMT());
+        $jsonItem['comment_date'] = DateHelper::datetimeToJsonStr($this->getDtCreated());
+        $jsonItem['comment_date_gmt'] = DateHelper::datetimeToJsonStr($this->getDtCreatedGMT());
         
         return $jsonItem;
     }

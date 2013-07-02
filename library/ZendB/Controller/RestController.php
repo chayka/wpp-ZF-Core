@@ -34,16 +34,20 @@ class RestController extends Zend_Rest_Controller{
         $model = InputHelper::getModelFromInput($model);
 //        Util::print_r($model); die();
         $errors = $model->getValidationErrors();
-        if($errors){
+        if(!empty($errors)){
             JsonHelper::respondErrors($errors);
-        }else if($model->insert()){
-            apply_filters($class.'.created', $model);
-            if($respond){
-                JsonHelper::respond($model);
-            }
         }else{
-            JsonHelper::respondError('Failed to create entity');
-        }
+            $id = $model->insert();
+            if ($id) {
+                $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
+                apply_filters($class . '.created', $model);
+                if ($respond) {
+                    JsonHelper::respond($model);
+                }
+            } else {
+                JsonHelper::respondError('Failed to create entity');
+            }
+        } 
         
         return $model;
     }
@@ -54,11 +58,12 @@ class RestController extends Zend_Rest_Controller{
         $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
         $model = InputHelper::getModelFromInput($model);
         $errors = $model->getValidationErrors();
-        if($errors){
+        if(!empty($errors)){
             JsonHelper::respondErrors($errors);
         }else{ 
             try{
             if($model->update()){
+                $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
                 apply_filters($class.'.updated', $model);
                 if($respond){
     //                $json = $model->packJsonItem();

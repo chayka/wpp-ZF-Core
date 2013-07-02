@@ -84,7 +84,7 @@
 //                close: $.proxy(this.clearForm, this)
                 open: function(){
                     console.dir({modalbox: this, b:$(this).nextAll('.ui-dialog-buttonpane').find('button')});
-                    $('button', this.parentNode).addClass('btn');
+//                    $('button', this.parentNode).addClass('btn');
                 }
             });
 //            console.dir({'modal parent': this.getTemplate().parent()});
@@ -122,7 +122,7 @@
             this.option('message', message);
             this.option('iconClass', icon);
             this.getTemplate().dialog(options);
-            $('button', this.parentNode).addClass('btn');
+//            $('button', this.parentNode).addClass('btn');
             this.getTemplate().dialog('open');
         },
         

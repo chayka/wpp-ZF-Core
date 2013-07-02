@@ -166,8 +166,13 @@ class AclHelper {
         return ($obj->getUserId() != $user->getId() || $user->getRole()=='administrator');
     }
     
-    public static function isAdmin(){
-        $user = UserModel::currentUser();
+    public static function isAdmin($user = null){
+        if(!$user){
+            $user = UserModel::currentUser();
+        }elseif(!($user instanceof UserModel)){
+//            $user->get('role');
+            $user = UserModel::unpackDbRecord($user);
+        }
         return ($user->getRole()=='administrator');
     }
 

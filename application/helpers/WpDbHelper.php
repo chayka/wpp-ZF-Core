@@ -8,7 +8,7 @@ interface DbRecordInterface{
     public function insert();
     public function update();
     public function delete();
-    public static function selectById($id);
+    public static function selectById($id, $useCache = true);
     public static function getDbTable();
     public static function getDbIdColumn();
     public function getId();

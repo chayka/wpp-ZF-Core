@@ -12,18 +12,22 @@
     <h2>Общие настройки ZF Core</h2>
 </div>
 
-<div class="bem-admin_setup_form " widget="brx.setupForm" url="/api/zf-setup/update-options" style="display: none;">
+<div class="bem-admin_setup_form " backbone-view="brx.OptionsForm" scope="site" prefix="ZfCore" style="display: none;">
     <div class="form_fields">
-        <div class="form_field field_template" attachpoint="fields.template">
-            <label>Шаблон страницы поиска:</label>
-            <span class="form_field-input_box"><input name="template" type="text" value="<?php echo $this->escape($this->emailTemplate); ?>"/></span>
+        <div class="form_field field_beautify_style" attachpoint="fields.uiFramework">
+            <label>UI Framework:</label>
+            <span class="form_field-input_box">
+                <select>
+                    <option value="">- None -</option>
+                    <option value="jQueryUI">jQueryUI</option>
+                    <option value="bootstrap">Twitter Bootstrap</option>
+                </select>
+            </span>
             <div class="form_field-tips"></div>
         </div>
     </div>
     <div class="button_pane">
         <button widget="button" attachevent="saveOptions">Сохранить</button>
     </div>
-    <script type="text/javascript">
-        window.setupOptions = <?php echo JsonHelper::encode($this->options);?>;
-    </script>
 </div>
+<?php ZF_Core::addJQueryWidgets();?>

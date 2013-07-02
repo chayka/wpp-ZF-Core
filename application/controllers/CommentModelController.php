@@ -19,7 +19,17 @@ class ZFCore_CommentModelController extends RestController {
     }
     
     public function createAction($respond = true) {
-        return parent::createAction($respond);
+        $comment = parent::createAction(false);
+        if ( !$comment->getIsApproved() ){
+            wp_notify_moderator($comment->getId());
+        }
+
+        do_action('set_comment_cookies', $comment->getWpComment(), wp_get_current_user());
+        if($respond){
+            JsonHelper::respond($comment);
+        }
+        
+        return $comment;        
     }
 
     public function deleteAction($respond = true) {
@@ -61,5 +71,5 @@ class ZFCore_CommentModelController extends RestController {
     public function updateAction($respond = true) {
         return parent::updateAction($respond);
     }
-
+    
 }

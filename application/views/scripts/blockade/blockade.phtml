@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <?php // show_admin_bar(false);?>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title><?php    global $post;
+			if(is_page()){the_title(); echo ' - ';} 
+			if(is_single()){the_title(); echo ' - ';} 
+			if(is_category()){
+				$headcategory = get_the_category(); 
+				echo $headcategory[0]->name.' - ';
+			}			
+			echo bloginfo( 'name' );
+		?></title>
+        <meta name="description" content="<?php global $post; echo $post->post_excerpt;?>">
+        <meta name="viewport" content="width=device-width">
+        <?php
+            wp_enqueue_style('normalize');
+            wp_enqueue_style('bootstrap');
+//            wp_enqueue_style('bootstrap-responsive');
+            wp_enqueue_script('bootstrap');
+            wp_enqueue_script('modernizr');
+            wp_enqueue_script('jquery-scroll');
+        ?>
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link rel="shortcut icon" href="<?php wpt_JurcatalogBy::baseUrl();?>res/img/favicon.ico">
+
+	<!--wp head-->
+		<?php wp_head();?>
+	<!--wp head-->
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        <style>
+            .box{
+                position: relative;
+                top: 200px;
+                /*margin-top: -50%;*/
+                text-align: center;
+            }
+            .auth{
+                text-align: right;
+                margin: 1ex;
+            }
+        </style>
+        <div class="auth">
+            <a href="#login">Вход</a>
+        </div>
+        <div class="box">
+            <h1><?php echo BlockadeHelper::getTitle();?></h1>
+            <div class="message">
+                <?php echo BlockadeHelper::getMessage();?>
+            </div>
+        </div>
+	<!--wp head-->
+		<?php wp_footer();?>
+	<!--wp head-->
+    </body>
+</html>

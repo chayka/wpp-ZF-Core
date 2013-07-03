@@ -28,6 +28,7 @@
                 comment_count: 0,
                 reviews_count: 0,
                 post_mime_type: '',
+                href: '',
                 terms: [],
                 comments: []
             };
@@ -215,6 +216,10 @@
                 
         getMimeType: function(){
             return this.get('post_mime_type', '');
+        }, 
+                
+        getHref: function(){
+            return this.get('href');
         }
         
 });

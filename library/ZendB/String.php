@@ -139,7 +139,7 @@ class String {
     }
 
     public static function getFirstWords($str, $char_len, $append = '...') {
-        if (strlen($str) > $char_len) {
+        if (mb_strlen($str) > $char_len) {
             $pos = mb_strpos($str, ' ', $char_len);
             if($pos){
                 $str = mb_substr($str, 0, $pos).$append;

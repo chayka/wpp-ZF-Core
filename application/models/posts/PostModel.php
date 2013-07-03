@@ -335,6 +335,10 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->wpPost = $wpPost;
     }
     
+    public function getHref(){
+        return get_permalink($this->getId());
+    }
+    
     public static function getDbIdColumn() {
         return 'ID';
     }
@@ -654,6 +658,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['reviews_count'] = $this->getReviewsCount();
         $jsonItem['post_mime_type'] = $this->getMimeType();
         $jsonItem['terms'] = $this->getTerms();
+        $jsonItem['href'] = $this->getHref();
+        
 //        if($this->getMeta()){
 //            $jsonItem['meta'] = $this->getMeta();
 //        }

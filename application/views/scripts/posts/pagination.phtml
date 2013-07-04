@@ -5,7 +5,7 @@
         'cssClass' => '',
     ));
 ?>
-<div class="pagination <?php echo $this->cssClass?>" <?php HtmlHelper::hidden($this->model->getTotalPages()<=1);?>
+<div class="<?php echo $this->cssClass?:'pagination'?>" <?php HtmlHelper::hidden($this->model->getTotalPages()<=1);?>
     <?php if($this->js): wp_enqueue_script('backbone-brx-pagination');?>
         backbone-view="brx.Pagination"
         currentPage="<?php echo $this->model->getCurrentPage()?>"
@@ -21,28 +21,29 @@
     <ul>
 <?php 
     $links = array();
-    $links[] = array('text'=>'&larr;', 'link' => $this->model->getPreviousPageLink()?$this->model->getPreviousPageLink():'#');
+    $links[] = array('text'=>'&larr;', 'link' => $this->model->getPreviousPageLink()?$this->model->getPreviousPageLink():'#', 'class'=>'prev');
     if($this->model->getPackFirstPage() > 1){
         $links[] = array('text'=>'1', 'link' => $this->model->getPageLink(1));
     }
     if($this->model->getPackFirstPage() > 2){
-        $links[] = array('text'=>'...', 'link' => $this->model->getPreviousPackLink());
+        $links[] = array('text'=>'...', 'link' => $this->model->getPreviousPackLink(), 'class'=>'dots');
     }
     for($i = $this->model->getPackFirstPage(); $i <= $this->model->getPackLastPage(); $i++){
         $links[] = array('text'=>$i, 'link' => $this->model->getPageLink($i));
     }
     if($this->model->getPackLastPage() < $this->model->getTotalPages() - 2){
-        $links[] = array('text'=>'...', 'link' => $this->model->getNextPackLink());
+        $links[] = array('text'=>'...', 'link' => $this->model->getNextPackLink(), 'class'=>'dots');
     }
     if($this->model->getPackLastPage() < $this->model->getTotalPages()){
         $links[] = array('text'=>$this->model->getTotalPages(), 'link' => $this->model->getPageLink($this->model->getTotalPages()));
     }
-    $links[] = array('text'=>'&rarr;', 'link' => $this->model->getNextPageLink()?$this->model->getNextPageLink():'#');
+    $links[] = array('text'=>'&rarr;', 'link' => $this->model->getNextPageLink()?$this->model->getNextPageLink():'#', 'class'=>'next');
 
     foreach($links as $link){
         if($link['link']){
             $classes = $link['text'] == $this->model->getCurrentPage()? 'active ':'';
-            $classes.= $link['link'] == '#'? 'disabled ':''
+            $classes.= $link['link'] == '#'? 'disabled ':'';
+            $classes.= Util::getItem($link, 'class').' ';
             ?>
         <li class="<?php echo $classes;?>"><a href="<?php echo $link['link'];?>"><?php echo $link['text'];?></a></li>
             <?php

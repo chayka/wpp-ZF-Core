@@ -301,6 +301,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             return 0;
         }
         $visited = Util::getItem($_SESSION, 'visited', array());
+        if(!$_SESSION['visited']){
+            $_SESSION['visited'] = array();
+        }
         $today = date('Y-m-d');
         foreach ($visited as $date => $posts) {
             if($date != $today){

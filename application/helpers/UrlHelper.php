@@ -21,4 +21,8 @@ class UrlHelper {
 
         return $router;
     }
+    
+    public static function assemble($userParams, $name=null, $reset=false, $encode=true){
+        return self::getRouter()->assemble($userParams, $name, $reset, $encode);
+    }
 }

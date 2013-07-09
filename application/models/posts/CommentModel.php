@@ -179,7 +179,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
                 unset($_SESSION['comment_votes'][$date]);
             }
         }
-        if(!$_SESSION['comment_votes'][$today]){
+        if(empty($_SESSION['comment_votes'][$today])){
             $_SESSION['comment_votes'][$today] = array();
         }
         
@@ -197,7 +197,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
                 unset($_SESSION['comment_votes'][$date]);
             }
         }
-        if(!$_SESSION['comment_votes'][$today]){
+        if(empty($_SESSION['comment_votes'][$today])){
             $_SESSION['comment_votes'][$today] = array();
         }
         

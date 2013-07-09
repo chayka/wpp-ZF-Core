@@ -27,6 +27,8 @@ class ZF_Query extends WP_Query {
     protected static $routes = array();
     protected static $widgets = array();
     
+    protected static $_post = null;
+    
     public static function registerApplication($id, $path, $routes, $widgets = array(), $env = ''){
         if(!$env){
             $env = Util::isDevelopment()?'development':'production';
@@ -182,14 +184,108 @@ class ZF_Query extends WP_Query {
     }
 
     
-    function copyFrom(WP_Query $wp_query) {
+    public function copyFrom(WP_Query $wp_query) {
         $vars = get_object_vars($wp_query);
         foreach ($vars as $name => $value) {
             $this->$name = $value;
         }
     }
+    
+    public static function setPost($post){
+        if(!($post instanceof PostModel)){
+            $post = PostModel::unpackDbRecord($post);
+        }
+        return self::$_post = $post;
+    }
+    
+    /**
+     * 
+     * @return PostModel
+     */
+    public static function getPost(){
+        if(!self::$_post){
+            self::$_post = new PostModel();
+            self::$_post->setStatus('publish');
+            self::$_post->setCommentStatus('closed');
+            self::$_post->setCommentCount(0);
+            self::$_post->setPingStatus('closed');
+        }
+        return self::$post;
+    }
 
-    function &get_posts() {
+    public static function setPostId($val){
+        self::getPost()->setId($val);
+    }
+    
+    public static function getPostId(){
+        return self::getPost()->getId();
+    }
+    
+    public static function setPostAuthor($val){
+        self::getPost()->setUserId($val);
+    }
+    
+    public static function getPostAuthor(){
+        return self::getPost()->getUserId();
+    }
+    
+    public static function setPostDate($val){
+        self::getPost()->setDtCreated($val);
+    }
+    
+    public static function getPostDate(){
+        return self::getPost()->getDtCreated();
+    }
+    
+    public static function setPostContent($val){
+        self::getPost()->setContent($val);
+    }
+    
+    public static function getPostContent(){
+        return self::getPost()->getContent();
+    }
+    
+    public static function setPostTitle($val){
+        self::getPost()->setTitle($val);
+    }
+    
+    public static function getPostTitle(){
+        return self::getPost()->getTitle();
+    }
+    
+    public static function setPostExcerpt($val){
+        self::getPost()->setExcerpt($val);
+    }
+    
+    public static function getPostExcerpt(){
+        return self::getPost()->getExcerpt();
+    }
+    
+    public static function setPostType($val){
+        self::getPost()->setType($val);
+    }
+    
+    public static function getPostType(){
+        return self::getPost()->getType();
+    }
+    
+    public static function setPostStatus($val){
+        self::getPost()->setStatus($val);
+    }
+    
+    public static function getPostStatus(){
+        return self::getPost()->getStatus();
+    }
+    
+    public static function setCommentStatus($val){
+        self::getPost()->setCommentStatus($val);
+    }
+    
+    public static function getCommentStatus(){
+        return self::getPost()->getCommentStatus();
+    }
+    
+    public function &get_posts() {
         global $wp_the_query;
         global $wp_query;
         
@@ -374,7 +470,7 @@ class ZF_Query extends WP_Query {
      * @param string $slug The slug name for the generic template.
      * @param string $name The name of the specialised template.
      */
-    function getTemplatePart($slug, $name = null) {
+    public function getTemplatePart($slug, $name = null) {
 
         $templates = array();
         if (isset($name)){

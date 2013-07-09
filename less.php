@@ -37,23 +37,33 @@ class LessCss{
     <?php    
     }
 
-    function styleLoaderTag($tag, $handle){
+    public static function styleLoaderTag($tag, $handle){
 
         global $wp_styles;
 
         $style = Util::getItem($wp_styles->registered, $handle);
 
         if($style && strpos($style->src, '.less')){
-            wp_enqueue_script('less');
-            wp_print_scripts('less');
-            if(!self::$wrapperRendered){
-                self::renderWrapper();
-            }
+//            self::loadLessCss();
+//            wp_enqueue_script('less');
+//            wp_print_scripts('less');
+//            if(!self::$wrapperRendered){
+//                self::renderWrapper();
+//            }
             return sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">renderLessCss("%s");</script>', $style->src, $style->src)."\r";
+//            return sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">(jQuery(document).ready(function($){renderLessCss("%s");}))</script>', $style->src, $style->src)."\r";
         }
 
         return $tag;
 
+    }
+    
+    public static function loadLessCss(){
+        wp_enqueue_script('less');
+        wp_print_scripts('less');
+        if(!self::$wrapperRendered){
+            self::renderWrapper();
+        }
     }
 
 }

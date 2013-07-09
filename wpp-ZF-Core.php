@@ -89,7 +89,7 @@ class ZF_Core{
         //require_once 'ZendB/Log.php';
         Log::setDir(ZF_CORE_PATH.'logs');
 //        Log::start();
-        require_once 'zf.php';
+        require_once 'ZF-Query.php';
 
         ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array(
             'admin', 'autocomplete', 
@@ -199,7 +199,7 @@ class ZF_Core{
         add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
         add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
         add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
-        session_start();
+        Util::sessionStart();
         if(empty($_SESSION['timezone'])){
             add_action('wp_footer', array('ZF_Core', 'fixTimezone'));
         }

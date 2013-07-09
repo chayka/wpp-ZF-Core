@@ -62,7 +62,7 @@ class ZFCore_TimezoneController extends Zend_Controller_Action{
             'date' => $date1->toString('d MMMM yyyy HH:mm'),
             'local' => $date2->toString('d MMMM yyyy HH:mm'),
         ));
-        session_start();
+        Util::sessionStart();
         $_SESSION['timezone'] = $timezone;
     }
 }

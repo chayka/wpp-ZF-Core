@@ -159,4 +159,10 @@ class Util {
     public static function isProduction(){
         return !self::isDevelopment();
     }
+    
+    public static function sessionStart(){
+        if(!session_id()){
+            session_start();
+        }
+    }
 }

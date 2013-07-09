@@ -24,6 +24,8 @@
 
 //////////////////////////////////////////////////////////////////////
 // This section emulates the Zend Framework bootstrap file, without any application environment
+
+require_once 'library/ZendB/Util.php';
 class ZF_Core{
     public static $zfCoreTree;
     

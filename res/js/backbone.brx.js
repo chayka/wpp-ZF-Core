@@ -732,6 +732,9 @@
                 !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
                 return this.getTinyMceContent(fieldId);
             }
+            if(this.inputs(fieldId).data('datepicker')){
+                return this.inputs(fieldId).datepicker('getDate');
+            }
             return this.inputs(fieldId).data('placeholder')?
                 this.inputs(fieldId).data('placeholder').val():
                 this.inputs(fieldId).val();
@@ -750,6 +753,9 @@
             if(!$.brx.utils.empty(window.tinyMCE) &&
                 !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
                 return this.setTinyMceContent(fieldId, value);
+            }
+            if(this.inputs(fieldId).data('datepicker') && value instanceof Date){
+                return this.inputs(fieldId).datepicker('setDate', value);
             }
             return this.inputs(fieldId).data('placeholder')?
                 this.inputs(fieldId).data('placeholder').val(value):

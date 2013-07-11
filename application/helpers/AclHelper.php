@@ -99,6 +99,7 @@ class AclHelper {
             $view = new Zend_View();
             $view->setScriptPath(ZF_CORE_APPLICATION_PATH.'/views/scripts');
             $view->message = $message;
+            WpHelper::setPostTitle('Access Denied');
             echo $view->render('acl/access-denied.phtml');
             Util::turnRendererOff();
         }

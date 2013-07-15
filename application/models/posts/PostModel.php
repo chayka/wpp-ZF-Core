@@ -341,6 +341,18 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     public function getHref(){
         return get_permalink($this->getId());
     }
+
+    public function getHrefNext($in_same_cat = true){
+//        $this->populateWpGlobals();
+        $post = get_next_post($in_same_cat);
+        return $post && $post->ID ? get_permalink($post->ID):null;
+    }
+    
+    public function getHrefPrev($in_same_cat = true){
+//        $this->populateWpGlobals();
+        $post = get_previous_post($in_same_cat);
+        return $post && $post->ID ? get_permalink($post->ID):null;
+    }
     
     public static function getDbIdColumn() {
         return 'ID';
@@ -492,7 +504,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             $args['post_type'] = $postType;
             $args['post_status'] = 'publish';
         }
-        print_r($args);
         $posts = self::selectPosts($args);
         return count($posts)?reset($posts):null;
     }

@@ -31,6 +31,8 @@ class ZF_Core{
     
     public static $adminBar = false;
     
+    const POST_TYPE_CONTENT_FRAGMENT = 'content-fragment';
+    
     public static function initPlugin(){
         self::registerActions();
         self::registerFilters();
@@ -80,6 +82,8 @@ class ZF_Core{
 
             
             self::registerResources($minimize = false);
+            
+//            self::registerCustomPostTypeContentFragment();
             
             require 'application/helpers/WpDbHelper.php';
 
@@ -196,6 +200,49 @@ class ZF_Core{
         }
         return $post;
     }    
+
+    public static function registerCustomPostTypeContentFragment() {
+        $labels = array(
+            'name' => _x('Content fragment', 'post type general name'),
+            'singular_name' => _x('Content fragment', 'post type singular name'),
+            'add_new' => _x('Add fragment', 'item'),
+            'add_new_item' => __('Add fragment'),
+            'edit_item' => __('Edit fragment'),
+            'new_item' => __('New fragment'),
+            'all_items' => __('All fragments'),
+            'view_item' => __('View fragment'),
+            'search_items' => __('Search fragments'),
+            'not_found' => __('No fragments found'),
+            'not_found_in_trash' => __('No deleted fragments found'),
+            'parent_item_colon' => 'Parent fragment:',
+            'menu_name' => __('Content fragments')
+        );
+        $args = array(
+            'labels' => $labels,
+            'public' => true,
+            'publicly_queryable' => false,
+            'show_ui' => true,
+            'show_in_menu' => true,
+//            'query_var' => true,
+//            'rewrite' => array('slug' => 'fragment'),
+            'capability_type' => 'post',
+            'has_archive' => false,
+            'hierarchical' => true,
+            'menu_position' => 20,
+//            'taxonomies' => array(
+//                self::TAXONOMY_REVIEW_TAG
+//            ),
+            'supports' => array(
+                'title', 
+                'editor', 
+//                'author', 
+                'thumbnail', 
+                'excerpt', 
+//                'comments',
+                )
+        );
+        register_post_type(self::POST_TYPE_CONTENT_FRAGMENT, $args);
+    }
 
     public static function registerActions(){
         add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));

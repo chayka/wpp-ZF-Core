@@ -237,7 +237,8 @@ class ZF_Core{
                 'editor', 
 //                'author', 
                 'thumbnail', 
-                'excerpt', 
+                'excerpt',
+                'page-attributes'
 //                'comments',
                 )
         );

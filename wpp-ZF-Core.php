@@ -307,6 +307,8 @@ class ZF_Core{
         wp_register_script( 'jquery-brx-form', ZF_CORE_URL.'res/js/jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
         wp_register_script( 'jquery-brx-setupForm', ZF_CORE_URL.'res/js/jquery.brx.setupForm.js', array('jquery-brx-form'));
         wp_register_script( 'backbone-brx-optionsForm', ZF_CORE_URL.'res/js/brx.OptionsForm.view.js', array('backbone-brx'));
+        wp_register_script( 'backbone-brx-jobControl', ZF_CORE_URL.'res/js/brx.JobControl.view.js', array('backbone-brx', 'jquery-ui-progressbar', 'backbone-brx-spinners'));
+        wp_register_style( 'backbone-brx-jobControl', ZF_CORE_URL.'res/css/brx.JobControl.view.less', array('backbone-brx-spinners'));
         wp_register_style( 'admin-setupForm', ZF_CORE_URL.'res/css/bem-admin_setup_form.less');
         wp_register_script( 'jquery-ui-datepicker-ru', ZF_CORE_URL.'res/js/jquery.ui.datepicker-ru.js');
         wp_register_script( 'jquery-ui-progressbar', ZF_CORE_URL.'res/js/jquery.ui.progressbar.js');

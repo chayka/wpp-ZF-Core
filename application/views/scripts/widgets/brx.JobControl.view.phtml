@@ -1,0 +1,46 @@
+<?php
+    $this->declareVars(array(
+        'jobId'=>'',
+        'perIteration'=>'10',
+        'total'=>'0',
+        'processed'=>'-1',
+        'attachView'=>'',
+    ));
+?>
+<div class="brx-job_control" backbone-view="brx.JobControl" <?php 
+if($this->jobId){ 
+    printf(' jobId="%s"', $this->jobId);
+}
+if($this->perIteration){ 
+    printf(' perIteration="%d"', $this->perIteration);
+}
+if($this->total){ 
+    printf(' total="%d"', $this->total);
+}
+if($this->processed){ 
+    printf(' processed="%d"', $this->processed);
+}
+if($this->attachView){ 
+    printf(' attachView="%s"', $this->attachView);
+}
+?>>
+    <div class="processor" attachpoint="boxProgress">
+        <div class="progressbar" widget="progressbar" attachwidget="progressbar">
+            <div class="progress_label" attachpoint="progresslabel">100%</div>
+        </div>
+        <div attachPoint="boxButtons" class="box_buttons">
+            <button class="button_start" attachPoint="buttons.start" attachEvent="start">Start</button>
+            <button class="button_pause" attachPoint="buttons.pause" attachEvent="pause">Pause</button>
+            <button class="button_resume" attachPoint="buttons.resume" attachEvent="resume">Resume</button>
+            <button class="button_stop" attachPoint="buttons.stop" attachEvent="stop">Stop</button>
+            <span class="field_per_iteration" attachPoint="fields.perIteration">
+                <label>Штук за итерацию:</label>
+                <input type="text" value="<?php echo $this->perIteration;?>" attachPoint="inputs.perIteration"/>
+            </span>
+        </div>
+        <div class="progress_spinner brx_single_spinner" backbone-view="brx.SingleSpinner" attachwidget="progressSpinner"></div>
+        <div class="box_output" attachpoint="boxOutput">
+        </div>
+    </div>
+    
+</div>

@@ -1,0 +1,122 @@
+@import '/wp-content/plugins/wpp-ZF-Core/res/css/styles.less?ver=1.3.2';
+
+.brx-job_control{
+    
+    .box_buttons{
+        float: right;
+        margin: 0 2em 1em;
+        .button_start{
+            display: inline;
+
+        }
+        .button_pause{
+            display: none;
+        }
+        .button_resume{
+            display: none;
+        }
+        .button_stop{
+            display: none;
+            
+        }
+    }
+    
+    .processor{
+        /*width: @width;*/
+/*        height: 200px;*/
+        border: 1px solid gray;
+        .box-sizing;
+        .border-radius(3px);
+        .progressbar{
+            margin: 2em 2em 1em;
+            height: 30px;
+            border: 1px solid gray;
+            .border-radius(3px);
+            .gradient-vertical(#eeeeee, #eeeeee, #ffffff);
+            .box-sizing;
+            
+            .progress_label{
+                float: left;
+                width: 100%;
+                margin-top: 5px;
+                font-weight: bold;
+                text-shadow: 1px 1px 0 #fff;            
+                text-align: center;
+            }
+        }
+        
+        .progress_spinner{
+            margin: 0 2em 1em;
+            display: none;
+        }
+        
+        .box_output{
+            clear: both;
+            margin: 0 2em 2em;
+            height: 100px;
+            overflow-y: scroll; 
+            border: 1px solid gray;
+            .box-sizing;
+            .border-radius(3px);
+/*            padding-top: 1ex;*/
+            .message{
+                padding: 0.5ex;
+                border-bottom: 1px dashed #eeeeee;
+            }
+            .message:last-child{
+                border-bottom: none;
+            }
+        }
+    }
+    
+}
+
+.running{
+    
+    .box_buttons{
+        .button_start{
+            display: inline;
+        }
+        .button_pause{
+            display: inline;
+            
+        }
+        .button_resume{
+            display: none;
+        }
+        .button_stop{
+            display: inline;
+            
+        }
+    }
+    .processor{
+        .progress_spinner{
+            display: block;
+        }
+    }
+}
+
+.paused{
+    
+    .box_buttons{
+        .button_start{
+            display: none;
+        }
+        .button_pause{
+            display: none;
+        }
+        .button_resume{
+            display: inline;
+        }
+        .button_stop{
+            display: inline;
+        }
+    }
+}
+
+.finished{
+    
+    .box_buttons{
+        display: none;
+    }
+}

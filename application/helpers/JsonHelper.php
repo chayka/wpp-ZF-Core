@@ -32,6 +32,8 @@ class JsonHelper {
     public static function packObject($obj) {
         if ($obj instanceof JsonReadyInterface) {
             return $obj->packJsonItem();
+        } elseif ($obj instanceof Zend_Date) {
+            return DateHelper::datetimeToJsonStr($obj);
         }
 
         return $obj;

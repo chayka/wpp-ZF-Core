@@ -664,7 +664,13 @@
         
         setCheckboxState: function(inputId, state){
             var jCheckbox = this.options.inputs[inputId];
-            jCheckbox.attr('checked', !$.brx.utils.empty(state));
+            if(state){
+                jCheckbox.attr('checked', 'checked');
+            }else{
+                jCheckbox.removeAttr('checked');
+            }
+            
+//            jCheckbox.attr('checked', !$.brx.utils.empty(state));
         },
         
         getTinyMceContent: function(editorId){
@@ -773,7 +779,7 @@
                 
         setupFieldsChecks: function(){
             for(var fieldId in this.options.fields){
-                if(this.inputs(fieldId).is('textarea, input[type=text], input[type=password]')){
+                if(this.inputs(fieldId).is('textarea, input[type=text], input[type=password], select')){
                     this.setupFieldChecks(fieldId);
                 }
             }

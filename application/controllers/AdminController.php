@@ -171,4 +171,44 @@ class ZFCore_AdminController extends Zend_Controller_Action{
         
     }
     
+    public function contentFragmentMetaboxAction(){
+        global $post;
+        
+        $zfPost = PostModel::unpackDbRecord($post);
+//        wp_enqueue_style('admin-editor');
+//        wp_enqueue_script('admin-editor');
+        wp_nonce_field( ZF_CORE_PATH, 'content_fragment_metabox_content_nonce' );
+        $meta = get_post_meta($post->ID, null, true);
+//        Util::print_r($meta);
+        $meta = array();
+        $this->view->linkTo = $meta['link_to'] = get_post_meta($post->ID, 'content_fragment_link_to', true);
+
+        $this->view->meta = $meta;
+        
+        $this->view->postId = $post->ID;
+        $this->view->zfPost = $zfPost;
+        
+    }
+    
+    public function updateContentFragmentAction(){
+        Util::turnRendererOff();
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        $postId = InputHelper::getParam('post_id');
+
+        if (!current_user_can('edit_post', $postId)) {
+            return;
+        }
+
+        if (!wp_verify_nonce($_POST['content_fragment_metabox_content_nonce'], ZF_CORE_PATH)) {
+            return;
+        }
+
+        $linkTo = InputHelper::getParam('content_fragment_link_to');
+        update_post_meta($postId, 'content_fragment_link_to', $linkTo);
+        
+        return;
+    }
+    
 }

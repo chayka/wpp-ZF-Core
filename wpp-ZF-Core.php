@@ -32,6 +32,7 @@ class ZF_Core{
     public static $adminBar = false;
     
     const POST_TYPE_CONTENT_FRAGMENT = 'content-fragment';
+    const TAXONOMY_CONTENT_FRAGMENT_TAG = 'content-fragment-tag';
     
     public static function initPlugin(){
         self::registerActions();
@@ -229,9 +230,9 @@ class ZF_Core{
             'has_archive' => false,
             'hierarchical' => true,
             'menu_position' => 20,
-//            'taxonomies' => array(
-//                self::TAXONOMY_REVIEW_TAG
-//            ),
+            'taxonomies' => array(
+                self::TAXONOMY_CONTENT_FRAGMENT_TAG
+            ),
             'supports' => array(
                 'title', 
                 'editor', 
@@ -243,6 +244,61 @@ class ZF_Core{
                 )
         );
         register_post_type(self::POST_TYPE_CONTENT_FRAGMENT, $args);
+        self::registerTaxonomyContentFagmentTag();
+        add_action('add_meta_boxes', array('ZF_Core', 'addMetaBoxContentFragment') );
+        add_action('save_post', array('ZF_Core', 'savePost'), 10, 2);
+    }
+    
+    public static function addMetaBoxContentFragment(){
+        add_meta_box( 
+            'content_fragment_metabox',
+            'Advanced',
+            array('ZF_Core', 'renderMetaBoxContentFragment'),
+            null,
+//            self::POST_TYPE_STAFF,
+            'normal',
+            'high'
+        );
+        
+    }
+    
+    public static function renderMetaBoxContentFragment(){
+        echo ZF_Query::processRequest('/admin/content-fragment-metabox', 'ZF_CORE');
+    }
+    
+    public static function savePost($postId, $post){
+        switch($post->post_type){
+            case self::POST_TYPE_CONTENT_FRAGMENT:
+                ZF_Query::processRequest('/admin/update-content-fragment/post_id/'.$postId, 'ZF_CORE');
+                break;
+        }
+    }
+    
+    public static function registerTaxonomyContentFagmentTag(){
+        $labels = array(
+            'name' => _x('Fragment Tags', 'taxonomy general name'),
+            'singular_name' => _x('Fragment Tag', 'taxonomy singular name'),
+            'search_items' => __('Search tags'),
+            'all_items' => __('All tags'),
+            'edit_item' => __('Edit'),
+            'update_item' => __('Update'),
+            'add_new_item' => __('Add tag'),
+            'new_item_name' => __('New tag name'),
+            'menu_name' => __('Fragment Tags'),
+        );
+
+        register_taxonomy(self::TAXONOMY_CONTENT_FRAGMENT_TAG, 
+                array(
+                    self::POST_TYPE_CONTENT_FRAGMENT,
+                ), 
+                array(
+                    'hierarchical' => false,
+                    'labels' => $labels,
+                    'show_ui' => true,
+                    'query_var' => true,
+                    'show_admin_column' => true,
+                    'rewrite' => array('slug' => self::TAXONOMY_CONTENT_FRAGMENT_TAG),
+                ));
     }
 
     public static function registerActions(){
@@ -262,6 +318,7 @@ class ZF_Core{
     }
     
     public static function registerResources($minimize = false){
+        wp_enqueue_script('jquery');
         wp_register_script( 'Underscore', ZF_CORE_URL.($minimize?'res/js/vendors/underscore.min.js':'res/js/vendors/underscore.js'), array('jquery'));
         wp_register_script( 'Backbone', ZF_CORE_URL.($minimize?'res/js/vendors/backbone.min.js':'res/js/vendors/backbone.js'), array('jquery','underscore'));
         wp_register_script( 'nls', ZF_CORE_URL.'res/js/vendors/nls.js', array('Underscore'));
@@ -321,7 +378,7 @@ class ZF_Core{
         
         wp_register_script( 'modenizr', ZF_CORE_URL.'res/js/vendors/modernizr-2.6.2.min.js');
 
-        wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js');
+        wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js', array('jquery'));
 
 //        wp_register_script('', $src)
         

@@ -1109,6 +1109,11 @@
         
     });
     
+    
+    if(!_.getItem(Backbone, 'history')){
+        Backbone.history = {};
+    }
+    
     Backbone.history.matchUrl = function(url){
         url = this.getFragment(url);
         var matched = _.any(this.handlers, function(handler) {

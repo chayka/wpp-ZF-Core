@@ -440,27 +440,22 @@
             })
 
             .done($.proxy(function(data){
-//                this.hideSpinner('sendQRL');
                 if(0 == data.code){
                     this.set(data.payload);
                 }else{
                     var message = data.message 
                         || 'Voting failed';
-                    $.brx.modalAlert(message);//'Пароль изменен');
+                    $.brx.modalAlert(message);
                 }
             },this))
 
             .fail($.proxy(function(response){
-//                this.hideSpinner('sendQRL');
                 var message = $.brx.utils.processFail(response) 
                     || 'Voting failed';
-//                this.setMessage(message, true);
                 $.brx.modalAlert(message);//'Пароль изменен');
             },this))
 
             .always($.proxy(function(){
-//                this.getSpinner().hide($.proxy(this.showMessage, this));
-//                this.enableInputs();
                 if(_.isFunction(callback)){
                     callback.apply(null, arguments);
                 }

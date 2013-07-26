@@ -360,7 +360,7 @@
         },
         
         getTemplate: function(){
-            return $el;
+            return this.$el;
         },
         
         _parseElement: function(){

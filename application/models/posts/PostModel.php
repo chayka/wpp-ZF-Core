@@ -330,6 +330,50 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 //        $this->dtModifiedGMT = $dtModifiedGMT;
 //    }
 
+    public function getThumbnailImage($size = 'post-thumbnail', $attrs = array()){
+        return get_the_post_thumbnail($this->getId(), $size, $attr);
+    }
+    
+    public function getThumbnailImageMedium($attrs = array()){
+        return $this->getThumbnailImage('medium', $attrs);
+    }
+
+    public function getThumbnailImageData($attrs = array()){
+        return $this->getThumbnailImage('large', $attrs);
+    }
+
+    public function getThumbnailImageFull($attrs = array()){
+        return $this->getThumbnailImage('full', $attrs);
+    }
+
+    public function getThumbnailData($size = 'thumbnail'){
+        $attId = get_post_thumbnail_id($this->getId());
+        if(!$attId){
+            return null;
+        }
+        $image = wp_get_attachment_image_src($attId, $size);
+        list($url, $width, $height, $resized) = $image;
+        return array(
+            'url' => $url,
+            'width' => $width,
+            'height' => $height,
+            'resized' => $resized,
+        );
+        //thumbnail, medium, large or full
+    }
+    
+    public function getThumbnailDataMedium(){
+        return $this->getThumbnailData('medium');
+    }
+
+    public function getThumbnailLargeData(){
+        return $this->getThumbnailData('large');
+    }
+
+    public function getThumbnailDataFull(){
+        return $this->getThumbnailData('full');
+    }
+
     public function getWpPost() {
         return $this->wpPost;
     }

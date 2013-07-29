@@ -221,6 +221,9 @@
     }
     
     $.brx.utils.handleErrors = function(data){
+        if(!data){
+            return {'empty_response': 'Empty response'};
+        }
         if('mass_errors' == data.code){
             for(var code in data.message){
                 if($.brx.utils.handleError(code, data.message[code])){

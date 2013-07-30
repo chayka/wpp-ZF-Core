@@ -9,7 +9,7 @@ class PostQueryModel{
     }
     
     public function getVars(){
-        return $this->$vars;
+        return $this->vars;
     }
     
     /**
@@ -21,6 +21,11 @@ class PostQueryModel{
     public function setVar($key, $value){
         $this->vars[$key] = $value;
         return $this;
+    }
+    
+    public function select(){
+//        Util::print_r($this->getVars());
+        return PostModel::selectPosts($this->getVars());
     }
     
     /**
@@ -362,7 +367,7 @@ class PostQueryModel{
      * @return \PostQueryModel
      */
     public function postStatus($status){
-        return $this->setVar('postStatus', $status);
+        return $this->setVar('post_status', $status);
     }
     
     public function postStatus_Publish(){
@@ -387,6 +392,10 @@ class PostQueryModel{
     
     public function postStatus_Private(){
         return $this->postStatus('private');
+    }
+    
+    public function postStatus_Inherit(){
+        return $this->postStatus('inherit');
     }
     
     public function postStatus_Trash(){

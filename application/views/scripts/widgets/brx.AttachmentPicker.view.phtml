@@ -1,0 +1,57 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+?>
+<div class="brx-attachment_picker" <?php HtmlHelper::hidden();?> backbone-view="brx.AttachmentPicker" attachments-var="$.brx.attachments" <?php if($this->attachView):?>attachView="<?php echo $this->escape($this->attachView);?>"<?php endif;?> validExtensions-array="<?php echo join(',',$this->validExtensions);?>">
+    <div class="attachment_picker-info">
+        <h2>Информация</h2>
+        <div class="info-thumb-back">
+        <img src="" class="info-thumb" attachPoint="view.thumb"/>
+        </div>
+        <div class="info-filename" attachPoint="view.filename"></div>
+        <div class="info-dimensions" attachPoint="view.dimensions"></div>
+        <span class="link_delete" attachEvent="deleteAttachment">Удалить навсегда</span>
+    </div>
+    <div class="attachment_picker-library">
+        <h2>Библиотека файлов</h2>
+        <div class="attachment_picker-attachments" attachPoint="boxAttachments">
+        </div>
+        <form class="brx-attachment_picker-box_upload" attachPoint="boxUpload" enctype="multipart/form-data" method="POST" action="/api/upload/attachment/" target="iframe-post-form">
+            <div class="form_button_pane">
+                <button attachPoint="buttons.uploadFile">Загрузить</button>
+            </div>
+            <div backbone-view="brx.SingleSpinner" attachView="uploadSpinner" class="brx_single_spinner"></div>
+            <div attachPoint="fields.fileUpload" class="form_field field_file_upload" check-required="Необходимо выбрать файл для загрузки">
+                <label>Загрузить файл:</label>
+                <div class="form_field-input_box">
+                    <div class="input_file">
+                        <input  name="file" type="file" attachPoint="inputs.fileUpload" attachevent="change: fileSelected" size="1" style=""/>
+                        <button>Выбрать файл</button>
+                    </div>
+                    <div class="filename_container" attachpoint="view.uploadFilename"></div>
+                </div>
+                <div class="form_field-tips"></div>
+            </div>
+        </form>
+    </div>
+    <div class="button_pane">
+        <button class="button_cancel" attachPoint="buttons.cancel" attachEvent="buttonCancelClicked">Отмена</button>
+        <button class="button_select" attachPoint="buttons.select" attachEvent="buttonSelectClicked">Выбрать миниатюру</button>
+    </div>
+    <script id="attachment-template" type="text/template">
+        <div class='attachment_picker-attachment' attachEvent="onClick">
+            <img class="attachment-image" src="" attachPoint="attachmentThumbnail" attachEvent="onClick"/>
+            <div class="attachment-id" attachPoint="attachmentId"></div>
+        </div>
+    </script>
+</div>
+<script type="text/javascript">
+(jQuery( document ).ready(function($){
+    $.brx.attachments = window.attachments = new $.wp.PostModels(<?php echo JsonHelper::encode($this->attachments);?>);
+    $.brx.attachments.total = <?php echo $this->total;?>;
+    $.brx.attachments.page = 1;
+}));
+</script>

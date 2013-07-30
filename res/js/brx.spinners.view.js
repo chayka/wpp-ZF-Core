@@ -29,10 +29,13 @@
             this.$el.show('fade', {}, 300);
         },
         
-        hide: function(){
+        hide: function(callback){
             this.$el.hide('fade', {}, 300, $.proxy(function(){
                 this.set('message', '');
                 this.render();
+                if(callback){
+                    callback();
+                }
             }, this));
         },
                 

@@ -9,7 +9,7 @@ class CommentQueryModel{
     }
     
     public function getVars(){
-        return $this->$vars;
+        return $this->vars;
     }
     
     /**

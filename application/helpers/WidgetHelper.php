@@ -53,4 +53,29 @@ class WidgetHelper {
         self::renderWidget($params, 'widgets/brx.JobControl.view.phtml', 'backbone-brx-jobControl');
     }
     
+    public static function renderAttachmentPicker($params){
+        $attachments = PostModel::query()
+                ->postType_Attachment()
+                ->authorIdIn(get_current_user_id())
+                ->noPaging()
+//                ->postParentId(Util::getItem($params, 'postId'))
+                ->postStatus_Inherit()
+                ->order_ASC()
+                ->select();
+        $validExtensions = Util::getItem($params, 'validExtensions');
+        if($validExtensions){
+            foreach($attachments as $i => $attachment){
+                $file = get_attached_file( $attachment->getId());
+                $ext = $file && preg_match('/\.([^.]+)$/', $file, $matches) ? strtolower($matches[1]) : false;
+                if(!$ext || !in_array($ext, $validExtensions)){
+                    unset($attachments[$i]);
+                }
+            }
+            $attachments = array_values($attachments);
+        }
+        $params['attachments']=$attachments;
+        $params['total']=  PostModel::postsFound();
+        self::renderWidget($params, 'widgets/brx.AttachmentPicker.view.phtml', 'backbone-brx-attachmentPicker');
+    }
+    
 }

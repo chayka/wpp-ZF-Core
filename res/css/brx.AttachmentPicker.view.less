@@ -1,0 +1,206 @@
+@import '/wp-content/plugins/wpp-ZF-Core/res/css/styles.less?ver=1.3.2';
+
+.brx-attachment_picker{
+    h2{
+        font-size: 16px;
+        font-wight: normal;
+        line-height: 20px;
+    }
+    .attachment_picker-library{
+        /*margin-right: 260px;*/
+        .attachment_picker-attachments{
+            /*width: 555px;*/
+            min-height: 215px;
+            max-height: 320px;
+            overflow-x: auto;
+            overflow-y: scroll;
+            padding: 5px 0 0 5px;
+            border: 1px solid #cccccc;
+            background-color: white;
+            
+            .attachment_picker-attachment{
+                float: left;
+                line-height: 100px;
+                text-align: center;
+                width: 100px;
+                height: 100px;
+                margin: 0 5px 5px 0;
+                border: 1px solid #cccccc;
+                cursor: pointer;
+                font-size: 0;
+                transition: all 0.2s ease-in;;
+                /*white-space:*/ 
+                img.attachment-image{
+                    display: inline-block;
+                    max-width: 100%;
+                    max-height: 100%;
+                    height: auto;
+                    width: auto;
+                    vertical-allign: middle;
+                }
+                .attachment-id{
+                    display: none;
+                }
+            }
+            .attachment_picker-attachment-selected{
+                border: 1px solid navy;
+/*                position: relative;
+                top: -2px;
+                left: -2px;*/
+                /*margin: -2px 3px 3px -2px;*/
+            }
+        }
+    }
+    .attachment_picker-info{
+        display: none;
+        /*width: 250px;*/
+        position: relative;
+        float: right;
+        text-align: center;
+        .info-thumb-back{
+            padding: 5px;
+            border: 1px solid #cccccc;
+            background-color: white;
+            img.info-thumb{
+                display: block;
+                margin:0 auto
+            }
+
+        }
+        .info-filename{
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .info-dimensions{
+            text-align: center;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
+        .link_delete{
+            color: maroon;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    }
+    .button_pane{
+        margin-top: 1ex;
+        border-top: 1px dashed #cccccc;
+        padding: 1ex 0;
+        text-align: right;
+        button{
+            height: 30px;
+        }
+        .button_select{
+            display: none;
+        }
+    }
+}
+
+.show_info{
+    .attachment_picker-library{
+        margin-right: 215px;
+    }
+    .attachment_picker-info{
+        display: block;
+        width: 200px;
+    }
+    button.button_select{
+        display: inline !important;
+    }
+}
+
+.empty_library{
+    .attachment_picker-library{
+        margin-right: 0;
+        h2{
+            display: none;
+        }
+        .attachment_picker-attachments{
+            display: none;
+        }
+    }
+    .attachment_picker-info{
+        display: none;
+    }  
+    .button_select{
+        display: none;
+    }
+}
+.brx-attachment_picker-box_upload{
+    border: 1px solid #cccccc;
+    background-color: white;
+    padding: 10px;
+    height: 40px;
+    margin: 5px 0;
+    
+    .brx_single_spinner{
+        display: none;
+        margin-right: 110px;
+    }
+    .field_file_upload{
+        height: 30px;
+        
+        margin-right: 110px;
+        label{
+            float: left;
+            line-height: 30px;
+            margin-right: 10px;
+            display: none;
+        }
+        .form_field-input_box{
+            /*margin-right:*/ 
+            /*float: left;*/
+            .filename_container{
+                /*float: left;*/
+                border: 1px solid #cccccc;
+                /*width: 200px;*/
+                height: 30px;
+                line-height: 28px;
+                padding: 0 1ex;
+                margin-right: 160px;
+                white-space: nowrap;
+                overflow: hidden;
+                .box-sizing;
+            }
+            .input_file{
+                height: 30px;
+                width: 150px;
+                float: right;
+                overflow: hidden;
+                position: relative;
+                
+                input[type=file]{
+                height: 30px;
+                    position: absolute;
+                    opacity: 0;
+                    width: 150px;
+                    height: 30px;
+                    cursor: pointer;
+                }
+                button{
+                    height: 30px;
+                    width: 150px;
+                    /*width: 100%;*/
+                }
+            }
+        }
+        .form_field-tips{
+            font-size: 10px;
+        }
+        .form_field-tips_error{
+            color: maroon;
+        }
+    }
+    .form_button_pane{
+        float: right;
+        position: relative;
+        button{
+                height: 30px;
+        }
+    }
+    
+    
+}
+

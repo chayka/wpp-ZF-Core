@@ -104,6 +104,9 @@ class InputHelper {
     }
     
     public static function getModelFromInput($model){
+        if(!$model){
+            return null;
+        }
         $dbRecord = $model->packDbRecord(false);
         $params = self::getParams();
         $input = array_intersect_key($params, $dbRecord);

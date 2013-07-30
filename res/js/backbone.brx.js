@@ -173,6 +173,23 @@
             return this;
         },
         
+        get: function(key, defaultValue){
+            if(_.isUndefined(defaultValue)){
+                defaultValue = null;
+            }
+            
+            var parts = key.split('.');
+            var value = this.attributes;
+            for(var i = 0; i < parts.length; i++){
+                var part = parts[i];
+                if(!_.has(value, part)){
+                    return null;
+                }
+                value = value[part];
+            }
+            return value || defaultValue;
+        },
+                
         getString: function(attr, defaultValue){
             if(_.isUndefined(defaultValue)){
                 defaultValue = 'unknown';

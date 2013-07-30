@@ -220,9 +220,57 @@
                 
         getHref: function(){
             return this.get('href');
+        },
+                
+        getImageData: function(size){
+            if(size){
+                return this.get('image.'+size);
+            }
+            
+            return this.get('image');
+        },
+        
+        getImageData_Thumbnail: function(){
+            return this.getImageData('thumbnail');
+        },
+        
+        getImageData_Medium: function(){
+            return this.getImageData('medium');
+        },
+        
+        getImageData_Large: function(){
+            return this.getImageData('large');
+        },
+        
+        getImageData_Full: function(){
+            return this.getImageData('full');
+        },
+        
+        getThumbData: function(size){
+            if(size){
+                return this.get('thumbnail.'+size);
+            }
+            
+            return this.get('thumbnail');
+        },
+        
+        getThumbData_Thumbnail: function(){
+            return this.getThumbData('thumbnail');
+        },
+        
+        getThumbData_Medium: function(){
+            return this.getThumbData('medium');
+        },
+        
+        getThumbData_Large: function(){
+            return this.getThumbData('large');
+        },
+        
+        getThumbData_Full: function(){
+            return this.getThumbData('full');
         }
         
-});
+    });
 
     $.declare('wp.PostModels', $.brx.Collection, {
 

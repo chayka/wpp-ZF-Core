@@ -8,7 +8,7 @@ class UserQueryModel{
     }
     
     public function getVars(){
-        return $this->$vars;
+        return $this->vars;
     }
     
     /**

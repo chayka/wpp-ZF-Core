@@ -3,6 +3,7 @@
 require_once 'application/helpers/WpDbHelper.php';
 require_once 'application/helpers/JsonHelper.php';
 require_once 'application/models/posts/CommentModel.php';
+require_once 'application/models/posts/PostQueryModel.php';
 //require_once 'application/helpers/LuceneHelper.php';
 
 class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface /*, LuceneReadyInterface*/{
@@ -40,6 +41,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     protected $terms;
     protected $meta;
     protected $imageData;
+    protected $thumbnailId;
 
     protected $dtCreated;
     protected $dtCreatedGMT;
@@ -330,6 +332,14 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 //        $this->dtModifiedGMT = $dtModifiedGMT;
 //    }
 
+    public function getThumbnailId(){
+        if(!$this->thumbnailId){
+            $this->thumbnailId = get_post_thumbnail_id($this->getId());
+        }
+        
+        return $this->thumbnailId?$this->thumbnailId:0;
+    }
+    
     public function getThumbnailImage($size = 'post-thumbnail', $attrs = array()){
         return get_the_post_thumbnail($this->getId(), $size, $attr);
     }
@@ -338,7 +348,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $this->getThumbnailImage('medium', $attrs);
     }
 
-    public function getThumbnailImageData($attrs = array()){
+    public function getThumbnailImageLarge($attrs = array()){
         return $this->getThumbnailImage('large', $attrs);
     }
 
@@ -347,7 +357,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function getThumbnailData($size = 'thumbnail'){
-        $attId = get_post_thumbnail_id($this->getId());
+        $attId = $this->getThumbnailId();
         if(!$attId){
             return null;
         }
@@ -362,11 +372,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         //thumbnail, medium, large or full
     }
     
+    public function getThumbnailDataThumbnail(){
+        return $this->getThumbnailData('thumbnail');
+    }
+
     public function getThumbnailDataMedium(){
         return $this->getThumbnailData('medium');
     }
 
-    public function getThumbnailLargeData(){
+    public function getThumbnailDataLarge(){
         return $this->getThumbnailData('large');
     }
 
@@ -553,6 +567,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public static function selectPosts($wpPostsQueryArgs){
+        
+//        Util::print_r($wpPostsQueryArgs);
+//        die('(@)');
         $posts = array();
         self::$wpQuery = new WP_Query($wpPostsQueryArgs);
 //        $dbRecords = get_posts($wpPostsQueryArgs);
@@ -560,8 +577,14 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         foreach ($dbRecords as $dbRecord) {
             $posts[] = self::unpackDbRecord($dbRecord);
         }
+//        Util::print_r($posts);
         self::$postsFound=self::$wpQuery->found_posts;
         return $posts;
+    }
+    
+    public static function query(){
+        $query = new PostQueryModel();
+        return $query;
     }
 
     public static function selectSql($sql){
@@ -660,14 +683,25 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->comments = CommentModel::selectComments($args);
     }
     
+    public function isAttachmentImage(){
+        return preg_match('%^image%', $this->getMimeType());
+    }
+    
     public function loadImageData($size = ''){
         if($this->getType() == 'attachment'){
             $sizes = array();
             if($size){
                 $sizes[$size] = wp_get_attachment_image_src( $this->getId(), 'icon' == $size?'thumbnail':$size, 'icon' == $size );
             }else{
-                foreach(array('thumbnail', 'medium', 'large', 'full') as $size){
-                    $sizes[$size] = wp_get_attachment_image_src( $this->getId(), $size );
+                if($this->isAttachmentImage()){
+                    foreach(array('thumbnail', 'medium', 'large', 'full') as $size){
+                        $d = wp_get_attachment_image_src( $this->getId(), $size );
+                        if($d){
+                            $sizes[$size] = $d;
+                        }
+                    }
+                }else{
+                    $sizes['thumbnail'] = wp_get_attachment_image_src( $this->getId(), 'thumbnail', true );
                 }
 //                $sizes['icon'] = wp_get_attachment_image_src( $this->getId(), "thumbnail", true);
             }
@@ -717,7 +751,23 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['post_mime_type'] = $this->getMimeType();
         $jsonItem['terms'] = $this->getTerms();
         $jsonItem['href'] = $this->getHref();
-        
+        if('attachment' == $this->getType()){
+            if(empty($this->imageData)){
+                $this->loadImageData();
+            }
+            $jsonItem['image'] = $this->imageData;
+        }
+        $thumbId = $this->getThumbnailId();
+        $jsonItem['thumbnail_id'] = $thumbId;
+        if($thumbId){
+            $thumb = array(
+                'thumbnail' => $this->getThumbnailDataThumbnail(),
+                'medium' => $this->getThumbnailDataMedium(),
+                'large' => $this->getThumbnailDataLarge(),
+                'full' => $this->getThumbnailDataFull(),
+            );
+            $jsonItem['thumbnail'] = $thumb;
+        }
 //        if($this->getMeta()){
 //            $jsonItem['meta'] = $this->getMeta();
 //        }

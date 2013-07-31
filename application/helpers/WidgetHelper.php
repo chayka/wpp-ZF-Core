@@ -53,6 +53,10 @@ class WidgetHelper {
         self::renderWidget($params, 'widgets/brx.JobControl.view.phtml', 'backbone-brx-jobControl');
     }
     
+    public static function renderTaxonomyPicker($params){
+        self::renderWidget($params, 'widgets/brx.TaxonomyPicker.view.phtml', 'backbone-brx-taxonomyPicker');
+    }
+    
     public static function renderAttachmentPicker($params){
         $attachments = PostModel::query()
                 ->postType_Attachment()

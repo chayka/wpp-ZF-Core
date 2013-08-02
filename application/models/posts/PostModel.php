@@ -619,12 +619,21 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
     
     public static function selectTerms($postId, $taxonomy = 'post_tag', $args = array()){
-        return wp_get_post_terms($postId, $taxonomy, $args);
+        return wp_get_post_terms($postId, $taxonomy, ($args instanceof TermQueryModel)?$args->getVars(): $args);
     }
     
     public function loadTerms($taxonomy = '', $args = array('fields'=>'names')){
         if($taxonomy){
-            $this->terms[$taxonomy] = self::selectTerms($this->getId(), $taxonomy, $args);
+            if(is_string($taxonomy) && strpos($taxonomy, ',')){
+                $taxonomy = preg_split('%\s*,\s*%', $taxonomy);
+            }
+            if(is_array($taxonomy)){
+                foreach ($taxonomy as $t){
+                    $this->terms[$t] = self::selectTerms($this->getId(), $t, $args);
+                }
+            }else{
+                $this->terms[$taxonomy] = self::selectTerms($this->getId(), $taxonomy, $args);
+            }
         }else{
             $taxonomies = $this->getTaxonomies();
             foreach ($taxonomies as $t){

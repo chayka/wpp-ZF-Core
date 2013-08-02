@@ -171,13 +171,49 @@ class PostQueryModel{
     /**
      * 
      * @param string $taxonomy
-     * @param int|string|array $terms
+     * @param int|string|object|array(id|slug|object) $terms
      * @param string $field 'id' or 'slug'
      * @param type $includeChildren
      * @param type $operator
      * @return \PostQueryModel
      */
-    public function taxonomyQuery($taxonomy, $terms, $field = 'slug', $includeChildren = true, $operator = 'IN'){
+    public function taxonomyQuery($taxonomy, $terms, $field = 'auto', $includeChildren = true, $operator = 'IN'){
+        if(is_string($terms) && strpos($terms, ',')){
+            $terms = preg_split('%\s*,\s*%', $terms);
+        }
+        if('auto' == $field){
+//                echo "#auto#";
+            if(is_numeric($terms)){
+//                echo "#num#";
+                $field = 'id';
+            }else if(is_string($terms)){
+//                echo "#str#";
+                $field = 'slug';
+            }else if(is_object($terms)){
+//                echo "#obj#";
+                $field = 'id';
+                $terms = $terms->term_id;
+            }else if(is_array($terms)){
+//                echo "#array#";
+                if(count($terms)){
+                    $term = reset($terms);
+                    if(is_numeric($term)){
+                        $field = 'id';
+                    }else if(is_string($term)){
+                        $field = 'slug';
+                    }else if(is_object($term)){
+                        $field = 'id';
+                        $termIds = array();
+                        foreach($terms as $term){
+                            $termIds[]=$term->term_id;
+                        }
+                        $terms = $termIds;
+                    }
+                }else{
+                    return this;
+                }
+            }
+        }
         $taxQuery = array(
             'taxonomy' => $taxonomy,
             'terms' => $terms,
@@ -185,6 +221,7 @@ class PostQueryModel{
             'include_children' => $includeChildren,
             'operator' => $operator,
         );
+//        Util::print_r($taxQuery);
         
         $this->vars['tax_query'][]=$taxQuery;
         

@@ -123,7 +123,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     
     public function insert() {
-        if(!$this->getId() || !$this->getName()){
+        if(!$this->getId() && !$this->getName()){
             throw new Exception('TermModel: no term set', 1);
         }
         if(!$this->getTaxonomy()){

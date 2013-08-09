@@ -4,6 +4,7 @@ require_once 'application/helpers/WpDbHelper.php';
 require_once 'application/helpers/JsonHelper.php';
 require_once 'application/models/posts/CommentModel.php';
 require_once 'application/models/posts/PostQueryModel.php';
+require_once 'application/models/taxonomies/TermQueryModel.php';
 //require_once 'application/helpers/LuceneHelper.php';
 
 class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInterface /*, LuceneReadyInterface*/{
@@ -146,6 +147,18 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function getExcerpt() {
+        if(!$this->excerpt && $this->content){
+            $text = $this->getContent();
+
+            $text = strip_shortcodes( $text );
+
+            $text = apply_filters('the_content', $text);
+            $text = str_replace(']]>', ']]&gt;', $text);
+            $excerpt_length = apply_filters('excerpt_length', 55);
+            $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
+            $text = wp_trim_words( $text, $excerpt_length, $excerpt_more );
+            $this->excerpt = wp_trim_excerpt($text);
+        }
         return $this->excerpt;
     }
 
@@ -566,6 +579,11 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return count($posts)?reset($posts):null;
     }
 
+    public static function query(){
+        $query = new PostQueryModel();
+        return $query;
+    }
+
     public static function selectPosts($wpPostsQueryArgs){
         
 //        Util::print_r($wpPostsQueryArgs);
@@ -582,11 +600,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $posts;
     }
     
-    public static function query(){
-        $query = new PostQueryModel();
-        return $query;
-    }
-
     public static function selectSql($sql){
         global $wpdb;
         $posts = array();
@@ -619,20 +632,34 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
     
     public static function selectTerms($postId, $taxonomy = 'post_tag', $args = array()){
-        return wp_get_post_terms($postId, $taxonomy, ($args instanceof TermQueryModel)?$args->getVars(): $args);
+        if($args instanceof TermQueryModel){
+            $args = $args->getVars();
+        }
+        $terms = wp_get_post_terms($postId, $taxonomy, $args);
+        if(in_array(Util::getItem($args, 'fields', 'names'), array('all', 'all_with_object_id'))){
+            $dbRecords = $terms;
+            $terms = array();
+            foreach($dbRecords as $dbRecord){
+                $term = TermModel::unpackDbRecord($dbRecord);
+                if($term){
+                    $terms[]=$term;
+                }
+            }
+        }
+        return $terms;
     }
     
-    public function loadTerms($taxonomy = '', $args = array('fields'=>'names')){
-        if($taxonomy){
-            if(is_string($taxonomy) && strpos($taxonomy, ',')){
-                $taxonomy = preg_split('%\s*,\s*%', $taxonomy);
+    public function loadTerms($taxonomies = '', $args = array('fields'=>'names')){
+        if($taxonomies){
+            if(is_string($taxonomies) && strpos($taxonomies, ',')){
+                $taxonomies = preg_split('%\s*,\s*%', $taxonomies);
             }
-            if(is_array($taxonomy)){
-                foreach ($taxonomy as $t){
+            if(is_array($taxonomies)){
+                foreach ($taxonomies as $t){
                     $this->terms[$t] = self::selectTerms($this->getId(), $t, $args);
                 }
             }else{
-                $this->terms[$taxonomy] = self::selectTerms($this->getId(), $taxonomy, $args);
+                $this->terms[$taxonomies] = self::selectTerms($this->getId(), $taxonomies, $args);
             }
         }else{
             $taxonomies = $this->getTaxonomies();
@@ -641,6 +668,10 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             }
         }
         return $this->terms;
+    }
+    
+    public function queryTerms($taxonomies = null){
+        return PostTermQueryModel::query($this, $taxonomies);
     }
     
     public function getTaxonomies(){
@@ -653,33 +684,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         }
         
         return $res;
-    }
-    
-    public function getTaxQuery($count = 3, $relation = 'OR'){
-        $terms = wp_get_object_terms($this->getId(), array(
-            'profession', 'equipment', 'work'
-        ), array('orderby'=>'count', 'order' => 'DESC'));
-        $taxed = array();
-        foreach($terms as $i=>$term){
-            if($i>=$count){
-                break;
-            }
-            $taxed[$term->taxonomy][]=$term;
-        }
-        $tax_query = array('relation' => $relation);
-        foreach ($taxed as $taxonomy => $ts) {
-            $tax = array(
-                'taxonomy' => $taxonomy,
-                'field' => 'id',
-                'terms' => array()                
-            );
-            foreach ($ts as $term) {
-                $tax['terms'][]=$term->term_id; 
-            }
-            $tax_query[]=$tax;
-        }
-        
-        return $tax_query;
     }
     
     public function loadComments($args = array()){

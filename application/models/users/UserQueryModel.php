@@ -22,6 +22,14 @@ class UserQueryModel{
         return $this;
     }
     
+    public static function query(){
+        return new self();
+    }
+    
+    public function select(){
+        return UserModel::selectUsers($this->getVars());
+    }
+    
     /**
      * Show users associated with certain role.
      * 

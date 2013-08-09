@@ -56,17 +56,22 @@
     };
     
     _.getItem = function(obj, key, defaultValue){
+        defaultValue = defaultValue || null;
         var parts = (key+'').split('.');
-        var root = obj;
-        for(var i in parts){
-            var part = parts[i];
-            if(root[part]!=undefined){
-                root = root[part];
-            }else{
-                return defaultValue;
+        if(obj && (_.isObject(obj)||_.isArray(obj))){
+            var root = obj;
+            for(var i in parts){
+                var part = parts[i];
+                if((_.isObject(root)||_.isArray(root)) && root[part]!=undefined){
+                    root = root[part];
+                }else{
+                    return defaultValue;
+                }
             }
+            return root;
         }
-        return root;
+        
+        return defaultValue;
 //        return _.empty(obj[key])?defaultValue:obj[key];
     };
     

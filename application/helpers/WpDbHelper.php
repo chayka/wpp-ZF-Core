@@ -58,6 +58,11 @@ class WpDbHelper {
         }
     }
     
+    public static function wpdb(){
+        global $wpdb;
+        return $wpdb;
+    }
+    
     public static function dbInstall($currentVersion, $versionOptionName, $sqlPath, $versionHistory = array('1.0')) {
         global $wpdb;
         $installedVer = get_option($versionOptionName);

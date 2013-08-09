@@ -24,6 +24,22 @@ class CommentQueryModel{
     }
     
     /**
+     * @param int $postId postId
+     * @return \CommentQueryModel
+     */
+    public static function query($postId = 0){
+        $q  = new self();
+        if($postId){
+            $q->postId($postId);
+        }
+        return $q;
+    }
+    
+    public function select(){
+        return CommentModel::selectComments($this->getVars());
+    }
+    
+    /**
      * Only return comments with this status.
      * 
      * @param string $status

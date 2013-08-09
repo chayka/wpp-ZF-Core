@@ -3,6 +3,7 @@
 require_once 'application/helpers/JsonHelper.php';
 require_once 'application/helpers/InputHelper.php';
 require_once 'application/helpers/WpDbHelper.php';
+require_once 'application/models/posts/CommentQueryModel.php';
 
 /**
  * Description of CommentModel
@@ -545,6 +546,10 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         foreach ($dbRecords as $dbRecord) {
             $comments[] = self::unpackDbRecord($dbRecord);
         }
+    }
+    
+    public static function query($postId = 0){
+        return CommentQueryModel::query($postId);
     }
     
     public static function selectMeta($comment_id, $key, $single){

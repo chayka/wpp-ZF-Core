@@ -73,12 +73,29 @@
                                    @start 0%,
                                    @stop 100%);
 }
+.transform(@transform){
+    transform: @transform;
+    -ms-transform: @transform; /* IE 9 */
+    -moz-transform: @transform; /* Firefox */
+    -webkit-transform: @transform; /* Safari and Chrome */
+    -o-transform: @transform; /* Opera */
+}
+
 .transform-rotate(@deg){
-    transform:rotate(@deg);
-    -ms-transform:rotate(@deg); /* IE 9 */
-    -moz-transform:rotate(@deg); /* Firefox */
-    -webkit-transform:rotate(@deg); /* Safari and Chrome */
-    -o-transform:rotate(@deg); /* Opera */
+    .transform(rotate(@deg));
+/*    transform:rotate(@deg);
+    -ms-transform:rotate(@deg);  IE 9 
+    -moz-transform:rotate(@deg);  Firefox 
+    -webkit-transform:rotate(@deg);  Safari and Chrome 
+    -o-transform:rotate(@deg);  Opera */
+}
+
+.transition(@transition){
+    transition: @transition;
+    -ms-transition: @transition; /* IE 9 */
+    -moz-transition: @transition; /* Firefox */
+    -webkit-transition: @transition; /* Safari and Chrome */
+    -o-transition: @transition; /* Opera */
 }
 
 .sprite-icon(@url-background, @width, @height){

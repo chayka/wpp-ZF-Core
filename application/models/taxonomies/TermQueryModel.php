@@ -2,9 +2,11 @@
 
 class TermQueryModel{
     protected $vars = array();
-    
-    public function __construct() {
-        ;
+    protected $taxonomies = null;
+
+
+    public function __construct($taxonomies = null) {
+        $this->taxonomies = $taxonomies;
     }
     
     public function getVars(){
@@ -13,13 +15,34 @@ class TermQueryModel{
     
     /**
      * 
-     * @param type $key
-     * @param type $value
+     * @param string $key
+     * @param mixed $value
      * @return \TermQueryModel
      */
     public function setVar($key, $value){
         $this->vars[$key] = $value;
         return $this;
+    }
+    
+    /**
+     * 
+     * @param string|array(string) $taxonomies
+     * @return \TermQueryModel
+     */
+    public static function query($taxonomies = null){
+        return new self($taxonomies);
+    }
+    
+    /**
+     * 
+     * @param string|array(string) $taxonomies
+     * @return array(TermModel)
+     */
+    public function select($taxonomies = null){
+        if(!$taxonomies){
+            $taxonomies = $this->taxonomies;
+        }
+        return TermModel::selectTerms($taxonomies, $this->getVars());
     }
     
     /**
@@ -309,3 +332,164 @@ class TermQueryModel{
     
 }
     
+class PostTermQueryModel {
+    protected $vars = array();
+    protected $taxonomies = null;
+    protected $post = null;
+
+
+    public function __construct($post = null, $taxonomies = null) {
+        $this->taxonomies = $taxonomies;
+        $this->post = $post;
+    }
+    
+    public function getVars(){
+        return $this->vars;
+    }
+    
+    /**
+     * 
+     * @param string $key
+     * @param mixed $value
+     * @return \PostTermQueryModel
+     */
+    public function setVar($key, $value){
+        $this->vars[$key] = $value;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @param string|array(string) $taxonomies
+     * @return \PostTermQueryModel
+     */
+    public static function query($post = null, $taxonomies = null){
+        return new self($post, $taxonomies);
+    }
+    
+    /**
+     * 
+     * @param string|array(string) $taxonomies
+     * @return array(TermModel)
+     */
+    public function select($post = null, $taxonomies = null){
+        if(!$post){
+            $post = $this->post;
+        }
+        if(!$taxonomies){
+            $taxonomies = $this->taxonomies;
+        }
+        return $post->loadTerms($taxonomies, $this->getVars());
+    }
+    
+    /**
+     * Designates the ascending or descending order of the 'orderby' parameter. 
+     * Defaults to 'ASC'
+     * @param string $order
+     * @return \PostTermQueryModel
+     */
+    public function order($order){
+        return $this->setVar('order', $order);
+    }
+    
+    public function order_ASC(){
+        return $this->order('ASC');
+    }
+   
+    public function order_DESC(){
+        return $this->order('DESC');
+    }
+    
+    /**
+     * Sort retrieved users by parameter. Defaults to 'login'.
+     * 
+     * @param string $orderBy
+     * @return \PostTermQueryModel
+     */
+    public function orderBy($orderBy){
+        return $this->setVar('orderby', $orderBy);
+    }
+    
+    public function orderBy_ID(){
+        return $this->orderBy('id');
+    }
+    
+    public function orderBy_Count(){
+        return $this->orderBy('count');
+    }
+
+    public function orderBy_Name(){
+        return $this->orderBy('name');
+    }
+    
+    public function orderBy_Slug(){
+        return $this->orderBy('slug');
+    }
+    
+    public function orderBy_TermOrder(){
+        return $this->orderBy('term_order');
+    }
+    
+    public function orderBy_TermGroup(){
+        return $this->orderBy('term_group');
+    }
+    
+    public function orderBy_None(){
+        return $this->orderBy('none');
+    }
+    
+    /**
+     * Set return values.
+     * 
+     * @param string|array(string) $fields
+     * @return \PostTermQueryModel
+     */
+    public function fields($fields){
+        return $this->setVar('fields', $fields);
+    }
+    
+    /**
+     * all - returns an array of term objects - Default
+     * 
+     * @return \PostTermQueryModel
+     */
+    public function fields_All(){
+        return $this->fields('all');
+    }
+    
+    /**
+     * all - returns an array of term objects - Default
+     * 
+     * @return \PostTermQueryModel
+     */
+    public function fields_AllWithObjectId(){
+        return $this->fields('all_with_object_id');
+    }
+    
+    /**
+     * ids - returns an array of integers
+     * 
+     * @return \PostTermQueryModel
+     */
+    public function fields_Ids(){
+        return $this->fields('ids');
+    }
+    
+    /**
+     * names - returns an array of strings
+     * 
+     * @return \PostTermQueryModel
+     */
+    public function fields_Names(){
+        return $this->fields('names');
+    }
+    
+    /**
+     * slugs - returns an array of strings
+     * 
+     * @return \PostTermQueryModel
+     */
+    public function fields_Slugs(){
+        return $this->fields('slugs');
+    }
+}

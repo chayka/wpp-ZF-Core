@@ -122,7 +122,7 @@ class PaginationModel{
 //    public static function sendTemplate($subject, $template, $params, $to, $from = '', $cc = '', $bcc = ''){
         $html = new Zend_View();
         $html->setScriptPath(ZF_CORE_APPLICATION_PATH . '/views/scripts/posts/');
-
+        $cssClass = apply_filters('pagination_css_class', $cssClass);
         $html->assign('model', $this);
         $html->assign('js', $isJs);
         $html->assign('attributes', $attrs);

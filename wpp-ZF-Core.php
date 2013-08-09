@@ -370,6 +370,8 @@ class ZF_Core{
         wp_register_style( 'backbone-brx-attachmentPicker', ZF_CORE_URL.'res/css/brx.AttachmentPicker.view.less', array('backbone-brx-spinners'));
         wp_register_style('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/css/brx.TaxonomyPicker.view.less');
         wp_register_script('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/js/brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
+
+        wp_register_script('google-youtube-loader', ZF_CORE_URL.'res/js/google.YouTube.ApiLoader.js', array('backbone-brx'));
         
         wp_register_style( 'admin-setupForm', ZF_CORE_URL.'res/css/bem-admin_setup_form.less');
         wp_register_script( 'jquery-ui-datepicker-ru', ZF_CORE_URL.'res/js/jquery.ui.datepicker-ru.js');

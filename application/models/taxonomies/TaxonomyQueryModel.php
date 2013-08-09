@@ -23,6 +23,14 @@ class TaxonomyQueryModel{
     }
     
     /**
+     * 
+     * @return \TaxonomyQueryModel
+     */
+    public static function query(){
+        return new self();
+    }
+    
+    /**
      * Select by name
      * 
      * @param string $name

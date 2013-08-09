@@ -23,6 +23,14 @@ class PostQueryModel{
         return $this;
     }
     
+    /**
+     * 
+     * @return \PostQueryModel
+     */
+    public static function query(){
+        return new self();
+    }
+    
     public function select(){
 //        Util::print_r($this->getVars());
         return PostModel::selectPosts($this->getVars());

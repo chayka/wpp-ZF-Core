@@ -13,7 +13,7 @@
             
             this.get('inputs.perIteration').change($.proxy(function(){
                 this.setPerIteration(this.get('inputs.perIteration').val());
-            },this));
+            },this)).change();
         },
                 
         render: function(){

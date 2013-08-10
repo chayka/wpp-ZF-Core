@@ -31,9 +31,24 @@ class PostQueryModel{
         return new self();
     }
     
+    /**
+     * Select all matching posts
+     * 
+     * @return array(PostModel)
+     */
     public function select(){
 //        Util::print_r($this->getVars());
         return PostModel::selectPosts($this->getVars());
+    }
+    
+    /**
+     * Select firs matching post
+     * 
+     * @return PostModel
+     */
+    public function selectOne(){
+        $posts = $this->select();
+        return count($posts)?reset($posts):null;
     }
     
     /**

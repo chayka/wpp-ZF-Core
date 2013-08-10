@@ -22,12 +22,31 @@ class UserQueryModel{
         return $this;
     }
     
+    /**
+     * 
+     * @return \UserQueryModel
+     */
     public static function query(){
         return new self();
     }
     
+    /**
+     * Select all matching users
+     * 
+     * @return array(UserModel)
+     */
     public function select(){
         return UserModel::selectUsers($this->getVars());
+    }
+    
+    /**
+     * Select first matching user
+     * 
+     * @return UserModel
+     */
+    public function selectOne(){
+        $users = $this->select();
+        return count($users)?reset($users):null;
     }
     
     /**

@@ -35,8 +35,22 @@ class CommentQueryModel{
         return $q;
     }
     
+    /**
+     * Select all matching comments
+     * @return array(CommentModel)
+     */
     public function select(){
         return CommentModel::selectComments($this->getVars());
+    }
+    
+    /**
+     * Select firs matching comment
+     * 
+     * @return CommentModel
+     */
+    public function selectOne(){
+        $comments = $this->select();
+        return count($comments)?reset($comments):null;
     }
     
     /**

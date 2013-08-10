@@ -34,6 +34,7 @@ class TermQueryModel{
     }
     
     /**
+     * Select all matching terms
      * 
      * @param string|array(string) $taxonomies
      * @return array(TermModel)
@@ -43,6 +44,17 @@ class TermQueryModel{
             $taxonomies = $this->taxonomies;
         }
         return TermModel::selectTerms($taxonomies, $this->getVars());
+    }
+    
+    /**
+     * Select first matching term
+     * 
+     * @param string|array(string) $taxonomies
+     * @return TermModel
+     */
+    public function selectOne($taxonomies = null){
+        $terms = $this->select();
+        return count($terms)?reset($terms):null;
     }
     
     /**
@@ -380,6 +392,17 @@ class PostTermQueryModel {
             $taxonomies = $this->taxonomies;
         }
         return $post->loadTerms($taxonomies, $this->getVars());
+    }
+    
+    /**
+     * Select first matching term
+     * 
+     * @param string|array(string) $taxonomies
+     * @return TermModel
+     */
+    public function selectOne($taxonomies = null){
+        $terms = $this->select();
+        return count($terms)?reset($terms):null;
     }
     
     /**

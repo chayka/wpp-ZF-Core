@@ -153,7 +153,7 @@ class Util {
     }
 
     public static function isDevelopment(){
-        return in_array(Util::serverName(), array('wordpress.brx', 'wordpress.bbx'));
+        return AclHelper::isAdmin() || in_array(Util::serverName(), array('wordpress.brx', 'wordpress.bbx'));
     }
 
     public static function isProduction(){

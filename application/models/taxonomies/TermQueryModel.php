@@ -53,7 +53,7 @@ class TermQueryModel{
      * @return TermModel
      */
     public function selectOne($taxonomies = null){
-        $terms = $this->select();
+        $terms = $this->select($taxonomies);
         return count($terms)?reset($terms):null;
     }
     

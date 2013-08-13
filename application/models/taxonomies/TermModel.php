@@ -113,6 +113,10 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $this;
     }
     
+    public function getHref(){
+        return get_term_link($this->wpTerm, $this->getTaxonomy());
+    }
+    
     public function __get($name) {
         return Util::getItem($this->wpTerm, $name);
     }

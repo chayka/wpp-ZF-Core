@@ -50,6 +50,10 @@ class InputHelper {
     public static function getParam($param, $default = '') {
         self::initChains();
         $chain = Util::getItem(self::$chains, $param, self::$chains['*']);
+        if(!Util::getFront()->getRequest()){
+//            Util::print_r(debug_backtrace());
+            Util::getFront()->setRequest('Zend_Controller_Request_Http');
+        }
         $value = Util::getFront()->getRequest()->getParam($param, $default);
         return $chain->filter($value);
     }

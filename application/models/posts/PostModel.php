@@ -727,6 +727,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                 );
             }
         }
+        
+        return $size?Util::getItem($this->imageData, $size):$this->imageData;
     }
     
     public function populateWpGlobals(){

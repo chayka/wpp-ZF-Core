@@ -505,7 +505,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $item = Util::getItem(self::$commentsCacheById, $commentId);
         if($item){
             unset(self::$commentsCacheByPostId[$item->getPostId()][$item->getId()]);
-            unset(self::$commentsBy[$item->getId()]);
+            unset(self::$commentsCacheById[$item->getId()]);
         }
         return wp_delete_comment( $commentId, $forceDelete );
     }

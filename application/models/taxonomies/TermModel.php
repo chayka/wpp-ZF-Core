@@ -191,7 +191,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $obj->setGroup(Util::getItem($dbRecord, 'term_group', 0));
         $obj->setRelationId(Util::getItem($dbRecord, 'term_taxonomy_id', 0));
         $obj->setTaxonomy(Util::getItem($dbRecord, 'taxonomy'));
-        $obj->setDescription(Util::getItem($dbRecord, 'daescription'));
+        $obj->setDescription(Util::getItem($dbRecord, 'description'));
         $obj->setParentId(Util::getItem($dbRecord, 'parent', 0));
         $obj->setCountPerTaxonomy(Util::getItem($dbRecord, 'count', 0));
         

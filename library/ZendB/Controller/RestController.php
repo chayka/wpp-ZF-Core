@@ -55,7 +55,8 @@ class RestController extends Zend_Rest_Controller{
     public function updateAction($respond = true){
         InputHelper::setParam('action', 'update');
         $id = InputHelper::getParam('id');
-        $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
+        $class = $this->getModelClassName();
+        $model = call_user_func(array($class, 'selectById'), $id);
         $model = InputHelper::getModelFromInput($model);
         $errors = $model->getValidationErrors();
         if(!empty($errors)){
@@ -63,7 +64,7 @@ class RestController extends Zend_Rest_Controller{
         }else{ 
             try{
             if($model->update()){
-                $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
+                $model = call_user_func(array($class, 'selectById'), $id);
                 apply_filters($class.'.updated', $model);
                 if($respond){
     //                $json = $model->packJsonItem();
@@ -86,10 +87,11 @@ class RestController extends Zend_Rest_Controller{
     
     public function deleteAction($respond = true){
         $id = InputHelper::getParam('id');
-        $table = call_user_func(array($this->getModelClassName(), 'getDbTable'));
-        $key =  call_user_func(array($this->getModelClassName(), 'getDbIdColumn'));
-        $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
-        $result = WpDbHelper::delete($table, $key, $id);
+        $class = $this->getModelClassName();
+        $table = call_user_func(array($class, 'getDbTable'));
+        $key =  call_user_func(array($class, 'getDbIdColumn'));
+        $model = call_user_func(array($class, 'selectById'), $id);
+        $result = $model->delete();//WpDbHelper::delete($table, $key, $id);
         if($result){
             apply_filters($class.'.deleted', $model);
         }

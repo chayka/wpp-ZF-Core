@@ -341,6 +341,20 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $this->reviewsCount;
     }
     
+    public function isVisited(){
+        $visited = Util::getItem($_SESSION, 'visited', array());
+        if(!isset($_SESSION['visited'])){
+            $_SESSION['visited'] = array();
+        }
+        $today = date('Y-m-d');
+        if(!isset($_SESSION['visited'][$today])){
+            $_SESSION['visited'][$today] = array();
+        }
+        
+        $visit = Util::getItem($_SESSION['visited'][$today], $this->getId(), false);
+        return $visit;
+    }
+    
 //    public function setDtModifiedGMT($dtModifiedGMT) {
 //        $this->dtModifiedGMT = $dtModifiedGMT;
 //    }

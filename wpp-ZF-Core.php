@@ -254,8 +254,8 @@ class ZF_Core{
             'content_fragment_metabox',
             'Advanced',
             array('ZF_Core', 'renderMetaBoxContentFragment'),
-            null,
-//            self::POST_TYPE_STAFF,
+//            null,
+            self::POST_TYPE_CONTENT_FRAGMENT,
             'normal',
             'high'
         );

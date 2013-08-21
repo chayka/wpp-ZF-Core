@@ -576,7 +576,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
 
-    public static function selectBySlug($slug, $postType = '', $useCache = true){
+    public static function selectBySlug($slug, $postType = 'ANY', $useCache = true){
         if($useCache){
             $id = Util::getItem(self::$postsCacheBySlug, $slug);
             $item = Util::getItem(self::$postsCacheById, $id);

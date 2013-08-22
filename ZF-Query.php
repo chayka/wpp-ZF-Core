@@ -332,58 +332,68 @@ class ZF_Query extends WP_Query {
 //            Util::print_r($posts);
         }else{
 //            echo $zf_response;
-            $post_zf = array(
-                "ID" => WpHelper::getPostId(),
-                "post_author" => WpHelper::getPostAuthor(),
-                "post_date" => '',
-                "post_date_gmt" => '',
-                "post_content" => $zf_response,
-                "post_title" => WpHelper::getPostTitle(),
-                "post_excerpt" => WpHelper::getPostDescription(),
-                "post_status" => "publish",
-                "comment_status" => "closed",
-                "ping_status" => "closed",
-                "post_password" => "",
-                "post_name" => "",
-                "to_ping" => "",
-                "pinged" => "",
-                "post_modified" => "",
-                "post_modified_gmt" => "",
-                "post_content_filtered" => "",
-                "post_parent" => 0,
-                "guid" => "",
-                "menu_order" => 1,
-                "post_type" => WpHelper::getPostType(),
-                "post_mime_type" => "",
-                "comment_count" => "0",
-                "ancestors" => array(),
-                "filter" => "",
-                "page_template" => WpHelper::getPageTemplate(),
-                "nav_menu_id" => WpHelper::getNavMenuId(),
-                "nav_menu" => WpHelper::getNavMenu(),
-                "sidebar_id" => WpHelper::getSideBarId(),
-                "sidebar_static" => WpHelper::getSideBarStatic()
-            );
-            $wp_the_query = $this;
-            $wp_the_query->comment = null;
-            $wp_the_query->comments = array();
-            $wp_the_query->comment_count = 0;
-            
-            global $post;
-            $post = (object) $post_zf;
-            $this->posts = array($post);
-            $this->post = $post;
-            $this->post_count = count($this->posts);
+            if(!WpHelper::getNotFound()){
+                $post_zf = array(
+                    "ID" => WpHelper::getPostId(),
+                    "post_author" => WpHelper::getPostAuthor(),
+                    "post_date" => '',
+                    "post_date_gmt" => '',
+                    "post_content" => $zf_response,
+                    "post_title" => WpHelper::getPostTitle(),
+                    "post_excerpt" => WpHelper::getPostDescription(),
+                    "post_status" => "publish",
+                    "comment_status" => "closed",
+                    "ping_status" => "closed",
+                    "post_password" => "",
+                    "post_name" => "",
+                    "to_ping" => "",
+                    "pinged" => "",
+                    "post_modified" => "",
+                    "post_modified_gmt" => "",
+                    "post_content_filtered" => "",
+                    "post_parent" => 0,
+                    "guid" => "",
+                    "menu_order" => 1,
+                    "post_type" => WpHelper::getPostType(),
+                    "post_mime_type" => "",
+                    "comment_count" => "0",
+                    "ancestors" => array(),
+                    "filter" => "",
+                    "page_template" => WpHelper::getPageTemplate(),
+                    "nav_menu_id" => WpHelper::getNavMenuId(),
+                    "nav_menu" => WpHelper::getNavMenu(),
+                    "sidebar_id" => WpHelper::getSideBarId(),
+                    "sidebar_static" => WpHelper::getSideBarStatic()
+                );
+
+                global $post;
+                $post = (object) $post_zf;
+                $this->posts = array($post);
+                $this->post = $post;
+                $this->post_count = count($this->posts);
+                $this->queried_object = $post;
+                $this->queried_object_id = $post->ID;
+                $this->is_single = 1;
+            }else{
+                $this->is_single = 0;
+                $this->posts = array();
+                $this->post = null;
+                $this->post_count = 0;
+                $this->queried_object = null;
+                $this->queried_object_id = 0;
+                
+            }
             $this->current_post = -1;
 
-            $this->is_single = 1;
             $this->is_search = WpHelper::getIsSearch();
             $this->is_page = 0;
             $this->is_404 = WpHelper::getNotFound();
             $this->is_archive = WpHelper::getIsArchive();
             $this->is_home = 0;
-            $this->queried_object = $post;
-            $this->queried_object_id = $post->ID;
+            $this->comment = null;
+            $this->comments = array();
+            $this->comment_count = 0;
+            $wp_the_query = $this;
         }
         
 
@@ -570,13 +580,15 @@ class ZF_Query extends WP_Query {
 
 	$templates = array();
 //        Log::dir($object, 'get_queried_object');
-        if(!empty($object->page_template)){
-            $templates[] = $object->page_template;
+        if($object){
+            if(!empty($object->page_template)){
+                $templates[] = $object->page_template;
+            }
+            if(!empty($object->_wp_page_template)){
+                $templates[] = $object->_wp_page_template;
+            }
+            $templates[] = "single-{$object->post_type}.php";
         }
-        if(!empty($object->_wp_page_template)){
-            $templates[] = $object->_wp_page_template;
-        }
-	$templates[] = "single-{$object->post_type}.php";
 	$templates[] = "single.php";
         return  self::locateTemplate($templates);
     }

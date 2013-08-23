@@ -2,6 +2,7 @@
 
 require_once 'application/helpers/WpDbHelper.php';
 require_once 'application/helpers/JsonHelper.php';
+require_once 'application/helpers/InputHelper.php';
 require_once 'application/models/taxonomies/TermQueryModel.php';
 //require_once 'application/helpers/LuceneHelper.php';
 

@@ -1,9 +1,6 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+$locale = $this->locale?$this->locale:'en_US';
 ?>
 <div id="fb-root"></div>
 <script>
@@ -11,7 +8,7 @@
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '<?php echo $this->appId;?>', // App ID
-      channelUrl : '//<?php echo Util::serverName().'/social/fb-channel'?>',//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
+      channelUrl : '//<?php echo Util::serverName().'/social/fb-channel/locale/'.$locale;?>',//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
       xfbml      : true  // parse XFBML
@@ -54,7 +51,7 @@
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
      if (d.getElementById(id)) {return;}
      js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
+     js.src = "//connect.facebook.net/<?php echo $locale;?>/all.js";
      ref.parentNode.insertBefore(js, ref);
    }(document));
 </script>

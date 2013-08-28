@@ -370,6 +370,8 @@ class ZF_Core{
         wp_register_style( 'backbone-brx-attachmentPicker', ZF_CORE_URL.'res/css/brx.AttachmentPicker.view.less', array('backbone-brx-spinners'));
         wp_register_style('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/css/brx.TaxonomyPicker.view.less');
         wp_register_script('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/js/brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
+        wp_register_style('backbone-brx-ribbonSlider', ZF_CORE_URL.'res/css/brx.RibbonSlider.view.less');
+        wp_register_script('backbone-brx-ribbonSlider', ZF_CORE_URL.'res/js/brx.RibbonSlider.view.js', array('backbone-brx'));
 
         wp_register_script('google-youtube-loader', ZF_CORE_URL.'res/js/google.YouTube.ApiLoader.js', array('backbone-brx'));
         

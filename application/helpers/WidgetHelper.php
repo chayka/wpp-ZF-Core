@@ -82,4 +82,18 @@ class WidgetHelper {
         self::renderWidget($params, 'widgets/brx.AttachmentPicker.view.phtml', 'backbone-brx-attachmentPicker');
     }
     
+    protected static function renderRibbonSlider($items, $tpl='', $direction='horizontal'){
+        self::renderWidget(array('items'=>$items, 'direction'=>$direction), 'widegets/brx.RibbonSlider.view.phtml', 'backbone-brx-ribbonSlider');
+    }
+    
+    public static function renderRibbonSliderHorizontal($items, $tpl=''){
+        self::renderRibbonSlider($items, $tpl, 'horizontal');
+    }
+    
+    public static function renderRibbonSliderVertical($items, $tpl=''){
+        self::renderRibbonSlider($items, $tpl, 'vertical');
+    }
+    
+    
+    
 }

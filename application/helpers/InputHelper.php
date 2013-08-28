@@ -14,6 +14,7 @@ class InputHelper {
     protected static $defChain;
     protected static $htmlChain;
     protected static $chains;
+    protected static $params;
 
     protected static function initChains($htmlAllowed = array()) {
         if (empty(self::$chains)) {
@@ -57,7 +58,7 @@ class InputHelper {
         $value = Util::getFront()->getRequest()->getParam($param, $default);
         return $chain->filter($value);
     }
-
+    
     public static function getParams() {
         $params = Util::getFront()->getRequest()->getParams();
         $result = array();
@@ -66,6 +67,24 @@ class InputHelper {
         }
 
         return $result;
+    }
+    /**
+     * 
+     * @param array(string) $values
+     * @param string $key
+     * @return stering
+     */
+    public static function filter($values, $key = ''){
+        self::initChains();
+        if(!$key){
+            foreach($values as $k=>$v){
+                $values[$k] = self::filter($k, $v);
+            }
+            return $values;
+        }
+        $value = Util::getItem($values, $key);
+        $chain = Util::getItem(self::$chains, $key, self::$chains['*']);
+        return $chain->filter($value);
     }
 
     public static function storeInput($id = '') {

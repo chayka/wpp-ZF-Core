@@ -167,14 +167,27 @@ class AclHelper {
         return ($obj->getUserId() != $user->getId() || $user->getRole()=='administrator');
     }
     
-    public static function isAdmin($user = null){
+    public static function isUserRole($role, $user = null){
         if(!$user){
             $user = UserModel::currentUser();
         }elseif(!($user instanceof UserModel)){
-//            $user->get('role');
             $user = UserModel::unpackDbRecord($user);
         }
-        return ($user->getRole()=='administrator');
+        return ($user->getRole()==$role);
+    }
+
+    public static function isAdmin($user = null){
+//        if(!$user){
+//            $user = UserModel::currentUser();
+//        }elseif(!($user instanceof UserModel)){
+//            $user = UserModel::unpackDbRecord($user);
+//        }
+//        return ($user->getRole()=='administrator');
+        return self::isUserRole('administrator', $user);
+    }
+
+    public static function isEditor($user = null){
+        return self::isUserRole('editor', $user);
     }
 
     public static function show404() {

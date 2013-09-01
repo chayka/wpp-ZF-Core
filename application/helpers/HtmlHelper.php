@@ -68,6 +68,7 @@ class HtmlHelper {
                 $keywords = array_merge($keywords, $ts);
             }
         }
+        $keywords = array_unique($keywords);
         self::setMetaKeywords(join(', ', $keywords));
     }
     

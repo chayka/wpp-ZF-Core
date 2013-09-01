@@ -19,7 +19,8 @@ class HtmlHelper {
     }
     
     public static function getMeta($key, $default = ''){
-        return Util::getItem(self::$meta, $key, $default);
+        $value = Util::getItem(self::$meta, $key, $default); 
+        return $value?$value:$default;
     }
     
     public static function setHeadTitle($title){
@@ -34,7 +35,7 @@ class HtmlHelper {
         return self::setMeta('meta.keywords', $value);
     }
     
-    public static function getMetaKeywords($default){
+    public static function getMetaKeywords($default = ''){
         return self::getMeta('meta.keywords', $default);
     }
     

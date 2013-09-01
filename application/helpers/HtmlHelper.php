@@ -63,14 +63,19 @@ class HtmlHelper {
         self::setHeadTitle($post->getTitle());
         self::setMetaDescription($post->getExcerpt());
         $terms = $post->loadTerms();
-        $keywords = array();
-        if($terms){
-            foreach($terms as $taxonomy=>$ts){
-                $keywords = array_merge($keywords, $ts);
+        $pmkw = get_post_meta($post->getId(), 'keywords', true);
+        if($pmkw){
+            self::setMetaKeywords($pmkw);
+        }else{
+            $keywords = array();
+            if($terms){
+                foreach($terms as $taxonomy=>$ts){
+                    $keywords = array_merge($keywords, $ts);
+                }
             }
+            $keywords = array_unique($keywords);
+            self::setMetaKeywords(join(', ', $keywords));
         }
-        $keywords = array_unique($keywords);
-        self::setMetaKeywords(join(', ', $keywords));
     }
     
     public static function hidden($condition = true){

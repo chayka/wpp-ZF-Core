@@ -13,6 +13,7 @@
 class HtmlHelper {
     
     protected static $meta = array();
+    protected static $mobileDetector = null;
 
     public static function setMeta($key, $value){
         self::$meta[$key]=$value; 
@@ -94,6 +95,19 @@ class HtmlHelper {
         if($condition){
             echo 'disabled="disabled"';
         }
+    }
+    
+    /**
+     * 
+     * @return Mobile_Detect
+     */
+    public static function MobileDetector(){
+        require_once 'library/Mobile_Detect.php';
+        if(!self::$mobileDetector){
+            self::$mobileDetector = new Mobile_Detect;
+        }
+        
+        return self::$mobileDetector;
     }
     
     public static function renderMultiSpinner($populate='$.brx.multiSpinner'){

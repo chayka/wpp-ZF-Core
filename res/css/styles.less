@@ -4,7 +4,7 @@
     box-sizing: border-box; /* ��� IE � Opera */
 }
 
-.box-shadow(@style, @c) when (iscolor(@c)) {
+.box-shadow(@style, @c: black) when (iscolor(@c)) {
   box-shadow:         @style @c;
   -webkit-box-shadow: @style @c;
   -moz-box-shadow:    @style @c;
@@ -14,7 +14,7 @@
   .box-shadow(@style, rgba(0, 0, 0, @alpha));
 }
 
-.text-shadow(@style, @c) when (iscolor(@c)) {
+.text-shadow(@style, @c: black) when (iscolor(@c)) {
   text-shadow:         @style @c;
   -webkit-text-shadow: @style @c;
   -moz-text-shadow:    @style @c;
@@ -90,12 +90,12 @@
     -o-transform:rotate(@deg);  Opera */
 }
 
-.transition(@transition){
-    transition: @transition;
-    -ms-transition: @transition; /* IE 9 */
-    -moz-transition: @transition; /* Firefox */
-    -webkit-transition: @transition; /* Safari and Chrome */
-    -o-transition: @transition; /* Opera */
+.transition(@t){
+    transition: @t;
+    -ms-transition: @t; /* IE 9 */
+    -moz-transition: @t; /* Firefox */
+    -webkit-transition: @t; /* Safari and Chrome */
+    -o-transition: @t; /* Opera */
 }
 
 .sprite-icon(@url-background, @width, @height){

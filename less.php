@@ -50,7 +50,10 @@ class LessCss{
 //            if(!self::$wrapperRendered){
 //                self::renderWrapper();
 //            }
-            return sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">renderLessCss("%s");</script>', $style->src, $style->src)."\r";
+            $src = LessHelper::smartCompile(ABSPATH.$style->src);
+            return $src?
+                    sprintf('<link rel="stylesheet" type="text/css" href="%s">', FileSystem::setExtension($style->src, 'css'))."\r":
+                    sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">renderLessCss("%s");</script>', $style->src, $style->src)."\r";
 //            return sprintf('<link rel="stylesheet/less" type="text/css" href="%s"><script type="text/javascript">(jQuery(document).ready(function($){renderLessCss("%s");}))</script>', $style->src, $style->src)."\r";
         }
 

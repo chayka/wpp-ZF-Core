@@ -145,7 +145,7 @@ class FileSystem {
             $ext = '.' . $ext;
         }
 
-        return preg_replace('%\.\w+$%', $ext, $filename);
+        return preg_replace('%\.[\w\d]+$%', $ext, $filename);
     }
 
     public static function getFileServerParticular($filename) {

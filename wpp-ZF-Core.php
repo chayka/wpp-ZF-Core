@@ -95,6 +95,8 @@ class ZF_Core{
 
         //require_once 'ZendB/Log.php';
         Log::setDir(ZF_CORE_PATH.'logs');
+        LessHelper::setImportDir(ABSPATH);
+        LessHelper::addImportDir(ZF_CORE_PATH.'res/css');
 //        Log::start();
         require_once 'ZF-Query.php';
 

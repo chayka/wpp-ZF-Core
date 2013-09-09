@@ -190,6 +190,10 @@ class AclHelper {
         return self::isUserRole('editor', $user);
     }
 
+    public static function isAuthor($user = null){
+        return self::isUserRole('author', $user);
+    }
+
     public static function show404() {
         header("Location: /404/");
     }

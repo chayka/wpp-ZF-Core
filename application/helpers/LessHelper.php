@@ -56,7 +56,7 @@ class LessHelper {
             return file_exists($outputFile)?$outputFile:null;
             
         }catch(Exception $e){
-            die($e->getMessage());
+//            die($e->getMessage());
         }
         
         return null;

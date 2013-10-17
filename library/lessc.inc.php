@@ -92,7 +92,7 @@ class lessc {
 	}
 
 	protected function tryImport($importPath, $parentBlock, $out) {
-		if ($importPath[0] == "function" && $importPath[1] == "url") {
+            if ($importPath[0] == "function" && $importPath[1] == "url") {
 			$importPath = $this->flattenList($importPath[2]);
 		}
 
@@ -113,6 +113,7 @@ class lessc {
 		}
 
 		if (isset($this->allParsedFiles[realpath($realPath)])) {
+//                    Util::print_r("already parsed ".realpath($realPath));
 			return array(false, null);
 		}
 
@@ -188,6 +189,7 @@ class lessc {
 	 *
 	 */
 	protected function compileBlock($block) {
+//            Util::print_r($block);
 		switch ($block->type) {
 		case "root":
 			$this->compileRoot($block);
@@ -1741,6 +1743,7 @@ class lessc {
 
 	// get the highest occurrence entry for a name
 	protected function get($name, $default=null) {
+//            echo "get $name ";
 		$current = $this->env;
 
 		$isArguments = $name == $this->vPrefix . 'arguments';
@@ -1749,14 +1752,16 @@ class lessc {
 				return array('list', ' ', $current->arguments);
 			}
 
-			if (isset($current->store[$name]))
-				return $current->store[$name];
-			else {
+			if (isset($current->store[$name])){
+//                    Util::print_r(array($name, $default, $current->store[$name]));
+                            return $current->store[$name];
+                        }else {
+//echo " >> ";
 				$current = isset($current->storeParent) ?
 					$current->storeParent : $current->parent;
 			}
 		}
-
+//echo " not found ";
 		return $default;
 	}
 
@@ -1814,6 +1819,8 @@ class lessc {
 	}
 
 	public function compileFile($fname, $outFname = null) {
+//            Util::print_r($fname);
+//            Util::print_r($this->env);
 		if (!is_readable($fname)) {
 			throw new Exception('load error: failed to find '.$fname);
 		}
@@ -1996,6 +2003,10 @@ class lessc {
 	protected function addParsedFile($file) {
 		$this->allParsedFiles[realpath($file)] = filemtime($file);
 	}
+        
+        public function flushParsedFiles(){
+                $this->allParsedFiles = array();
+        }
 
 	/**
 	 * Uses the current value of $this->count to show line and line number

@@ -26,7 +26,9 @@
 // This section emulates the Zend Framework bootstrap file, without any application environment
 
 require_once 'library/ZendB/Util.php';
-class ZF_Core{
+require_once 'application/helpers/WpPluginHelper.php';
+
+class ZF_Core {
     public static $zfCoreTree;
     
     public static $adminBar = false;
@@ -81,12 +83,13 @@ class ZF_Core{
             // if everything went well, set a status flag
             define('WP_ZEND_LIBRARY', TRUE);
 
+            require_once 'application/helpers/LessHelper.php';
             
             self::registerResources($minimize = false);
             
 //            self::registerCustomPostTypeContentFragment();
             
-            require 'application/helpers/WpDbHelper.php';
+            require_once 'application/helpers/WpDbHelper.php';
 
         } catch (Exception $e) {
             // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
@@ -323,6 +326,7 @@ class ZF_Core{
 //        wp_register_script( 'jquery', ZF_CORE_URL.($minimize?'res/js/vendors/jquery-1.8.2.min.js':'res/js/vendors/jquery-1.8.3.js'), array());
 //        wp_enqueue_script('jquery');
         $isAdminPost = is_admin() && (strpos($_SERVER['REQUEST_URI'], 'post.php'));
+//        self::registerScript('Underscore', $minimize?'vendors/underscore.min.js':'vendors/underscore.js', array('jquery'));
         wp_register_script( 'Underscore', ZF_CORE_URL.($minimize?'res/js/vendors/underscore.min.js':'res/js/vendors/underscore.js'), array('jquery'));
         wp_register_script( 'Backbone', ZF_CORE_URL.($minimize?'res/js/vendors/backbone.min.js':'res/js/vendors/backbone.js'), array('jquery', ($isAdminPost?'underscore': 'Underscore')));
         wp_register_script( 'nls', ZF_CORE_URL.'res/js/vendors/nls.js', array(($isAdminPost?'underscore': 'Underscore')));
@@ -428,7 +432,7 @@ class ZF_Core{
         
         
         
-        require_once 'less.php';    
+//        require_once 'less.php';    
 
     }
 

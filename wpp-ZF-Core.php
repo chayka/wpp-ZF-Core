@@ -393,7 +393,7 @@ class ZF_Core {
         
         wp_register_script( 'modenizr', ZF_CORE_URL.'res/js/vendors/modernizr-2.6.2.min.js');
 
-        wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js', array('jquery'));
+        wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js', array('jquery', 'jquery-brx-utils'));
 
 //        wp_register_script('', $src)
         

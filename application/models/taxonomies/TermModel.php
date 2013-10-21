@@ -184,6 +184,11 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $dbRecord;
     }
 
+    /**
+     * 
+     * @param type $dbRecord
+     * @return TermModel
+     */
     public static function unpackDbRecord($dbRecord) {
         $obj = new self();
         $obj->setTermId(Util::getItem($dbRecord, 'term_id', 0));
@@ -199,6 +204,13 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $obj;
     }
 
+    /**
+     * 
+     * @global type $wpdb
+     * @param int $id
+     * @param boolean $useCache
+     * @return TermModel
+     */
     public static function selectById($id, $useCache = true) {
         global $wpdb;
         $t1 = $wpdb->term_taxonomy;
@@ -212,23 +224,62 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return self::unpackDbRecord($dbRecord);
     }
     
+    /**
+     * 
+     * @param string $field
+     * @param string $value
+     * @param string $taxonomy
+     * @param const $output
+     * @param string $filter
+     * @return TermModel
+     */
     public static function selectBy($field, $value, $taxonomy, $output = OBJECT, $filter = 'raw'){
         $dbRecord = get_term_by($field, $value, $taxonomy, $output, $filter);
         return $dbRecord?self::unpackDbRecord($dbRecord):null;
     }
 
+    /**
+     * 
+     * @param int $value
+     * @param string $taxonomy
+     * @param const $output
+     * @param string $filter
+     * @return TermModel
+     */
     public static function selectByTermId($value, $taxonomy, $output = OBJECT, $filter = 'raw'){
         return self::selectBy('id', $value, $taxonomy, $output, $filter);
     }
 
+    /**
+     * 
+     * @param string $value
+     * @param string $taxonomy
+     * @param const $output
+     * @param string $filter
+     * @return TermModel
+     */
     public static function selectBySlug($value, $taxonomy, $output = OBJECT, $filter = 'raw'){
         return self::selectBy('slug', $value, $taxonomy, $output, $filter);
     }
     
+    /**
+     * 
+     * @param string $value
+     * @param string $taxonomy
+     * @param const $output
+     * @param string $filter
+     * @return TermModel
+     */
     public static function selectByName($value, $taxonomy, $output = OBJECT, $filter = 'raw'){
         return self::selectBy('name', $value, $taxonomy, $output, $filter);
     }
     
+    /**
+     * 
+     * @param type $taxonomies
+     * @param type $args
+     * @return array(TermModel)
+     */
     public static function selectTerms($taxonomies, $args){
         $dbRecords = get_terms($taxonomies, $args);
         $terms = array();

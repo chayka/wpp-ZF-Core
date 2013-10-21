@@ -425,6 +425,12 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return new UserQueryModel();
     }
     
+    /**
+     * 
+     * @global type $wpdb
+     * @global type $current_user
+     * @return UserModel
+     */
     public static function currentUser(){
         global  $wpdb, $current_user;
         

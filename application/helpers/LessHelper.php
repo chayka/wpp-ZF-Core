@@ -14,7 +14,7 @@ class LessHelper {
             require "library/lessc.inc.php";
 
             self::$instance = new lessc();
-//            self::$instance->setFormatter('compressed');
+            self::$instance->setFormatter('compressed');
         }
         return self::$instance;
     }

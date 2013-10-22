@@ -25,7 +25,7 @@ abstract class WpPlugin{
         defined($this->appId.'_URL') 
             || define( $this->appId.'_URL',  $this->baseUrl);
 //        Util::print_r($this->basePath().'res/css');
-        LessHelper::addImportDir($this->basePath().'res/css');
+        LessHelper::addImportDir($this->getBasePath().'res/css');
         $this->registerResources();
         $this->registerRoutes($routes);
         $this->registerCustomPostTypes();
@@ -34,6 +34,8 @@ abstract class WpPlugin{
         $this->registerActions();
         $this->registerFilters();
     }
+
+    public static abstract function getInstance();
 
     public function getAppId(){
         return $this->appId;
@@ -47,16 +49,23 @@ abstract class WpPlugin{
         return array($this, $method);
     }
     
-    public function basePath(){
+    public function getBasePath(){
         return $this->basePath;
     }
     
-    public function baseUrl(){
+    public function getBaseUrl(){
         return $this->baseUrl;
     }
     
+    public static abstract function baseUrl();
+    
+    /**
+     * 
+     * @param type $path
+     * @return type
+     */
     public function getUrl($path = ''){
-        return $this->baseUrl().$path;
+        return $this->getBaseUrl().$path;
     }
     
     public function getUrlCss($relativeResCssPath){
@@ -72,11 +81,17 @@ abstract class WpPlugin{
     }
 
     public function registerRoutes($routes){
-        ZF_Query::registerApplication($this->getAppId(), $this->basePath().'application', $routes);
+        ZF_Query::registerApplication($this->getAppId(), $this->getBasePath().'application', $routes);
     }
     
-    public function dbUpdate(){
-        WpDbHelper::dbUpdate($this->currentDbVersion, strtolower($this->getClassName()).'_db_version', $this->basePath().'res/sql');
+    /**
+     * DB Version history
+     * @param array(string) $versionHistory
+     */
+    public function dbUpdate($versionHistory = array('1.0')){
+        $this->currentDbVersion = end($versionHistory);
+        reset($versionHistory);
+        WpDbHelper::dbUpdate($this->currentDbVersion, strtolower($this->getClassName()).'_db_version', $this->getBasePath().'res/sql', $versionHistory);
     }
 
     abstract public static function init();
@@ -273,6 +288,7 @@ abstract class WpTheme extends WpPlugin{
     
     protected $excerptLength = 30;
     protected $excerptMore = '...';
+    protected $adminBar = true;
     
     public function __construct($routes = array()) {
         $this->basePath = TEMPLATEPATH.'/';
@@ -283,7 +299,7 @@ abstract class WpTheme extends WpPlugin{
         defined($this->appId.'_URL') 
             || define( $this->appId.'_URL',  $this->baseUrl);
 //        Util::print_r($this->basePath().'res/css');
-        LessHelper::addImportDir($this->basePath().'res/css');
+        LessHelper::addImportDir($this->getBasePath().'res/css');
         $this->registerResources();
         $this->registerRoutes($routes);
         $this->registerCustomPostTypes();
@@ -293,6 +309,8 @@ abstract class WpTheme extends WpPlugin{
         $this->registerFilters();
         $this->addAction('admin_menu', 'registerConsolePages');
         $this->addAction('add_meta_boxes', 'registerMetaBoxes');
+        $this->addFilter('show_admin_bar', 'isAdminBarShown', 1, 1);
+
     }
     
     abstract public function registerNavMenus();
@@ -313,14 +331,37 @@ abstract class WpTheme extends WpPlugin{
         $this->addFilter('excerpt_more', 'excerptMore');
     }
 
-    public static function excerptLength(){
+    public function excerptLength(){
         return $this->excerptLength;
     }
     
-    public static function excerptMore(){
+    public function excerptMore(){
         return $this->excerptMore;
     }
     
+    public function showAdminBar($show = true){
+        $this->adminBar = $show;
+    }
+    
+    public function hideAdminBar(){
+        $this->adminBar = false;
+    }
+    
+    public function showAdminBarToAdminOnly(){
+        $this->adminBar = 'admin';
+    }
+    
+    public function isAdminBarShown($show){
+        if($this->adminBar){
+            if($this->adminBar == 'admin'){
+                return current_user_can('administrator') || is_admin();
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
     
 }
 

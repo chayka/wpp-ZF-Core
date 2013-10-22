@@ -90,7 +90,7 @@ class WpDbHelper {
                         foreach($tmp as $query){
                             $queries[] = str_replace('{prefix}', $wpdb->prefix, $query);
                         }
-                        die(print_r($queries));
+//                        die(print_r($queries));
                     }
                 }
                 if(!$found && $ver==$installedVer){

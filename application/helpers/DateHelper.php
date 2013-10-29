@@ -52,8 +52,16 @@ class DateHelper {
     public static function dbStrToDatetime($strDatetime) {
         $zendDate = new Zend_Date();
         $zendDate->setTimezone('UTC');
+//        Util::print_r($zendDate);
+//        phpinfo();      
+//        die($strDatetime.'!!!');
+        try{
         $zendDate->setDate($strDatetime, self::DB_DATETIME);
         $zendDate->setTime($strDatetime, self::DB_DATETIME);
+        }catch(Exception $e){
+//            Util::print_r($r);
+//            die('111');
+        }
         return $zendDate;
     }
 
@@ -141,15 +149,19 @@ class DateHelper {
         $d1['month'] = date('n', $date1->toValue());
         $d1['day'] = date('j', $date1->toValue());
         $d1['hour'] = date('G', $date1->toValue());
-        $d1['minute'] = reset(sscanf($date1->get(Zend_Date::MINUTE_SHORT), '%02d'));
-        $d1['second'] = reset(sscanf($date1->get(Zend_Date::SECOND_SHORT), '%02d'));
+        $m1 = sscanf($date1->get(Zend_Date::MINUTE_SHORT), '%02d');
+        $d1['minute'] = reset($m1);
+        $s1 = sscanf($date1->get(Zend_Date::SECOND_SHORT), '%02d');
+        $d1['second'] = reset($s1);
 
         $d2['year'] = date('Y', $date2->toValue());
         $d2['month'] = date('n', $date2->toValue());
         $d2['day'] = date('j', $date2->toValue());
         $d2['hour'] = date('G', $date2->toValue());
-        $d2['minute'] = reset(sscanf($date2->get(Zend_Date::MINUTE_SHORT), '%02d'));
-        $d2['second'] = reset(sscanf($date2->get(Zend_Date::SECOND_SHORT), '%02d'));
+        $m2 = sscanf($date2->get(Zend_Date::MINUTE_SHORT), '%02d');
+        $d2['minute'] = reset($m2);
+        $s2 = sscanf($date2->get(Zend_Date::SECOND_SHORT), '%02d');
+        $d2['second'] = reset($s2);
         
         $d2['second']-=$d1['second'];
         if($d2['second']<0){

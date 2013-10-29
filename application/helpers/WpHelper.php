@@ -440,7 +440,8 @@ class WpHelper {
     
     public static function getRootDir($path = ''){
         if(!$path){
-            $caller = reset(debug_backtrace());
+            $dbg = debug_backtrace();
+            $caller = reset($dbg);
             $path = Util::getItem($caller, 'file');
         }
         $dir = $path;

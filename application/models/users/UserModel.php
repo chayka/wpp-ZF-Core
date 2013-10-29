@@ -440,7 +440,8 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
             if($current_user && $current_user->ID){
                 $role = $wpdb->prefix . 'capabilities';
-                $current_user->role = reset(array_keys($current_user->$role));
+                $roles = array_keys($current_user->$role);
+                $current_user->role = reset($roles);
                 if(!$current_user->role){
                     $current_user->role = 'guest';
                 }

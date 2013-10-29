@@ -254,14 +254,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->terms = $terms;
     }
     
-    public function getMeta($key = '') {
-        return $key?Util::getItem($this->meta, $key):$this->meta;
-    }
-
-    public function setMeta($meta) {
-        $this->meta = $meta;
-    }
-
     public function getImageData() {
         return $this->imageData;
     }
@@ -468,9 +460,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $obj->setToPing($wpRecord->to_ping);
         $obj->setPassword($wpRecord->post_password);
         $obj->setDtCreated(DateHelper::dbStrToDatetime($wpRecord->post_date));
-//        $obj->setDtCreatedGMT(DateHelper::dbStrToDatetime($wpRecord->post_date_gmt));
         $obj->setDtModified(DateHelper::dbStrToDatetime($wpRecord->post_modified));
-//        $obj->setDtModifiedGMT(DateHelper::dbStrToDatetime($wpRecord->post_modified_gmt));
         $obj->setMenuOrder($wpRecord->menu_order);
         $obj->setMimeType($wpRecord->post_mime_type);
         $obj->setCommentStatus($wpRecord->comment_status);
@@ -484,15 +474,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $obj;
     }
 
-    public function unpackMeta($meta){
-        $this->meta = $meta;
-//        print_r($meta);
-//        $this->setNickname($meta['nickname'][0]);
-//        $this->setFirstName($meta['first_name'][0]);
-//        $this->setLastName($meta['last_name'][0]);
-//        $this->setDescription($meta['description'][0]);
-//        $this->setRichEditing($meta['rich_editing'][0]);        
-    }
+//    public function unpackMeta($meta){
+//        $this->meta = $meta;
+////        print_r($meta);
+////        $this->setNickname($meta['nickname'][0]);
+////        $this->setFirstName($meta['first_name'][0]);
+////        $this->setLastName($meta['last_name'][0]);
+////        $this->setDescription($meta['description'][0]);
+////        $this->setRichEditing($meta['rich_editing'][0]);        
+//    }
     
 
     public function packDbRecord($forUpdate = true){
@@ -636,15 +626,38 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return (int)max(self::$wpQuery->found_posts, self::$postsFound);
     }
 
-    public static function selectMeta($post_id, $key, $single){
-        return get_post_meta($post_id, $key, $single);
+    /**
+     * 
+     * @param int $post_id Post ID.
+     * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
+     * @param bool $single Whether to return a single value.
+     * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
+     */
+    public static function getPostMeta($post_id, $key = '', $single = true){
+        $meta = get_post_meta($post_id, $key, $single);
+        if(!$key && $single){
+            $m = array();
+            foreach($meta as $k => $values){
+                $m[$k]= is_array($values)?reset($values):$values;
+            }
+            
+            return $meta;
+        }
+        return $meta;
     }
     
-    public function loadMeta($key = null, $single = false){
-        $meta = self::selectMeta($this->getId(), $key, $single);
-        $this->unpackMeta($meta, $key);
+    public static function updatePostMeta($postId, $key, $value, $oldValue = ''){
+        return update_post_meta($postId, $key, $value, $oldValue);
     }
     
+    public function getMeta($key = '', $single = true) {
+        return  self::getPostMeta($this->getId(), $key, $single);
+    }
+
+    public function updateMeta($key, $value, $oldValue = '') {
+        self::updatePostMeta($this->getId(), $key, $value, $oldValue);
+    }
+
     public static function selectTerms($postId, $taxonomy = 'post_tag', $args = array()){
         if($args instanceof TermQueryModel){
             $args = $args->getVars();
@@ -797,9 +810,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             );
             $jsonItem['thumbnail'] = $thumb;
         }
-//        if($this->getMeta()){
-//            $jsonItem['meta'] = $this->getMeta();
-//        }
+        if($this->getMeta()){
+            $jsonItem['meta'] = $this->getMeta();
+        }
         
         return $jsonItem;
     }

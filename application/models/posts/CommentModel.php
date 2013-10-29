@@ -552,15 +552,31 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return CommentQueryModel::query($postId);
     }
     
-    public static function selectMeta($comment_id, $key, $single){
-        return get_comment_meta($comment_id, $key, $single);
+    public static function getCommentMeta($commentId, $key = '', $single = true){
+        $meta = get_comment_meta($commentId, $key, $single);
+        if(!$key && $single){
+            $m = array();
+            foreach($meta as $k => $values){
+                $m[$k]= is_array($values)?reset($values):$values;
+            }
+            
+            return $meta;
+        }
+        return $meta;
     }
 
-    public function loadMeta(){
-        $meta = self::selectMeta($this->getId());
-        $this->unpackMeta($meta);
+    public static function updateCommentMeta($commentId, $key, $value, $oldValue = ''){
+        return update_comment_meta($commentId, $key, $value, $oldValue);
     }
     
+    public function getMeta($key = '', $single = true) {
+        return  self::getCommentMeta($this->getId(), $key, $single);
+    }
+
+    public function updateMeta($key, $value, $oldValue = '') {
+        self::updateCommentMeta($this->getId(), $key, $value, $oldValue);
+    }
+
     public function populateWpGlobals(){
         global $comment;
         $comment = $this->getWpComment();
@@ -584,6 +600,10 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $jsonItem['comment_type'] = $this->getType();
         $jsonItem['comment_date'] = DateHelper::datetimeToJsonStr($this->getDtCreated());
         $jsonItem['comment_date_gmt'] = DateHelper::datetimeToJsonStr($this->getDtCreatedGMT());
+        $meta = $this->getMeta();
+        if($meta){
+            $jsonItem[$meta]=$meta;
+        }
         
         return $jsonItem;
     }

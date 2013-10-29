@@ -49,6 +49,8 @@ class ZF_Query extends WP_Query {
     }
     
     public static function parseRequest(){
+//        phpinfo();
+//        die('hello');
         BlockadeHelper::inspectUri($_SERVER['REQUEST_URI']);
         if(isset($request->query_vars['error'])){
             unset($request->query_vars['error']);

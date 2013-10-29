@@ -640,8 +640,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             foreach($meta as $k => $values){
                 $m[$k]= is_array($values)?reset($values):$values;
             }
-            
-            return $meta;
+            return $m;
         }
         return $meta;
     }
@@ -810,8 +809,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             );
             $jsonItem['thumbnail'] = $thumb;
         }
-        if($this->getMeta()){
-            $jsonItem['meta'] = $this->getMeta();
+        $meta = $this->getMeta();
+        if($meta){
+            $jsonItem['meta'] = $meta;
         }
         
         return $jsonItem;

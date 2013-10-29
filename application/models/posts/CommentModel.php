@@ -560,7 +560,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
                 $m[$k]= is_array($values)?reset($values):$values;
             }
             
-            return $meta;
+            return $m;
         }
         return $meta;
     }
@@ -602,7 +602,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $jsonItem['comment_date_gmt'] = DateHelper::datetimeToJsonStr($this->getDtCreatedGMT());
         $meta = $this->getMeta();
         if($meta){
-            $jsonItem[$meta]=$meta;
+            $jsonItem['meta']=$meta;
         }
         
         return $jsonItem;

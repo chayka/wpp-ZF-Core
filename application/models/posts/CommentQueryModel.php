@@ -4,6 +4,8 @@ class CommentQueryModel{
     
     protected $vars = array();
     
+    protected $post = null;
+    
     public function __construct() {
         ;
     }
@@ -24,13 +26,17 @@ class CommentQueryModel{
     }
     
     /**
-     * @param int $postId postId
+     * @param integer|PostModel $post postId or post itself
      * @return \CommentQueryModel
      */
-    public static function query($postId = 0){
+    public static function query($post = 0){
         $q  = new self();
-        if($postId){
-            $q->postId($postId);
+        if($post){
+            if($post instanceof PostModel){
+                $q->post($post);
+            }else{
+                $q->postId($post);
+            }
         }
         return $q;
     }
@@ -40,7 +46,12 @@ class CommentQueryModel{
      * @return array(CommentModel)
      */
     public function select(){
-        return CommentModel::selectComments($this->getVars());
+        $comments = CommentModel::selectComments($this->getVars());
+        if($this->post){
+            $this->post->setComments($comments);
+        }
+        
+        return $comments;
     }
     
     /**
@@ -135,6 +146,11 @@ class CommentQueryModel{
      */
     public function postId($postId){
         return $this->setVar('post_id', $postId);
+    }
+    
+    public function post($post){
+        $this->post = $post;
+        return $this->postId($post->getId());
     }
     
     /**

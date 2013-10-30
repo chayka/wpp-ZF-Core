@@ -554,7 +554,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     
     public static function getCommentMeta($commentId, $key = '', $single = true){
         $meta = get_comment_meta($commentId, $key, $single);
-        if(!$key && $single){
+        if(!$key && $single && $meta && is_array($meta)){
             $m = array();
             foreach($meta as $k => $values){
                 $m[$k]= is_array($values)?reset($values):$values;

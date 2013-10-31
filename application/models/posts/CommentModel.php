@@ -62,34 +62,83 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $this->setKarma(0);
     }
     
+    /**
+     * Get comment id
+     * 
+     * @return integer
+     */
     public function getId() {
         return $this->id;
     }
 
+    /**
+     * Set comment id
+     * 
+     * @param integer $id
+     * @return \CommentModel
+     */
     public function setId($id) {
         $this->id = $id;
+        return $this;
     }
 
+    /**
+     * Get comment post id
+     * 
+     * @return integer
+     */
     public function getPostId() {
         return $this->postId;
     }
 
+    /**
+     * Set post comment id
+     * 
+     * @param integer $postId
+     * @return \CommentModel
+     */
     public function setPostId($postId) {
         $this->postId = $postId;
+        return $this;
     }
 
+    /**
+     * Get post author user id
+     * 
+     * @return integer
+     */
     public function getUserId() {
         return $this->userId;
     }
 
+    /**
+     * Set post author user id
+     * 
+     * @param integer $userId
+     * @return \CommentModel
+     */
     public function setUserId($userId) {
         $this->userId = $userId;
+        return $this;
     }
     
+    /**
+     * Get author UserModel object
+     * 
+     * @return UserModel
+     */
     public function getUser(){
         return $this->getUserId()?UserModel::selectById($this->getUserId()):null;
     }
 
+    /**
+     * Get author name.
+     * If userId is set and the corresponding UserModel exists method returns
+     * display name (if set) or user login.
+     * If usetId not set or UserModel was deleted method returns comment_author field.
+     * 
+     * @return type
+     */
     public function getAuthor() {
         $user = $this->getUser();
         if($user && $user->getId()){
@@ -98,10 +147,25 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $this->author;
     }
 
+    /**
+     * Set author name
+     * 
+     * @param string $author
+     * @return \CommentModel
+     */
     public function setAuthor($author) {
         $this->author = $author;
+        return $this;
     }
-
+    
+    /**
+     * Get author email.
+     * If userId is set and the corresponding UserModel exists method returns
+     * user email.
+     * If usetId not set or UserModel was deleted method returns comment_author_email field.
+     * 
+     * @return string
+     */
     public function getEmail() {
         $user = $this->getUser();
         if($user && $user->getId()){
@@ -110,10 +174,25 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $this->email;
     }
 
+    /**
+     * Set author email.
+     * 
+     * @param string $email
+     * @return \CommentModel
+     */
     public function setEmail($email) {
         $this->email = $email;
+        return $this;
     }
 
+    /**
+     * Get author url.
+     * If userId is set and the corresponding UserModel exists method returns
+     * user url.
+     * If usetId not set or UserModel was deleted method returns comment_author_url field.
+     * 
+     * @return string
+     */
     public function getUrl() {
         $user = $this->getUser();
         if($user && $user->getId()){
@@ -122,57 +201,117 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $this->url;
     }
 
+    /**
+     * Set author url
+     * 
+     * @param string $url
+     * @return \CommentModel
+     */
     public function setUrl($url) {
         $this->url = $url;
+        return $this;
     }
 
+    /**
+     * Get author ip
+     * 
+     * @return string
+     */
     public function getIp() {
         return $this->ip;
     }
 
+    /**
+     * Set comment ip
+     * 
+     * @param string $ip
+     * @return \CommentModel
+     */
     public function setIp($ip) {
         $this->ip = $ip;
+        return $this;
     }
 
+    /**
+     * Get comment creation datetime
+     * 
+     * @return Zend_Date
+     */
     public function getDtCreated() {
         return $this->dtCreated;
     }
 
+    /**
+     * Set comment creation datetime
+     * 
+     * @param Zend_Date $dtCreated
+     * @return \CommentModel
+     */
     public function setDtCreated($dtCreated) {
         $this->dtCreated = $dtCreated;
+        return $this;
     }
 
+    /**
+     * Get post creation time (GMT)
+     * 
+     * @return \Zend_Date
+     */
     public function getDtCreatedGMT() {
         return new Zend_Date(get_gmt_from_date(DateHelper::datetimeToDbStr($this->getDtCreated())));
-//        return $this->dtCreatedGMT;
     }
 
-//    public function setDtCreatedGMT($dtCreatedGMT) {
-//        $this->dtCreatedGMT = $dtCreatedGMT;
-//    }
-
+    /**
+     * Get comment content
+     * 
+     * @return string
+     */
     public function getContent() {
         return $this->content;
     }
 
+    /**
+     * Set plain text comment content
+     * 
+     * @param type $content
+     * @return \CommentModel
+     */
     public function setContent($content) {
         $this->content = $content;
+        return $this;
     }
 
+    /**
+     * Get comment karma
+     * 
+     * @return integer
+     */
     public function getKarma() {
         return $this->karma;
     }
 
+    /**
+     * Set karma. Used within model only.
+     * If you need to adjust karma use voteUp() and voteDown() or vote() instead.
+     * 
+     * @param integer $karma
+     * @return \CommentModel
+     */
     public function setKarma($karma) {
         $this->karma = $karma;
+        return $this;
     }
     
+    /**
+     * Get current user karma delta (upvote or downvote) for today
+     * 
+     * @return int
+     */
     public function getKarmaDelta(){
         if(!$this->getId()){
             return 0;
         }
-//        echo ' get ';
-//        Util::print_r($_SESSION);
+
         $votes = Util::getItem($_SESSION, 'comment_votes', array());
         $today = date('Y-m-d/').get_current_user_id();
         foreach ($votes as $date => $comments) {
@@ -187,9 +326,17 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return Util::getItem($_SESSION['comment_votes'][$today], $this->getId(), 0);
     }
     
+    /**
+     * Set comment karma delta.
+     * Used within model only.
+     * Use voteUp() and voteDown() or vote() instead
+     * 
+     * @param integer $delta
+     * @return \CommentModel
+     */
     public function setKarmaDelta($delta){
         if(!$this->getId()){
-            return 0;
+            return $this;
         }
         $today = date('Y-m-d/').get_current_user_id();
         $votes = Util::getItem($_SESSION, 'comment_votes', array());
@@ -202,12 +349,17 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
             $_SESSION['comment_votes'][$today] = array();
         }
         
-//        echo ' set ';
-//        Util::print_r($_SESSION);
-        
         $_SESSION['comment_votes'][$today][$this->getId()] = $delta;
+        return $this;
     }
     
+    /**
+     * Vote for comment.
+     * 
+     * @global type $wpdb
+     * @param integer $delta. Positive value auto-adjusted to +1, negative to -1
+     * @return integer
+     */
     public function vote($delta){
         global $wpdb;
         if(!$this->getId()){
@@ -245,67 +397,160 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return 0;
     }
     
+    /**
+     * Vote up for comment
+     * 
+     * @return integer
+     */
     public function voteUp(){
         return $this->vote(1);
     }
     
+    /**
+     * Vote down
+     * 
+     * @return integer
+     */
     public function voteDown(){
         return $this->vote(-1);
     }
     
+    /**
+     * Is comment approved
+     * 
+     * @return boolean
+     */
     public function getIsApproved() {
         return $this->isApproved;
     }
 
+    /**
+     * Set approved flag
+     * 
+     * @param boolean $isApproved
+     * @return \CommentModel
+     */
     public function setIsApproved($isApproved) {
         $this->isApproved = $isApproved;
+        return $this;
     }
 
+    /**
+     * Get comment user-agent (browser signature)
+     * 
+     * @return string
+     */
     public function getAgent() {
         return $this->agent;
     }
 
+    /**
+     * Set comment user-agent (browser signature)
+     * 
+     * @param type $agent
+     * @return \CommentModel
+     */
     public function setAgent($agent) {
         $this->agent = $agent;
+        return $this;
     }
 
+    /**
+     * Get comment type (empty by default)
+     * 
+     * @return string
+     */
     public function getType() {
         return $this->type;
     }
 
+    /**
+     * Set comment type
+     * 
+     * @param string $type
+     * @return \CommentModel
+     */
     public function setType($type) {
         $this->type = $type;
+        return $this;
     }
 
+    /**
+     * Get parent comment id
+     * 
+     * @return integer
+     */
     public function getParentId() {
         return $this->parentId;
     }
 
+    /**
+     * Set parent comment id
+     * 
+     * @param integer $parentId
+     * @return \CommentModel
+     */
     public function setParentId($parentId) {
         $this->parentId = $parentId;
+        return $this;
     }
 
+    /**
+     * Get original WP_Comment (if preserved)
+     * 
+     * @return WP_Comment
+     */
     public function getWpComment() {
         return $this->wpComment;
     }
 
+    /**
+     * Preserve original WP_Comment
+     * 
+     * @param type $wpComment
+     * @return \CommentModel
+     */
     public function setWpComment($wpComment) {
         $this->wpComment = $wpComment;
+        return $this;
     }
 
+    /**
+     * DbRecordInterface method, returns corresponding DB Table ID column name
+     * 
+     * @return string
+     */
+    
     public static function getDbIdColumn() {
         return 'comment_ID';
     }
 
+    /**
+     * DbRecordInterface method, returns corresponding DB Table name
+     * 
+     * @return string
+     */
     public static function getDbTable() {
         global $wpdb;
         return $wpdb->comments;
     }
 
+    /**
+     * Get validation errors after unpacking from request input
+     * Should be set by validateInput
+     * 
+     * @return array[field]='Error Text'
+     */
     public function getValidationErrors() {
         return $this->validationErrors;
     }
 
+    /**
+     * Unpacks request input.
+     * Used by REST Controllers.
+     * 
+     * @param array $input
+     */
     public function unpackInput($input = array()) {
         if(empty($input)){
             $input = InputHelper::getParams();
@@ -342,6 +587,13 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         
     }
 
+    /**
+     * Validates input and sets $validationErrors
+     * 
+     * @param array $input
+     * @param string $action (create|update)
+     * @return boolean is input valid
+     */
     public function validateInput($input = array(), $action = 'create') {
         if('create' == $action){
             $postId = Util::getItem($input, 'comment_post_ID', 0);
@@ -414,6 +666,12 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return true;
     }
 
+    /**
+     * Unpacks db record while fetching model from DB 
+     * 
+     * @param stdObject $wpRecord
+     * @return \self
+     */
     public static function unpackDbRecord( $wpRecord){
         
         $obj = new self();
@@ -442,11 +700,12 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $obj;
     }
 
-    public function unpackMeta($meta){
-//        print_r($meta);
-//        $this->setNickname($meta['nickname'][0]);
-    }
-
+    /**
+     * Packs model into assoc array before commiting to DB
+     * 
+     * @param boolean $forUpdate
+     * @return array
+     */
     public function packDbRecord($forUpdate = true){
         $dbRecord = array();
         if($forUpdate){
@@ -460,7 +719,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $dbRecord['user_id'] = $this->getUserId();
         $dbRecord['comment_content'] = $this->getContent();
         $dbRecord['comment_karma'] = $this->getKarma();
-        $dbRecord['comment_approved'] = $this->getIsApproved();
+        $dbRecord['comment_approved'] = (int)$this->getIsApproved();
         $dbRecord['comment_agent'] = $this->getAgent();
         $dbRecord['comment_parent'] = $this->getParentId();
         $dbRecord['comment_type'] = $this->getType();
@@ -469,7 +728,12 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         
         return $dbRecord;
     }
-
+    
+    /**
+     * Inserts new model to DB, returns autogenerated ID
+     * 
+     * @return integer
+     */
     public function insert(){
         $this->setDtCreated(new Zend_Date());
 //        $this->setDtCreatedGMT(new Zend_Date());
@@ -483,6 +747,11 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $id;
     }
     
+    /**
+     * Update db record
+     * 
+     * @return int|WP_Error The value 0 or WP_Error on failure. The post ID on success.
+     */
     public function update($forUpdate = false){
         $dbRecord = $this->packDbRecord(true);
         unset($dbRecord['comment_date']);
@@ -491,12 +760,18 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return true;
     }
     
+    /**
+     * Delete record form DB
+     * 
+     * @param bool $force_delete Whether to bypass trash and force deletion. Defaults to false.
+     * @return mixed False on failure
+     */
     public function delete($forceDelete = 0){
         return self::deleteById($this->getId(), $forceDelete);
     }
     
     /**
-     * Deletes user with the specified $userId from db table
+     * Deletes comment with the specified $commentId from db table
      *
      * @param integer $commentId
      * @return boolean
@@ -511,7 +786,8 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     }
 
     /**
-     *
+     * Select comment by id
+     * 
      * @param integer $id
      * @return CommentModel 
      */
@@ -527,8 +803,15 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
     }
 
 
+    /**
+     * Select models using WP_Comment_Query syntax.
+     * The total count of comments of the specified post is stored in post model.
+     * (could be inconsistent though)
+     * 
+     * @param array $wpCommentsQueryArgs
+     * @return array(CommentModel)
+     */
     public static function selectComments($wpCommentsQueryArgs){
-//        print_r($wpCommentsQueryArgs);
         $comments = array();
         $dbRecords = get_comments($wpCommentsQueryArgs);
         foreach ($dbRecords as $dbRecord) {
@@ -539,19 +822,36 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $comments;
     }
     
-    public static function selectPostComments($postId, $sinceCommentId = 0){
-        global $wpdb;
-        $select = $wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_id = %d AND comment_id > %d", $postId, $sinceCommentId);
-        $dbRecords = $wpdb->get_results("SELECT * FROM $wpdb->comments WHERE comment_post_id = $postId AND comment_id > $sinceCommentId");
-        foreach ($dbRecords as $dbRecord) {
-            $comments[] = self::unpackDbRecord($dbRecord);
-        }
-    }
+//    public static function selectPostComments($postId, $sinceCommentId = 0){
+//        global $wpdb;
+//        $dbRecords = $wpdb->get_results("SELECT * FROM $wpdb->comments WHERE comment_post_id = $postId AND comment_id > $sinceCommentId");
+//        foreach ($dbRecords as $dbRecord) {
+//            $comments[] = self::unpackDbRecord($dbRecord);
+//        }
+//        
+//        return $comments;
+//    }
     
+    /**
+     * Get CommentQueryModel object to create a query.
+     * Call ->select() to fetch queried models;
+     * The total count of comments of the specified post is stored in post model.
+     * (could be inconsistent though)
+     * 
+     * @return CommentQueryModel 
+     */
     public static function query($postId = 0){
         return CommentQueryModel::query($postId);
     }
     
+    /**
+     * Get comment meta single key-value pair or all key-values
+     * 
+     * @param int $commentId Comment ID.
+     * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
+     * @param bool $single Whether to return a single value.
+     * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
+     */
     public static function getCommentMeta($commentId, $key = '', $single = true){
         $meta = get_comment_meta($commentId, $key, $single);
         if(!$key && $single && $meta && is_array($meta)){
@@ -565,23 +865,59 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $meta;
     }
 
+    /**
+     * Update comment meta value for the specified key in the DB
+     * 
+     * @param integer $commentId
+     * @param string $key
+     * @param string $value
+     * @param string $oldValue
+     * @return bool False on failure, true if success.
+     */
     public static function updateCommentMeta($commentId, $key, $value, $oldValue = ''){
         return update_comment_meta($commentId, $key, $value, $oldValue);
     }
     
+    /**
+     * Get comment meta single key-value pair or all key-values
+     * 
+     * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
+     * @param bool $single Whether to return a single value.
+     * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
+     */
     public function getMeta($key = '', $single = true) {
         return  self::getCommentMeta($this->getId(), $key, $single);
     }
 
+    /**
+     * Update comment meta value for the specified key in the DB
+     * 
+     * @param string $key
+     * @param string $value
+     * @param string $oldValue
+     * @return bool False on failure, true if success.
+     */
     public function updateMeta($key, $value, $oldValue = '') {
         self::updateCommentMeta($this->getId(), $key, $value, $oldValue);
     }
 
+    /**
+     * Populates this comment for old school WP use.
+     * Defines global variable $comment.
+     * 
+     * @global WP_Comment $comment
+     */
     public function populateWpGlobals(){
         global $comment;
         $comment = $this->getWpComment();
     }
     
+    /**
+     * Packs this post into assoc array for JSON representation.
+     * Used for API Output
+     * 
+     * @return array
+     */
     public function packJsonItem() {
         $jsonItem = array();
         $jsonItem['id'] = $this->getId();
@@ -608,11 +944,21 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return $jsonItem;
     }
 
+    /**
+     * Flushes cache used for selectById()
+     */
     public static function flushCache(){
         self::$commentsCacheById = array();
         self::$commentsCacheByPostId = array();
     }
     
+    /**
+     * Get comment by $id from cache.
+     * It gets to cache once it was unpacked by unpackDbRecord()
+     * 
+     * @param type $id
+     * @return type
+     */
     public static function getCommentsCacheById($id = 0){
         if($id){
             return Util::getItem(self::$commentsCacheById, $id);
@@ -620,6 +966,13 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         return self::$commentsCacheById;
     }
     
+    /**
+     * Get comments by $postId from cache.
+     * Comments gets to cache once it was unpacked by unpackDbRecord()
+     * 
+     * @param type $id
+     * @return type
+     */
     public static function getCommentsCacheByPostId($postId = 0){
         $ret = array();
 

@@ -830,7 +830,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * Call ->select() to fetch queried models;
      * The count of found rows can be found by calling postsFound() aftermath.
      * 
-     * @return PostModel 
+     * @return PostQueryModel 
      */
     public static function query(){
         $query = new PostQueryModel();
@@ -902,13 +902,13 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     /**
      * Get post meta single key-value pair or all key-values
      * 
-     * @param int $post_id Post ID.
+     * @param int $postId Post ID.
      * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
      * @param bool $single Whether to return a single value.
      * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
      */
-    public static function getPostMeta($post_id, $key = '', $single = true){
-        $meta = get_post_meta($post_id, $key, $single);
+    public static function getPostMeta($postId, $key = '', $single = true){
+        $meta = get_post_meta($postId, $key, $single);
         if(!$key && $single && $meta && is_array($meta)){
             $m = array();
             foreach($meta as $k => $values){
@@ -1405,6 +1405,12 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return array();
     }
 
+    /**
+     * Unpacks request input.
+     * Used by REST Controllers.
+     * 
+     * @param array $input
+     */
     public function unpackInput($input = array()) {
         if(empty($input)){
             $input = InputHelper::getParams();
@@ -1434,11 +1440,12 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 //        $this->setMimeType(Util::getItem($input, 'post_mime_type'));
         $this->setCommentStatus(Util::getItem($input, 'comment_status'));
 //        $this->setCommentCount(Util::getItem($input, 'comment_count'));
-        
+        return $this;
     }
 
     /**
      * Validates input and sets $validationErrors
+     * 
      * @param array $input
      * @param string $action (create|update)
      * @return boolean is input valid

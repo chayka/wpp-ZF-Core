@@ -1,11 +1,21 @@
 <?php
 
 class WidgetHelper {
+    protected static $scriptPaths = array();
+    
+    public static function addScriptPath($path){
+        if(!in_array($path, self::$scriptPaths)){
+            self::$scriptPaths[]=$path;
+        }
+    }
     
     public static function renderWidget($data, $tpl, $js, $css = null){
         
         $view = new Zend_View();
         $view->setScriptPath(ZF_CORE_APPLICATION_PATH.'/views/scripts');
+        foreach(self::$scriptPaths as $path){
+            $view->addScriptPath($path);
+        }
         if($data){
             foreach($data as $key=>$value){
                 $view->assign($key, $value);

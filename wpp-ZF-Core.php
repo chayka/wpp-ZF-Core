@@ -334,6 +334,8 @@ class ZF_Core {
         wp_register_script( 'require', ZF_CORE_URL.($minimize?'res/js/vendors/require.min.js':'res/js/vendors/require.js'));
         wp_register_script( 'moment-base', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/moment.min.js':'res/js/vendors/moment/moment.js'), array());
         wp_register_script( 'moment-lang', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/lang/'.$lang.'.js':'res/js/vendors/moment/lang/'.$lang.'.js'), array());
+        wp_register_style( 'jquery-dropkick', ZF_CORE_URL.'res/css/vendors/jquery.dropkick-1.0.0.less', array());
+        wp_register_script( 'jquery-dropkick', ZF_CORE_URL.'res/js/vendors/jquery.dropkick-1.0.0.js', array('jquery'));
         $lang = NlsHelper::getLang();
 //        die($lang);
         $diskFile = ZF_CORE_PATH.'res/js/vendors/moment/lang/'.$lang.'.js';

@@ -1,6 +1,15 @@
 <?php
 
 class EmailHelper {
+
+    protected static $scriptPaths = array();
+    
+    public static function addScriptPath($path){
+        if(!in_array($path, self::$scriptPaths)){
+            self::$scriptPaths[]=$path;
+        }
+    }
+    
     public static function send($subject, $html, $to, $from = '', $cc = '', $bcc = '', $linkToWebVersion = ''){
         $mailFrom = get_option('EmailHelper.mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
         $mailFromName = get_option('EmailHelper.mail_from', $_SERVER['SERVER_NAME']);
@@ -17,8 +26,8 @@ class EmailHelper {
         // configure base stuff
         $mail->setSubject($subject);
 //        echo $html;
-        preg_match('%^.*wp-content\/%',plugin_dir_path(__FILE__), $m);
-        $contentDir = $m[0];
+//        preg_match('%^.*wp-content\/%',plugin_dir_path(__FILE__), $m);
+//        $contentDir = $m[0];
 //        $fn = $contentDir.'/themes/wpt-MCC/application/views/scripts/email/template.phtml';
         $fn = get_template_directory().'/application/views/scripts/email/template.phtml';
 //        die(get_template_directory());
@@ -89,6 +98,9 @@ class EmailHelper {
         try{
             $html = new Zend_View();
             $html->setScriptPath($scriptPath);
+            foreach(self::$scriptPaths as $path){
+                $html->addScriptPath($path);
+            }
             foreach($params as $key => $value){
                 $html->assign($key, $value);
             }

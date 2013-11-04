@@ -21,18 +21,8 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     protected static $currentUser;
     
-    /**
-     * User Id
-     *
-     * @var integer
-     */
     protected $id;
 
-    /**
-     * User login
-     *
-     * @var string
-     */
     protected $login;
     
     protected $password;

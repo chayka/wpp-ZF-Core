@@ -790,6 +790,14 @@
                 this.inputs(fieldId).val(value);
         },
                 
+        getFieldsValues: function(){
+            var values = {};
+            for(var fieldId in this.options.fields){
+                values[fieldId] = this.getFieldValue(fieldId);
+            }
+            return values;
+        },
+                
         setupFieldChecks: function(fieldId){
             this.inputs(fieldId).blur($.proxy(function(event){
                 event === undefined || !this.getFieldValue(fieldId) || this.checkField(fieldId);
@@ -797,6 +805,11 @@
             this.inputs(fieldId).focus($.proxy(function(event){
                 this.setFormFieldStateClear(fieldId);
             }, this));
+//            if(this.inputs(fieldId).is('select')){
+//                this.inputs(fieldId).change($.proxy(function(event){
+//                    this.setFormFieldStateClear(fieldId);
+//                }, this));
+//            }
         },
                 
         setupFieldsChecks: function(){
@@ -934,14 +947,17 @@
             switch(state){
                 case 'clear':
                     input.removeClass( "ui-state-error" );
+                    field.removeClass( "form_field-state_error");
                     tips.text('').removeClass( "ui-state-highlight");
                     break;
                 case 'error' :
                     input.addClass( "ui-state-error" );
+                    field.addClass( "form_field-state_error");
                     tips.html( message ).addClass('form_field-tips_error');
                     break;
                 case 'hint' :
                     input.removeClass( "ui-state-error" );
+                    field.removeClass( "form_field-state_error");
                     tips.html( message ).removeClass('form_field-tips_error');
                     break;
             }

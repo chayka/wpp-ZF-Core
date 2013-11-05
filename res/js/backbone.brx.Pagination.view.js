@@ -1,5 +1,5 @@
-(function($){
-    $.declare('brx.Pagination', $.brx.View, {
+(function($,_){
+    _.declare('brx.Pagination', $.brx.View, {
         options:{
             totalPages: 0,
             currentPage: 1,
@@ -70,11 +70,11 @@
             text = text || page;
             var href = this.getHref(page);
             var cls = '';
-            if(page == this.getCurrentPage()){
+            if(page === this.getCurrentPage()){
                 cls = 'active';
             }
             if(page < 1 || page > this.getTotalPages()){
-                cls = 'disabled'
+                cls = 'disabled';
             }
             var item = $('<a></a>')
                 .attr('href', href)
@@ -148,6 +148,6 @@
             
         }
         
-    })
-}(jQuery));
+    });
+}(jQuery, _));
 

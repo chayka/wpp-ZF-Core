@@ -1,6 +1,6 @@
-(function( $ ) {
+(function( $, _ ) {
 //    $.widget( "mcc.AdmissionWizard", $.brx.form, {
-    $.declare( "brx.Wizard", $.brx.FormView, {
+    _.declare( "brx.Wizard", $.brx.FormView, {
 //    $.mcc.AdmissionWizard = $.brx.FormView.extend({
         options: { 
             elementAsTemplate: true,
@@ -292,6 +292,6 @@
             
         }
     });
-}(jQuery));
+}(jQuery, _));
 
 

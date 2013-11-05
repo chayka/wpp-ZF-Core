@@ -1,5 +1,5 @@
-(function($){
-    $.declare('brx.RibbonSlider', $.brx.View, {
+(function($, _){
+    _.declare('brx.RibbonSlider', $.brx.View, {
         options:{
            direction: 'vertical' 
         },
@@ -58,7 +58,7 @@
             this.slide(1);
         }
         
-    })
-}(jQuery));
+    });
+}(jQuery, _));
 
 

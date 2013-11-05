@@ -1,15 +1,15 @@
-(function($) {
+(function($, Backbone, _) {
 
     $.declare = function(classname, parent, implementation){
         var parts = classname.split('.');
         var root = $;
-        var part = ''
+        var part = '';
         for(var i = 0; i < parts.length; i++){
             part = parts[i];
-            if(i == parts.length - 1){
+            if(i === parts.length - 1){
                 break;
             }
-            root[part] = root[part] || {}
+            root[part] = root[part] || {};
             root = root[part];
         }
         
@@ -40,78 +40,79 @@
         }
         
         return;// root[part];
-    }
-    
-    _.empty = function(value){
-        return 	!value
-        ||	value == ""
-        ||	value == "undefined"
-        ||	value == null
-        ||	value == "NaN"
-        ||	value == 0
-        ||	value == "0"
-        ||	value == {}
-        ||	value == []
-        ;
     };
     
-    _.getItem = function(obj, key, defaultValue){
-        defaultValue = defaultValue || null;
-        var parts = (key+'').split('.');
-        if(obj && (_.isObject(obj)||_.isArray(obj))){
-            var root = obj;
-            for(var i in parts){
-                var part = parts[i];
-                if((_.isObject(root)||_.isArray(root)) && root[part]!=undefined){
-                    root = root[part];
-                }else{
-                    return defaultValue;
-                }
-            }
-            return root;
-        }
-        
-        return defaultValue;
-//        return _.empty(obj[key])?defaultValue:obj[key];
-    };
-    
-    _.getVar = function(path, root){
-        root = root || window;
-        var parts = path.split('.');
-        for(var x in parts){
-            var part = parts[x];
-            if(!parseInt(x)  && part == '$'){
-                root = $;
-                continue;
-            }
-            if(root[part]!=undefined){
-                root = root[part];
-            }else{
-                return null;
-            }
-        }
-        return root;
-    };
-    
-    _.setVar = function(path, val, root){
-        var parts = path.split('.');
-        root = root || window;
-        var part = ''
-        for(var i = 0; i < parts.length; i++){
-            part = parts[i];
-            if(i == parts.length - 1){
-                break;
-            }
-            root[part] = root[part] || {}
-            root = root[part];
-        }
-        
-        return root[part] = val;
-    };
+//    _.empty = function(value){
+//        return 	!value
+//        ||	value == ""
+//        ||	value == "undefined"
+//        ||	value == null
+//        ||	value == "NaN"
+//        ||	value == 0
+//        ||	value == "0"
+//        ||	value == {}
+//        ||	value == []
+//        ;
+//    };
+//    
+//    _.getItem = function(obj, key, defaultValue){
+//        defaultValue = defaultValue || null;
+//        var parts = (key+'').split('.');
+//        if(obj && (_.isObject(obj)||_.isArray(obj))){
+//            var root = obj;
+//            for(var i in parts){
+//                var part = parts[i];
+//                if((_.isObject(root)||_.isArray(root)) && root[part]!=undefined){
+//                    root = root[part];
+//                }else{
+//                    return defaultValue;
+//                }
+//            }
+//            return root;
+//        }
+//        
+//        return defaultValue;
+////        return _.empty(obj[key])?defaultValue:obj[key];
+//    };
+//    
+//    _.getVar = function(path, root){
+//        root = root || window;
+//        var parts = path.split('.');
+//        for(var x in parts){
+//            var part = parts[x];
+//            if(!parseInt(x)  && part == '$'){
+//                root = $;
+//                continue;
+//            }
+//            if(root[part]!=undefined){
+//                root = root[part];
+//            }else{
+//                return null;
+//            }
+//        }
+//        return root;
+//    };
+//    
+//    _.setVar = function(path, val, root){
+//        var parts = path.split('.');
+//        root = root || window;
+//        var part = ''
+//        for(var i = 0; i < parts.length; i++){
+//            part = parts[i];
+//            if(i == parts.length - 1){
+//                break;
+//            }
+//            root[part] = root[part] || {}
+//            root = root[part];
+//        }
+//        
+//        return root[part] = val;
+//    };
 
     $.brx = $.brx || {};
 
-    $.brx.Model = Backbone.Model.extend({
+//    $.brx.Model = Backbone.Model.extend({
+    _.declare('brx.Model', Backbone.Model, {
         
         collectionFields: [],
         
@@ -130,7 +131,7 @@
         
         set: function(key, val, options){
             var attr, attrs, unset, changes, silent, changing, prev, current;
-            if (key == null) return this;
+            if (key === null) return this;
 
             // Handle both `"key", value` and `{key: value}` -style arguments.
             if (typeof key === 'object') {
@@ -244,7 +245,8 @@
         
     });
     
-    $.brx.Collection = Backbone.Collection.extend({
+//    $.brx.Collection = Backbone.Collection.extend({
+    _.declare('brx.Collection', Backbone.Collection, {
 
         nlsNamespace: '',
         
@@ -278,7 +280,7 @@
     
 
 //    $.brx.View = Backbone.View.extend({
-    $.declare('brx.View', Backbone.View, {
+    _.declare('brx.View', Backbone.View, {
         nlsNamespace: '',
         
         options:{
@@ -289,7 +291,7 @@
             Backbone.View.prototype.initialize.apply(this, arguments);
             if(this.options.templateSelector){
                 var template = $(this.options.templateSelector);
-                var element = $(template.prop('tagName').toLowerCase() == 'script' ?template.html():template[0]);
+                var element = $(template.prop('tagName').toLowerCase() === 'script' ?template.html():template[0]);
                 this.setElement(element);
 //                this._parseElement();
             }
@@ -376,7 +378,7 @@
         },
         
         setElement: function(element, delegate){
-            if(element == this.el && this.$el){ return }
+            if(element === this.el && this.$el){ return; }
             Backbone.View.prototype.setElement.apply(this, arguments);
             this._parseElement();
         },
@@ -429,7 +431,7 @@
 //                console.dir({'attachPoint':{point: attachPoint, widget: w, element: $(this)}});
                 w.option(attachPoint, $(this));
                 $(this).storeAttr('attachPoint');
-            })
+            });
             $('[attachEvent]', w.el).each(function(j){
                 var attachEvent = $(this).attr("attachEvent");
                 var re1 = /\s*\w+\s*:\s*[^\s,]+/g;
@@ -448,7 +450,7 @@
                 }
 //                console.dir({'attachEvent':{event: attachEvent, widget: w, element: $(this)}});
                 $(this).storeAttr('attachEvent');
-            })
+            });
             $('[plugin]', w.el).each(function(j){
                 var plugin = $(this).attr("plugin");
 //                console.log(plugin);
@@ -461,7 +463,7 @@
 //                console.dir({handler: handler, '$': $});
                 handler(this);
                 $(this).storeAttr('plugin');
-            })
+            });
 //            console.dir({'widget':w});
             for(var i in this.options){
                 if(!$.isFunction(this.options[i])){
@@ -549,24 +551,24 @@
             return new view(options);
         }
         return null;
-    }
+    };
     
     $.fn.createBackboneView = function(view, options){
         $.brx.createBackboneView(view, this, options);
         return this;
-    }
+    };
     
     $.brx.parseBackboneViews = function(){
         $('[backbone-view]').each(function(i){
             var view = $(this).attr("backbone-view");
             $(this).createBackboneView(view);
         });
-        $(document).restoreTemplatedAttrs()
+        $(document).restoreTemplatedAttrs();
         
-    }
+    };
 
 //    $.brx.FormView = $.brx.View.extend({
-    $.declare('brx.FormView', $.brx.View, {
+    _.declare('brx.FormView', $.brx.View, {
         
         options: { 
             fields: {},
@@ -992,7 +994,7 @@
             max = max || this.fields(fieldId).attr('check-length-max') || 0;
             messageTemplate = messageTemplate 
                 || this.fields(fieldId).attr('check-length-message')
-                || "Длина значения должна быть от <%= min %> до <%= max => символов."
+                || "Длина значения должна быть от <%= min %> до <%= max => символов.";
             var message = _.template(messageTemplate, {min: min, max: max, label: fieldLabel}); 
             var input = this.options.inputs[fieldId];
             if ( max && input.val().length > max || min && input.val().length < min ) {
@@ -1029,7 +1031,7 @@
             min = min || this.fields(fieldName).attr('check-pass-min') || 0;
             errorTemplate = errorTemplate 
                 || this.fields(fieldName).attr('check-pass-message')
-                || "Пароль должен быть не короче <%= min %> символов."
+                || "Пароль должен быть не короче <%= min %> символов.";
             var errorMessage = _.template(errorTemplate, {min: min});
             var input = this.options.inputs[fieldName];
             if ( input.val().length < min ) {
@@ -1049,7 +1051,7 @@
                 || "Введенные пароли отличаются";
             var inputPass1 = this.options.inputs[pass1FieldId];
             var inputPass2 = this.options.inputs[pass2FieldId];
-            if ( inputPass1.val() != inputPass2.val()) {
+            if ( inputPass1.val() !== inputPass2.val()) {
 //                this.setFormFieldStateError(pass1FieldId, errorMessage );
                 this.setFormFieldStateError(pass2FieldId, errorMessage );
                 return false;
@@ -1111,7 +1113,7 @@
             if(valid && this.fields(fieldId).attr('check-pass-match-id')){
                 valid = valid && this.checkPasswordMatch(fieldId);
             }
-            return valid
+            return valid;
         },
 
         checkFields: function(fieldIds){
@@ -1137,7 +1139,7 @@
                 if(!$.brx.utils.empty(this.options.fields[key])){
                     field = key;
                 }
-                if(field!='messageBox'){
+                if(field!=='messageBox'){
                     this.setFormFieldStateError(field, errorMessage );
                 }else{
                     this.setMessage(errorMessage, true);
@@ -1169,5 +1171,5 @@
         return _.getItem($.brx.options, key, def);
     };
 
-}(jQuery));
+}(jQuery, Backbone, _));
 

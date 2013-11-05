@@ -1,6 +1,6 @@
-(function($){
+(function($, _){
     
-    $.declare('brx.SingleSpinner', $.brx.View, {
+    _.declare('brx.SingleSpinner', $.brx.View, {
         tagName: 'div',
         className: 'brx_single_spinner',
         
@@ -67,7 +67,7 @@
         }
     });
     
-    $.declare('brx.MultiSpinner', $.brx.View, {
+    _.declare('brx.MultiSpinner', $.brx.View, {
         
         tagName: 'div',
         
@@ -132,7 +132,7 @@
                         this.options.processes[id].remove();
                         delete(this.options.processes[id]);
                         this.render();
-                    }, this))
+                    }, this));
                 }else{
                     this.options.processes[id].remove();
                     delete(this.options.processes[id]);
@@ -163,6 +163,6 @@
         }
         
     });
-}(jQuery));
+}(jQuery, _));
 
 

@@ -1,6 +1,6 @@
-(function($){
+(function($, _, Backbone){
     
-    $.declare('brx.AttachmentPicker', $.brx.FormView, {
+    _.declare('brx.AttachmentPicker', $.brx.FormView, {
         options:{
             title: 'Выберите файл',
             attachments: null,
@@ -253,7 +253,7 @@
         }
     });
     
-    $.declare('brx.AttachmentPicker.AttachmentView', $.brx.View, {
+    _.declare('brx.AttachmentPicker.AttachmentView', $.brx.View, {
 
         options:{
             templateSelector: '#attachment-template'
@@ -277,4 +277,4 @@
 
     });
     
-}(jQuery));
+}(jQuery, _, Backbone));

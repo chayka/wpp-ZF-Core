@@ -1,6 +1,6 @@
-(function( $ ) {
+(function( $, _ ) {
     
-    $.declare('wp.PostModel', $.brx.Model, {
+    _.declare('wp.PostModel', $.brx.Model, {
 
         urlRoot: '/api/post-model',
         
@@ -272,7 +272,7 @@
         
     });
 
-    $.declare('wp.PostModels', $.brx.Collection, {
+    _.declare('wp.PostModels', $.brx.Collection, {
 
         url: '/api/post-model/',
 
@@ -289,7 +289,7 @@
 
     });
 
-    $.declare('wp.CommentModel', $.brx.Model, {
+    _.declare('wp.CommentModel', $.brx.Model, {
 
         urlRoot: '/api/comment-model',
         
@@ -488,7 +488,7 @@
             })
 
             .done($.proxy(function(data){
-                if(0 == data.code){
+                if(0 === data.code){
                     this.set(data.payload);
                 }else{
                     var message = data.message 
@@ -516,10 +516,10 @@
                 
         voteDown: function(callback){
             this.vote(-1, callback);
-        },
+        }
     });
 
-    $.declare('wp.CommentModels', $.brx.Collection, {
+    _.declare('wp.CommentModels', $.brx.Collection, {
 
         url: '/api/comment-model/',
 
@@ -536,7 +536,7 @@
 
     });
 
-    $.declare('wp.UserModel', $.brx.Model, {
+    _.declare('wp.UserModel', $.brx.Model, {
 
         urlRoot: '/api/user-model',
         
@@ -692,7 +692,7 @@
         
     });
 
-    $.declare('wp.UserModels', $.brx.Collection, {
+    _.declare('wp.UserModels', $.brx.Collection, {
 
         url: '/api/user-model/',
 
@@ -709,4 +709,4 @@
 
     });
 
-}(jQuery));
+}(jQuery, _));

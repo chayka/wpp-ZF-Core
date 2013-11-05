@@ -1,5 +1,5 @@
-(function($){
-    $.declare('brx.OptionsForm', $.brx.FormView, {
+(function($, _){
+    _.declare('brx.OptionsForm', $.brx.FormView, {
         options: { 
             scope: '',
             prefix: '',
@@ -14,7 +14,7 @@
             this.initFields();
             this.setupFieldsChecks();
             if(!$.brx.utils.empty(this.get('options'))){
-                this.renderOptions()
+                this.renderOptions();
             }else{
                 this.loadOptions();
             }
@@ -49,7 +49,7 @@
 
             .done($.proxy(function(data){
                 console.dir({'data': data});
-                if(0 == data.code){
+                if(0 === data.code){
                     this.set('options', data.payload);
                     
                     this.renderOptions(data.payload);
@@ -92,7 +92,7 @@
 
             .done($.proxy(function(data){
                 console.dir({'data': data});
-                if(0 == data.code){
+                if(0 === data.code){
                     this.set('options', data.payload);
                     this.renderOptions(data.payload);
                 }else{
@@ -113,6 +113,6 @@
 
         }
 
-    })
-}(jQuery));
+    });
+}(jQuery, _));
 

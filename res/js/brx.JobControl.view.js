@@ -1,5 +1,5 @@
-(function($){
-    $.declare('brx.JobControl', $.brx.View, {
+(function($, _){
+    _.declare('brx.JobControl', $.brx.View, {
         options:{
             jobId: '',
             perIteration: 10,
@@ -126,4 +126,4 @@
             this.setState('');
         }
     });
-}(jQuery));
+}(jQuery, _));

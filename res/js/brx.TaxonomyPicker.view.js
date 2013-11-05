@@ -1,5 +1,5 @@
-(function( $ ) {
-    $.declare( "brx.TaxonomyPicker", $.brx.View, {
+(function( $, _ ) {
+    _.declare( "brx.TaxonomyPicker", $.brx.View, {
  
         // These options will be used as defaults
         options: { 
@@ -48,7 +48,7 @@
                     var level = this.options.forbidLevels[i];
                     var selector = 'ul.options > li';
                     for(x = 1; x<= level; x++){
-                        selector += ' > ul.children > li'
+                        selector += ' > ul.children > li';
                     }
                     selector+=' > input:checkbox';
                     this.get('boxOptions').find(selector)
@@ -58,12 +58,12 @@
                             .removeAttr('checked')
                             .removeAttr('id')
                             .remove();
-                    })
+                    });
                 }
                 
             }
             
-            this.get('inputSearch').placeholder({text: 'Быстрый поиск...'})
+            this.get('inputSearch').placeholder({text: 'Быстрый поиск...'});
             
             if(this.get('ids').length){
                 this.checkOptions(this.get('ids'));
@@ -84,8 +84,8 @@
                 var count = this.get('optionsList').find("li[content*='"+term+"']")
                     .each(function(key, element){
                         var li = $(element);
-                        while('LI'==li[0].nodeName){
-                            li.show()
+                        while('LI' === li[0].nodeName){
+                            li.show();
                             li = li.parent().parent();
                         }
                     }).length;
@@ -118,7 +118,7 @@
                 console.log('max: '+this.get('max'));
                 var left = this.get('max') - checkedOptions.length;
                 if(left<=0){
-                    this.get('optionsList').find('input[checked!=checked]').attr('disabled', 'disabled')
+                    this.get('optionsList').find('input[checked!=checked]').attr('disabled', 'disabled');
                 }else{
                     this.get('optionsList').find('input[disabled]').removeAttr('disabled');
                 }
@@ -181,7 +181,7 @@
         },
         
         pushId: function(id){
-            this.options.ids.push(id)
+            this.options.ids.push(id);
         },
         
         showAll: function(){
@@ -197,8 +197,8 @@
                 var count = this.get('optionsList').find("li input:checkbox:checked")
                     .each(function(key, element){
                         var li = $(element).parent();
-                        while('LI'==li[0].nodeName){
-                            li.show()
+                        while('LI' === li[0].nodeName){
+                            li.show();
                             li = li.parent().parent();
                         }
                     }).length;
@@ -270,7 +270,7 @@
         
         buttonCancelClicked: function(){
             this.get('boxOptions').dialog('close');
-            var ids = this.get('initialIds')
+            var ids = this.get('initialIds');
             this.checkOptions(ids);
             this.renderSelectedOptions();
             
@@ -282,4 +282,4 @@
         // In jQuery UI 1.9 and above, you would define _destroy instead of destroy and not call the base method
         }
     });
-}( jQuery ) );
+}( jQuery, _ ) );

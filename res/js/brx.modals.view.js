@@ -1,6 +1,6 @@
-(function($){
+(function($, _){
     
-    $.declare('brx.ModalBox', $.brx.View, {
+    _.declare('brx.ModalBox', $.brx.View, {
         options:{
             el:'<div class="brx-modal"><div class="modal_icon"></div><div class="modal_message" attachPoint="messageView"></div><div class="modal_buttons" attachPoint="buttonsBox"></div></div>',
             content: '', 
@@ -158,5 +158,5 @@
 //        this.show(message, icon, buttons, title);
     };
     
-}(jQuery));
+}(jQuery, _));
 

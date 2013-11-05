@@ -347,7 +347,8 @@ class ZF_Core {
         }
         wp_register_script( 'jquery-ui-templated', ZF_CORE_URL.'res/js/jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
-        wp_register_script( 'backbone-brx', ZF_CORE_URL.'res/js/backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'nls', 'moment'));
+        wp_register_script( 'underscore-brx', ZF_CORE_URL.'res/js/underscore.brx.js', array(($isAdminPost?'underscore':'Underscore')));
+        wp_register_script( 'backbone-brx', ZF_CORE_URL.'res/js/backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment'));
 //        wp_register_script( 'backbone-brx-model', ZF_CORE_URL.'res/js/backbone.brx.Model.js', array('Backbone', 'nls'));
 //        wp_register_script( 'backbone-brx-view', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'jquery-ui-templated', 'backbone-brx-model'));
 //        wp_register_script( 'backbone-brx-form', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'backbone-brx-view'));
@@ -395,7 +396,7 @@ class ZF_Core {
         
         wp_register_script( 'modenizr', ZF_CORE_URL.'res/js/vendors/modernizr-2.6.2.min.js');
 
-        wp_register_script( 'jquery-scroll', ZF_CORE_URL.'res/js/vendors/jquery.scroll.js', array('jquery', 'jquery-brx-utils'));
+        wp_register_script( 'jquery-scrolly', ZF_CORE_URL.'res/js/vendors/jquery.scrolly.js', array('jquery', 'underscore-brx'));
 
 //        wp_register_script('', $src)
         

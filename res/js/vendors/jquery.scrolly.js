@@ -1,6 +1,10 @@
-(function($){
+(function($, _){
+    $.scrolly = { 
+        timeout: null,
+        meter: $('.scrolly')
+    };
     
-    $.scrollLayout = {
+    $.scrolly.scrollLayout = {
 //        topbarSearchForm:{
 //            element: searchFormTop,
 //            rules:[
@@ -34,77 +38,93 @@
         
     };
     
-    $.addItemToScrollLayout = function(id, element, rules){
-        $.scrollLayout[id] = {
-            element: element,
-            rules: rules
-        };
-    }
+    $.scrolly.addItemToScrollLayout = function(id, element, rules){
+        var item = _.getItem($.scrolly.scrollLayout, id);
+        if(item){
+            item.rules.concat(rules);
+        }else{
+            $.scrolly.scrollLayout[id] = {
+                element: element,
+                rules: rules
+            };
+        }
+    };
     
-    $.fixItem = function(id, $element, params /*$bottomContainer, mode, offsetTop, offsetBottom*/){
-        $.fixItemXY(id, $element, [params]);
-    }
+    $.scrolly.fixItem = function(id, $element, params /*$bottomContainer, mode, offsetTop, offsetBottom*/){
+        $.scrolly.fixItemXY(id, $element, [params]);
+    };
     
-    $.fixItemXY = function(id, $element, params /*$bottomContainer, mode, offsetTop, offsetBottom*/){
+    $.scrolly.fixItemXY = function(id, $element, params /*$bottomContainer, mode, offsetTop, offsetBottom*/){
         params = params || [];
         var rules = [];
         for(var x in params){
             var xRange = params[x];
-            var $bottomContainer = $.brx.utils.getItem(xRange, '$bottomContainer');
-            var mode = $.brx.utils.getItem(xRange, 'mode');
-            var offsetTop = $.brx.utils.getItem(xRange, 'offsetTop', 0);
-            var offsetBottom = $.brx.utils.getItem(xRange, 'offsetBottom', 0);
-            var minWidth = $.brx.utils.getItem(xRange, 'minWidth', 0);
-            var maxWidth = $.brx.utils.getItem(xRange, 'maxWidth', 'infinity');
+            var $bottomContainer = _.getItem(xRange, '$bottomContainer', $('body'));
+            var mode = _.getItem(xRange, 'mode');
+            var offsetTop = _.getItem(xRange, 'offsetTop', 0);
+            var offsetBottom = _.getItem(xRange, 'offsetBottom', 0);
+            var minWidth = _.getItem(xRange, 'minWidth', 0);
+            var maxWidth = _.getItem(xRange, 'maxWidth', 'infinity');
+            var isStatic = _.getItem(xRange, 'static', false);
 
             if('next' === $bottomContainer){
                 mode = 'margin';
                 $bottomContainer = $($element).next();
             }else if('parent' === $bottomContainer || !$bottomContainer){
-                mode = 'padding'
+                mode = 'padding';
                 $bottomContainer = $($element).parent();
             }
-            rules.push({
-                    alias: 'top',
-                    minWidth: minWidth,
-                    maxWidth: maxWidth,
-                    offsetTop: offsetTop,
-                    offsetBottom: offsetBottom,
-                    bottomContainer: $bottomContainer,
-                    mode: mode
-                });
-            rules.push({
-                    alias: 'fixed',
-                    minWidth: minWidth,
-                    maxWidth: maxWidth,
-                    offsetTop: offsetTop,
-                    offsetBottom: offsetBottom,
-                    bottomContainer: $bottomContainer,
-                    mode: mode
-                });
-                
-            rules.push({
-                    alias: 'bottom',
-                    minWidth: minWidth,
-                    maxWidth: maxWidth,
-                    offsetTop: offsetTop,
-                    offsetBottom: offsetBottom,
-                    bottomContainer: $bottomContainer,
-                    mode: mode
-//                    since: offset_2,
-//                    css: {'position': 'absolute', 'top':(offset_2+offsetTop)+'px'}
-                });
+            
+            if(!isStatic){
+                rules.push({
+                        alias: 'top',
+                        minWidth: minWidth,
+                        maxWidth: maxWidth,
+                        offsetTop: offsetTop,
+                        offsetBottom: offsetBottom,
+                        bottomContainer: $bottomContainer,
+                        mode: mode
+                    });
+                rules.push({
+                        alias: 'fixed',
+                        minWidth: minWidth,
+                        maxWidth: maxWidth,
+                        offsetTop: offsetTop,
+                        offsetBottom: offsetBottom,
+                        bottomContainer: $bottomContainer,
+                        mode: mode
+                    });
+
+                rules.push({
+                        alias: 'bottom',
+                        minWidth: minWidth,
+                        maxWidth: maxWidth,
+                        offsetTop: offsetTop,
+                        offsetBottom: offsetBottom,
+                        bottomContainer: $bottomContainer,
+                        mode: mode
+    //                    since: offset_2,
+    //                    css: {'position': 'absolute', 'top':(offset_2+offsetTop)+'px'}
+                    });
+            }else{
+                rules.push({
+                        alias: 'static',
+                        minWidth: minWidth,
+                        maxWidth: maxWidth,
+                        bottomContainer: $bottomContainer
+                    });
+            }
         }
 
-        $.addItemToScrollLayout(id, $($element), rules);
+        $.scrolly.addItemToScrollLayout(id, $($element), rules);
     };
     
-    $.processXYRange = function($element, params){
+    $.scrolly.processXYRange = function($element, params){
         params = params || {};
-        var $bottomContainer = $.brx.utils.getItem(params, 'bottomContainer');
-        var mode = $.brx.utils.getItem(params, 'mode');
-        var offsetTop = $.brx.utils.getItem(params, 'offsetTop', 0);
-        var offsetBottom = $.brx.utils.getItem(params, 'offsetBottom', 0);
+        var $bottomContainer = _.getItem(params, 'bottomContainer');
+        var mode = _.getItem(params, 'mode');
+        var offsetTop = _.getItem(params, 'offsetTop', 0);
+        var offsetBottom = _.getItem(params, 'offsetBottom', 0);
 
         var itemHeight = parseInt($element.css('margin-top')) 
             + $element.height() 
@@ -135,63 +155,80 @@
                 params.css = {'position': 'absolute', 'top':(offset_2+offsetTop)+'px'};
                 params.itemHeight = itemHeight;
                 break;
+            case 'static':
+                params.since = 0;
+                params.css = {'position': '', 'top':''};
+                params.itemHeight = 0;
+                break;
         }
         
         return params;
-    }
+    };
     
-    $.onResize = function(){
+    $.scrolly.onResize = function(){
 //        console.log('>$.onResize');
         var needScroll = false;
         var windowWidth = $( window ).width(); // X-coord that is checked against fromX & toX
-        for(var id in $.scrollLayout){
+        for(var id in $.scrolly.scrollLayout){
             // cycling through all visual elements that should react 
             // to scrolling and resizing
-           var item = $.scrollLayout[id];
+           var item = $.scrolly.scrollLayout[id];
            var areas = item.rules.length;
            for(var i in item.rules){
                var rule = item.rules[i];
-               var fromX = $.brx.utils.getItem(rule, 'minWidth', 0);
-               var toX = $.brx.utils.getItem(rule, 'maxWidth', 'infinity');
-               var checkin = fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
+               var fromX = _.getItem(rule, 'minWidth', 0);
+               var toX = _.getItem(rule, 'maxWidth', 'infinity');
+//               var checkin = fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
+               var minWidthScrolly = parseInt($.scrolly.meter.css('min-width'));
+               var maxWidthScrolly = $.scrolly.meter.css('max-width');
+               maxWidthScrolly = maxWidthScrolly === 'none'?'infinity':parseInt(maxWidthScrolly);
+               var checkin = fromX === minWidthScrolly && toX === maxWidthScrolly;
                needScroll |= checkin;
                if(checkin && rule.since === undefined){    
                    $(item.element).css('position', '');
                    $(item.element).css('top', '');
                    item.rules[i].bottomContainer.css('margin-top', '');
+//                   pause(100);
                // item entered new range and should adapt
-                    item.rules[i] = $.processXYRange(item.element, rule);
+                    item.rules[i] = $.scrolly.processXYRange(item.element, rule);
                     
                }
            }
         }  
         if(needScroll){
-            $.scrollLayout = $.scrollLayout;
-            setTimeout($.onScroll, 0);
-//            $.onScroll();
+            // dark magick here do not touch this useless string
+            $.scrolly.scrollLayout = $.scrolly.scrollLayout;
+            setTimeout($.scrolly.onScroll, 0);
+//            $.scrolly.onScroll();
         }
+        return true;
 //        console.log('<$.onResize');
     };
     
-    $.onScroll = function(){
+    $.scrolly.onScroll = function(){
 //        console.log('>$.onScrol');
         var scrollPos = $(this).scrollTop(); // Y-coord that is checked against fromY & toY
         var windowWidth = $( window ).width(); // X-coord that is checked against fromX & toX
-        for(var id in $.scrollLayout){
+        for(var id in $.scrolly.scrollLayout){
             // cycling through all visual elements that should react 
             // to scrolling and resizing
-           var item = $.scrollLayout[id];
+           var item = $.scrolly.scrollLayout[id];
            var areas = item.rules.length;
 //           if(item && item.rules){
 //               console.dir({itemXXX: item});
            for(var i in item.rules){
-               var fromY = $.brx.utils.getItem(item.rules[i], 'since', 0);
-               var toY = $.brx.utils.getItem(item.rules[i], 'to', 'bottom');
-               var fromX = $.brx.utils.getItem(item.rules[i], 'minWidth', 0);
-               var toX = $.brx.utils.getItem(item.rules[i], 'maxWidth', 'infinity');
+               var fromY = _.getItem(item.rules[i], 'since', 0);
+               var toY = _.getItem(item.rules[i], 'to', 'bottom');
+               var fromX = _.getItem(item.rules[i], 'minWidth', 0);
+               var toX = _.getItem(item.rules[i], 'maxWidth', 'infinity');
 //               var to = i < areas - 1 ? item.rules[i+1].since:'bottom';
+//               var checkin = fromY <= scrollPos && ('bottom' === toY || scrollPos < toY)
+//                        &&   fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
+               var minWidthScrolly = parseInt($.scrolly.meter.css('min-width'));
+               var maxWidthScrolly = $.scrolly.meter.css('max-width');
+               maxWidthScrolly = maxWidthScrolly === 'none'?'infinity':parseInt(maxWidthScrolly);
                var checkin = fromY <= scrollPos && ('bottom' === toY || scrollPos < toY)
-                        &&   fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
+                        &&   fromX === minWidthScrolly && toX === maxWidthScrolly;
                fromY = item.rules[i].alias||fromY;
 //               toY = i < areas - 1 && item.rules[i+1].alias ? item.rules[i+1].alias:toY;
                var newClass = 'scroll-pos-'+fromY+'-to-'+toY+' window-width-'+fromX+'-to-'+toX;
@@ -199,8 +236,8 @@
                var lastRule = item.lastRule !== undefined? item.lastRule: null;
                if(checkin && lastRule !== i){    
                // item entered new range and should adapt
-                   $.scrollLayout[id].lastClass = newClass;
-                   $.scrollLayout[id].lastRule = i;
+                   $.scrolly.scrollLayout[id].lastClass = newClass;
+                   $.scrolly.scrollLayout[id].lastRule = i;
 
                    if(lastRule !== null && item.rules[lastRule].onCheckOut){
                        item.rules[lastRule].onCheckOut(item.element);
@@ -217,11 +254,11 @@
                    item.element.removeClass(lastClass);
                    item.element.addClass(newClass);
                    
-                   var $bottomContainer = $.brx.utils.getItem(item.rules[i], 'bottomContainer');
-                   var mode = $.brx.utils.getItem(item.rules[i], 'mode');
-                   var itemHeight = $.brx.utils.getItem(item.rules[i], 'itemHeight');
+                   var $bottomContainer = _.getItem(item.rules[i], 'bottomContainer');
+                   var mode = _.getItem(item.rules[i], 'mode');
+                   var itemHeight = _.getItem(item.rules[i], 'itemHeight');
                    
-                    if($bottomContainer && mode){
+                    if($bottomContainer && mode && itemHeight){
                         $bottomContainer.css(mode+'-top', itemHeight+'px');
                     }
                     
@@ -234,17 +271,17 @@
         }
 //        console.log('<$.onScrol');
 
-    }
+    };
     
 
 $(document).ready(function(){
-    $(window).resize($.onResize).resize();
-    $(document).scroll($.onScroll).scroll();
+    $(window).resize($.scrolly.onResize).resize();
+    $(document).scroll($.scrolly.onScroll).scroll();
 
 });
 //    .resize($.onResize) 
 //    .resize();
     
-}(jQuery));
+}(jQuery, _));
 
 

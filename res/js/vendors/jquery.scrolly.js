@@ -129,14 +129,22 @@
         var itemHeight = parseInt($element.css('margin-top')) 
             + $element.height() 
             + parseInt($element.css('margin-bottom'));
+        if($element.css('box-sizing')==='border-box'){
+            itemHeight+=parseInt($element.css('padding-top')) 
+                + parseInt($element.css('padding-bottom'));
+        }
         var bottomContainerHeight = parseInt($bottomContainer.css('margin-top')) 
             + $bottomContainer.height() 
             + parseInt($bottomContainer.css('margin-bottom'));
+        if($bottomContainer.css('box-sizing')==='border-box'){
+            bottomContainerHeight+=parseInt($bottomContainer.css('padding-top')) 
+                + parseInt($bottomContainer.css('padding-bottom'));
+        }
 //        if(mode !== undefined && mode){
 //            $bottomContainer.css(mode+'-top', itemHeight+'px');
 //        }
-        var offset_1 = $element.offset().top - parseInt($element.css('margin-top'));
-        var offset_2 = $bottomContainer.offset().top + (bottomContainerHeight - itemHeight - offsetBottom);
+        var offset_1 = Math.round($element.offset().top - parseInt($element.css('margin-top')));
+        var offset_2 = Math.round($bottomContainer.offset().top + (bottomContainerHeight - itemHeight - offsetBottom));
         switch(params.alias){
             case 'top':
                 params.since = 0;
@@ -213,10 +221,10 @@
             // cycling through all visual elements that should react 
             // to scrolling and resizing
            var item = $.scrolly.scrollLayout[id];
-           var areas = item.rules.length;
+           var totalRules = item.rules.length;
 //           if(item && item.rules){
 //               console.dir({itemXXX: item});
-           for(var i in item.rules){
+           for(var i=0 ; i<totalRules; i++){
                var fromY = _.getItem(item.rules[i], 'since', 0);
                var toY = _.getItem(item.rules[i], 'to', 'bottom');
                var fromX = _.getItem(item.rules[i], 'minWidth', 0);
@@ -230,7 +238,7 @@
                var checkin = fromY <= scrollPos && ('bottom' === toY || scrollPos < toY)
                         &&   fromX === minWidthScrolly && toX === maxWidthScrolly;
                fromY = item.rules[i].alias||fromY;
-//               toY = i < areas - 1 && item.rules[i+1].alias ? item.rules[i+1].alias:toY;
+//               toY = i < totalRules - 1 && item.rules[i+1].alias ? item.rules[i+1].alias:toY;
                var newClass = 'scroll-pos-'+fromY+'-to-'+toY+' window-width-'+fromX+'-to-'+toX;
                var lastClass = item.lastClass || '';
                var lastRule = item.lastRule !== undefined? item.lastRule: null;

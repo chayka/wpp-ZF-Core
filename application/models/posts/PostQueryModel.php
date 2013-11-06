@@ -42,7 +42,7 @@ class PostQueryModel{
     }
     
     /**
-     * Select firs matching post
+     * Select first matching post
      * 
      * @return PostModel
      */
@@ -661,7 +661,7 @@ class PostQueryModel{
      */
     public function orderBy_PostIn($postIds = null){
         if($postIds){
-            $this->postIdIn($metaKey);
+            $this->postIdIn($postIds);
         }
         return $this->orderBy('post__in');
     }

@@ -826,6 +826,31 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     /**
+     * Selects post of specified post type by title.
+     * The use of this function is not recommended as WP 
+     * 
+     * @global type $wpdb
+     * @param string $title
+     * @param string $postType
+     * @return PostModel
+     */
+    public static function selectByTitle($title, $postType = 'ANY'){
+        global $wpdb;
+        $sql = $postType == 'ANY' ? 
+            WpDbHelper::prepare("
+                SELECT * FROM $wpdb->posts
+                WHERE post_title = %s AND post_status = 'publish'" , $title
+            ):
+            WpDbHelper::prepare("
+                SELECT * FROM $wpdb->posts
+                WHERE post_title = %s AND post_type = %s AND post_status = 'publish'" , $title, $postType
+            );
+        
+        $posts = self::selectSql($sql);
+        return count($posts)?reset($posts):null;
+    }
+
+    /**
      * Get PostQueryModel object to create a query.
      * Call ->select() to fetch queried models;
      * The count of found rows can be found by calling postsFound() aftermath.

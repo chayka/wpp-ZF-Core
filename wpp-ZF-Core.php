@@ -25,20 +25,24 @@
 //////////////////////////////////////////////////////////////////////
 // This section emulates the Zend Framework bootstrap file, without any application environment
 
+require_once 'ZF-Query.php';
 require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';
 
-class ZF_Core {
+class ZF_Core extends WpPlugin{
     public static $zfCoreTree;
     
     public static $adminBar = false;
     
+    public static $instance = null;
+    
     const POST_TYPE_CONTENT_FRAGMENT = 'content-fragment';
     const TAXONOMY_CONTENT_FRAGMENT_TAG = 'content-fragment-tag';
     
-    public static function initPlugin(){
-        self::registerActions();
-        self::registerFilters();
+    public static function init(){
+        
+//        self::registerActions();
+//        self::registerFilters();
 
         try {
             $pluginDir = plugin_dir_path( __FILE__ );
@@ -85,7 +89,7 @@ class ZF_Core {
 
             require_once 'application/helpers/LessHelper.php';
             
-            self::registerResources($minimize = false);
+//            self::registerResources($minimize = false);
             
 //            self::registerCustomPostTypeContentFragment();
             
@@ -99,11 +103,10 @@ class ZF_Core {
         //require_once 'ZendB/Log.php';
         Log::setDir(ZF_CORE_PATH.'logs');
         LessHelper::setImportDir(ABSPATH);
-        LessHelper::addImportDir(ZF_CORE_PATH.'res/css');
+//        LessHelper::addImportDir(ZF_CORE_PATH.'res/css');
 //        Log::start();
-        require_once 'ZF-Query.php';
-
-        ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array(
+//        require_once 'ZF-Query.php';
+        self::$instance = $plugin = new ZF_Core(__FILE__, array(
             'admin', 'autocomplete', 'upload',
             'post-model',
             'comment-model',
@@ -113,11 +116,27 @@ class ZF_Core {
             'options',
             'blockade',
         ));
+        
+        $plugin->addSupport_ConsolePages();
+        $plugin->addSupport_Metaboxes();
+        $plugin->addSupport_PostProcessing();
+        
+
+//        ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array(
+//            'admin', 'autocomplete', 'upload',
+//            'post-model',
+//            'comment-model',
+//            'user-model',
+//            'social', 'zf-setup',
+//            'timezone',
+//            'options',
+//            'blockade',
+//        ));
 
         
     }
     
-    public static function thisPluginGoesFirst() {
+    public function thisPluginGoesFirst() {
         // ensure path to this file is via main wp plugin path
         $wpPathToThisFile = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR . "/$2", __FILE__);
         $thisPlugin = plugin_basename(trim($wpPathToThisFile));
@@ -198,7 +217,7 @@ class ZF_Core {
         return $title;
     }
     
-    public static function autoSlug($post){
+    public function autoSlug($post){
         if(!$post['post_name'] && $post['post_status']=='draft'){
             $post['post_name'] = self::slug($post['post_title']);
         }else{
@@ -250,28 +269,36 @@ class ZF_Core {
         );
         register_post_type(self::POST_TYPE_CONTENT_FRAGMENT, $args);
         self::registerTaxonomyContentFagmentTag();
-        add_action('add_meta_boxes', array('ZF_Core', 'addMetaBoxContentFragment') );
-        add_action('save_post', array('ZF_Core', 'savePost'), 10, 2);
+        self::getInstance()->addAction('add_meta_boxes', 'addMetaBoxContentFragment' );
+//        add_action('add_meta_boxes', array('ZF_Core', 'addMetaBoxContentFragment') );
+//        add_action('save_post', array('ZF_Core', 'savePost'), 10, 2);
     }
     
-    public static function addMetaBoxContentFragment(){
-        add_meta_box( 
+    public function addMetaBoxContentFragment(){
+//        add_meta_box( 
+//            'content_fragment_metabox',
+//            'Advanced',
+//            array('ZF_Core', 'renderMetaBoxContentFragment'),
+//            self::POST_TYPE_CONTENT_FRAGMENT,
+//            'normal',
+//            'high'
+//        );
+        $this->addMetaBox( 
             'content_fragment_metabox',
             'Advanced',
-            array('ZF_Core', 'renderMetaBoxContentFragment'),
-//            null,
-            self::POST_TYPE_CONTENT_FRAGMENT,
+            '/admin/content-fragment-metabox',
             'normal',
-            'high'
+            'high',
+            self::POST_TYPE_CONTENT_FRAGMENT
         );
         
     }
     
-    public static function renderMetaBoxContentFragment(){
-        echo ZF_Query::processRequest('/admin/content-fragment-metabox', 'ZF_CORE');
-    }
+//    public static function renderMetaBoxContentFragment(){
+//        echo ZF_Query::processRequest('/admin/content-fragment-metabox', 'ZF_CORE');
+//    }
     
-    public static function savePost($postId, $post){
+    public function savePost($postId, $post){
         switch($post->post_type){
             case self::POST_TYPE_CONTENT_FRAGMENT:
                 ZF_Query::processRequest('/admin/update-content-fragment/post_id/'.$postId, 'ZF_CORE');
@@ -306,100 +333,105 @@ class ZF_Core {
                 ));
     }
 
-    public static function registerActions(){
-        add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
-        add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
-        add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
+    public function registerActions(){
+        $this->addAction('activated_plugin', 'thisPluginGoesFirst');
+//        add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
+//        add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
+        $this->addAction('wp_footer', 'addJQueryWidgets', 100);
+//        add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
         Util::sessionStart();
         if(empty($_SESSION['timezone'])){
-            add_action('wp_footer', array('ZF_Core', 'fixTimezone'));
+//            add_action('wp_footer', array('ZF_Core', 'fixTimezone'));
+            $this->addAction('wp_footer', 'fixTimezone');
         }
-        add_filter('wp_insert_post_data', array('ZF_Core', 'autoSlug'), 10, 1 );
         
     }
     
-    public static function registerFilters(){
+    public function registerFilters(){
+        $this->addFilter('wp_insert_post_data', 'autoSlug', 10, 1 );
         
     }
     
-    public static function registerResources($minimize = false){
-//        wp_register_script( 'jquery', ZF_CORE_URL.($minimize?'res/js/vendors/jquery-1.8.2.min.js':'res/js/vendors/jquery-1.8.3.js'), array());
-//        wp_enqueue_script('jquery');
+    public function registerResources($minimize = false){
+
         $isAdminPost = is_admin() && (strpos($_SERVER['REQUEST_URI'], 'post.php'));
-//        self::registerScript('Underscore', $minimize?'vendors/underscore.min.js':'vendors/underscore.js', array('jquery'));
-        wp_register_script( 'Underscore', ZF_CORE_URL.($minimize?'res/js/vendors/underscore.min.js':'res/js/vendors/underscore.js'), array('jquery'));
-        wp_register_script( 'Backbone', ZF_CORE_URL.($minimize?'res/js/vendors/backbone.min.js':'res/js/vendors/backbone.js'), array('jquery', ($isAdminPost?'underscore': 'Underscore')));
-        wp_register_script( 'nls', ZF_CORE_URL.'res/js/vendors/nls.js', array(($isAdminPost?'underscore': 'Underscore')));
 
-        wp_register_script( 'require', ZF_CORE_URL.($minimize?'res/js/vendors/require.min.js':'res/js/vendors/require.js'));
-        wp_register_script( 'moment-base', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/moment.min.js':'res/js/vendors/moment/moment.js'), array());
-        wp_register_script( 'moment-lang', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/lang/'.$lang.'.js':'res/js/vendors/moment/lang/'.$lang.'.js'), array());
-        wp_register_style( 'jquery-dropkick', ZF_CORE_URL.'res/css/vendors/jquery.dropkick-1.0.0.less', array());
-        wp_register_script( 'jquery-dropkick', ZF_CORE_URL.'res/js/vendors/jquery.dropkick-1.0.0.js', array('jquery'));
+        $this->registerScript( 'Underscore', ($minimize?'vendors/underscore.min.js':'vendors/underscore.js'), array('jquery'));
+        $this->registerScript( 'Backbone', ($minimize?'vendors/backbone.min.js':'vendors/backbone.js'), array('jquery', ($isAdminPost?'underscore': 'Underscore')));
+        $this->registerScript( 'nls', 'vendors/nls.js', array(($isAdminPost?'underscore': 'Underscore')));
+
+        $this->registerScript( 'require', ($minimize?'vendors/require.min.js':'vendors/require.js'));
+
+        // dropkick.js
+        $this->registerStyle( 'jquery-dropkick', 'vendors/jquery.dropkick-1.0.0.less', array());
+        $this->registerScript( 'jquery-dropkick', 'vendors/jquery.dropkick-1.0.0.js', array('jquery'));
+
+        // moment.js
         $lang = NlsHelper::getLang();
-//        die($lang);
+        $this->registerScript( 'moment-base', ($minimize?'vendors/moment/min/moment.min.js':'vendors/moment/moment.js'), array());
+//        $this->registerScript( 'moment-lang', ($minimize?'vendors/moment/min/lang/'.$lang.'.js':'vendors/moment/lang/'.$lang.'.js'), array());
+
         $diskFile = ZF_CORE_PATH.'res/js/vendors/moment/lang/'.$lang.'.js';
-//        die(file_exists($diskFile));
+
         if($lang!='en' && file_exists($diskFile)){
-            wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/lang/'.$lang.'.js':'res/js/vendors/moment/lang/'.$lang.'.js'), array('moment-base'));
+            $this->registerScript( 'moment', ($minimize?'vendors/moment/min/lang/'.$lang.'.js':'vendors/moment/lang/'.$lang.'.js'), array('moment-base'));
         }else{
-            wp_register_script( 'moment', ZF_CORE_URL.($minimize?'res/js/vendors/moment/min/moment.min.js':'res/js/vendors/moment/moment.js'));
+            $this->registerScript( 'moment', ($minimize?'vendors/moment/min/moment.min.js':'vendors/moment/moment.js'));
         }
-        wp_register_script( 'jquery-ui-templated', ZF_CORE_URL.'res/js/jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
-        wp_register_script( 'underscore-brx', ZF_CORE_URL.'res/js/underscore.brx.js', array(($isAdminPost?'underscore':'Underscore')));
-        wp_register_script( 'backbone-brx', ZF_CORE_URL.'res/js/backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment'));
-//        wp_register_script( 'backbone-brx-model', ZF_CORE_URL.'res/js/backbone.brx.Model.js', array('Backbone', 'nls'));
-//        wp_register_script( 'backbone-brx-view', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'jquery-ui-templated', 'backbone-brx-model'));
-//        wp_register_script( 'backbone-brx-form', ZF_CORE_URL.'res/js/backbone.brx.View.js', array('Backbone', 'nls', 'backbone-brx-view'));
-        wp_register_script( 'backbone-wp-models', ZF_CORE_URL.'res/js/backbone.wp.models.js', array('backbone-brx'));
-        wp_register_script( 'backbone-brx-pagination', ZF_CORE_URL.'res/js/backbone.brx.Pagination.view.js', array('backbone-brx'));
-
-        wp_register_script( 'backbone-brx-spinners', ZF_CORE_URL.'res/js/brx.spinners.view.js', array('backbone-brx'));
-        wp_register_style( 'backbone-brx-spinners', ZF_CORE_URL.'res/css/brx.spinners.view.less');
         
-        wp_register_script( 'jquery-ajax-uploader', ZF_CORE_URL.'res/js/vendors/jquery.ajaxfileupload.js', array('jquery'));
-        wp_register_script( 'jquery-ajax-iframe-uploader', ZF_CORE_URL.'res/js/vendors/jquery.iframe-post-form.js', array('jquery'));
-        wp_register_script( 'jquery-galleria', ZF_CORE_URL.'res/js/vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
-        wp_register_script( 'jquery-masonry', ZF_CORE_URL.'res/js/vendors/jquery.masonry.min.js', array('jquery'));
-
-        wp_register_script( 'jquery-brx-utils', ZF_CORE_URL.'res/js/jquery.brx.utils.js', array('jquery',  'nls'));
-        wp_register_script( 'jquery-brx-placeholder', ZF_CORE_URL.'res/js/jquery.brx.placeholder.js', array('jquery', 'jquery-ui-templated', 'jquery-brx-utils'));
-        wp_register_style( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.css');
-        wp_register_script( 'jquery-brx-spinner', ZF_CORE_URL.'res/js/jquery.brx.spinner.js', array('jquery-ui-templated'));
-        wp_register_script( 'jquery-brx-modalBox', ZF_CORE_URL.'res/js/jquery.brx.modalBox.js', array('jquery-ui-dialog'));
-        wp_register_style( 'backbone-brx-modals', ZF_CORE_URL.'res/css/brx.modals.view.less', array());
-        wp_register_script( 'backbone-brx-modals', ZF_CORE_URL.'res/js/brx.modals.view.js', array('jquery-ui-dialog', 'backbone-brx'));
-        wp_register_script( 'jquery-brx-form', ZF_CORE_URL.'res/js/jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
-        wp_register_script( 'jquery-brx-setupForm', ZF_CORE_URL.'res/js/jquery.brx.setupForm.js', array('jquery-brx-form'));
-        wp_register_script( 'backbone-brx-optionsForm', ZF_CORE_URL.'res/js/brx.OptionsForm.view.js', array('backbone-brx'));
-        wp_register_script( 'backbone-brx-jobControl', ZF_CORE_URL.'res/js/brx.JobControl.view.js', array('backbone-brx', 'jquery-ui-progressbar', 'backbone-brx-spinners'));
-        wp_register_style( 'backbone-brx-jobControl', ZF_CORE_URL.'res/css/brx.JobControl.view.less', array('backbone-brx-spinners'));
-        wp_register_script( 'backbone-brx-attachmentPicker', ZF_CORE_URL.'res/js/brx.AttachmentPicker.view.js', array('backbone-brx', 'backbone-brx-spinners', 'jquery-ajax-iframe-uploader'));
-        wp_register_style( 'backbone-brx-attachmentPicker', ZF_CORE_URL.'res/css/brx.AttachmentPicker.view.less', array('backbone-brx-spinners'));
-        wp_register_style('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/css/brx.TaxonomyPicker.view.less');
-        wp_register_script('backbone-brx-taxonomyPicker', ZF_CORE_URL.'res/js/brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
-        wp_register_style('backbone-brx-ribbonSlider', ZF_CORE_URL.'res/css/brx.RibbonSlider.view.less');
-        wp_register_script('backbone-brx-ribbonSlider', ZF_CORE_URL.'res/js/brx.RibbonSlider.view.js', array('backbone-brx'));
-
-        wp_register_script('google-youtube-loader', ZF_CORE_URL.'res/js/google.YouTube.ApiLoader.js', array('backbone-brx'));
+        $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
-        wp_register_style( 'admin-setupForm', ZF_CORE_URL.'res/css/bem-admin_setup_form.less');
-        wp_register_script( 'jquery-ui-datepicker-ru', ZF_CORE_URL.'res/js/jquery.ui.datepicker-ru.js');
-        wp_register_script( 'jquery-ui-progressbar', ZF_CORE_URL.'res/js/jquery.ui.progressbar.js');
-        wp_register_script( 'bootstrap', ZF_CORE_URL.($minimize?'res/js/vendors/bootstrap.min.js':'res/js/vendors/bootstrap.js'), array('jquery'));
-        wp_register_style( 'bootstrap', ZF_CORE_URL.($minimize?'res/css/bootstrap.min.css':'res/css/bootstrap.css'));
-        wp_register_style( 'bootstrap-responsive', ZF_CORE_URL.($minimize?'res/css/bootstrap-responsive.min.css':'res/css/bootstrap-responsive.css'));
+        $this->registerScript( 'underscore-brx', 'underscore.brx.js', array(($isAdminPost?'underscore':'Underscore')));
+        $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment'));
 
+        $this->registerScript( 'backbone-wp-models', 'backbone.wp.models.js', array('backbone-brx'));
+        $this->registerScript( 'backbone-brx-pagination', 'backbone.brx.Pagination.view.js', array('backbone-brx'));
 
-        wp_register_style( 'normalize', ZF_CORE_URL.'res/css/normalize.css');
+        $this->registerScript( 'jquery-ajax-uploader', 'vendors/jquery.ajaxfileupload.js', array('jquery'));
+        $this->registerScript( 'jquery-ajax-iframe-uploader', 'vendors/jquery.iframe-post-form.js', array('jquery'));
+        $this->registerScript( 'jquery-galleria', 'vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
+        $this->registerScript( 'jquery-masonry', 'vendors/jquery.masonry.min.js', array('jquery'));
+
+        $this->registerScript( 'jquery-brx-utils', 'jquery.brx.utils.js', array('jquery',  'nls'));
+        $this->registerScript( 'jquery-brx-placeholder', 'jquery.brx.placeholder.js', array('jquery', 'jquery-ui-templated', 'jquery-brx-utils'));
+        $this->registerStyle( 'jquery-brx-spinner', 'jquery.brx.spinner.css');
+        $this->registerScript( 'jquery-brx-spinner', 'jquery.brx.spinner.js', array('jquery-ui-templated'));
+        $this->registerScript( 'jquery-brx-modalBox', 'jquery.brx.modalBox.js', array('jquery-ui-dialog'));
+        $this->registerScript( 'jquery-brx-form', 'jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
+        $this->registerScript( 'jquery-brx-setupForm', 'jquery.brx.setupForm.js', array('jquery-brx-form'));
+
+        $this->registerScript( 'backbone-brx-spinners', 'brx.spinners.view.js', array('backbone-brx'));
+        $this->registerStyle( 'backbone-brx-spinners', 'brx.spinners.view.less');
         
-        wp_register_script( 'modenizr', ZF_CORE_URL.'res/js/vendors/modernizr-2.6.2.min.js');
+        $this->registerStyle( 'backbone-brx-modals', 'brx.modals.view.less', array());
+        $this->registerScript( 'backbone-brx-modals', 'brx.modals.view.js', array('jquery-ui-dialog', 'backbone-brx'));
+        $this->registerScript( 'backbone-brx-optionsForm', 'brx.OptionsForm.view.js', array('backbone-brx'));
+        $this->registerScript( 'backbone-brx-jobControl', 'brx.JobControl.view.js', array('backbone-brx', 'jquery-ui-progressbar', 'backbone-brx-spinners'));
+        $this->registerStyle( 'backbone-brx-jobControl', 'brx.JobControl.view.less', array('backbone-brx-spinners'));
+        $this->registerScript( 'backbone-brx-attachmentPicker', 'brx.AttachmentPicker.view.js', array('backbone-brx', 'backbone-brx-spinners', 'jquery-ajax-iframe-uploader'));
+        $this->registerStyle( 'backbone-brx-attachmentPicker', 'brx.AttachmentPicker.view.less', array('backbone-brx-spinners'));
+        $this->registerStyle('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.less');
+        $this->registerScript('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
+        $this->registerStyle('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.less');
+        $this->registerScript('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.js', array('backbone-brx'));
 
-        wp_register_script( 'jquery-scrolly', ZF_CORE_URL.'res/js/vendors/jquery.scrolly.js', array('jquery', 'underscore-brx'));
-
-//        wp_register_script('', $src)
+        $this->registerScript('google-youtube-loader', 'google.YouTube.ApiLoader.js', array('backbone-brx'));
         
+        $this->registerStyle( 'admin-setupForm', 'bem-admin_setup_form.less');
+        $this->registerScript( 'jquery-ui-datepicker-ru', 'jquery.ui.datepicker-ru.js');
+        $this->registerScript( 'jquery-ui-progressbar', 'jquery.ui.progressbar.js');
+        $this->registerScript( 'bootstrap', ($minimize?'vendors/bootstrap.min.js':'vendors/bootstrap.js'), array('jquery'));
+        $this->registerStyle( 'bootstrap', ($minimize?'bootstrap.min.css':'bootstrap.css'));
+        $this->registerStyle( 'bootstrap-responsive', ($minimize?'bootstrap-responsive.min.css':'bootstrap-responsive.css'));
+
+
+        $this->registerStyle( 'normalize', 'normalize.css');
+        
+        $this->registerScript( 'modenizr', 'vendors/modernizr-2.6.2.min.js');
+
+        $this->registerScript( 'jquery-scrolly', 'vendors/jquery.scrolly.js', array('jquery', 'underscore-brx'));
+
         $jQueryThemes = array(
             'black-tie',
             'blitzer',
@@ -428,14 +460,9 @@ class ZF_Core {
         );
         
         foreach($jQueryThemes as $theme){
-//          wp_register_style( 'jquery-ui-smoothness', ZF_CORE_URL.'res/css/jquery-ui-1.9.2.smoothness.css');
-            wp_register_style( 'jquery-ui-'.$theme, self::getJQueryUIThemeCss($theme));
+            $this->registerStyle( 'jquery-ui-'.$theme, self::getJQueryUIThemeCss($theme));
         }
-        wp_register_style( 'jquery-ui', self::getJQueryUIThemeCss());
-        
-        
-        
-//        require_once 'less.php';    
+        $this->registerStyle( 'jquery-ui', self::getJQueryUIThemeCss());
 
     }
 
@@ -449,55 +476,35 @@ class ZF_Core {
             'jquery-ui-1.9.2.custom.css';
         $themeUrl = 'custom' == $theme? 
             '/wp-content/'.OptionHelper::getOption('jQueryUI.themeUrl'):
-            ZF_CORE_URL.sprintf('res/css/jquery-ui/%s/%s', $theme, $themeCss);
+            sprintf('jquery-ui/%s/%s', $theme, $themeCss);
         return $themeUrl;
     }
 
-    public static function registerConsolePages() {
-        add_menu_page('ZF Core', 'ZF Core', 'update_core', 'zf-core-admin', array('ZF_Core', 'renderConsolePageAdmin'), '', null); 
-        add_submenu_page('zf-core-admin', 
-                'jQueryUI theme', 'jQueryUI theme', 'update_core', 'zf-core-jqueryui-theme', 
-                array('ZF_Core', 'renderConsolePageJQueryUIThemeSelect'), '', null); 
-        add_submenu_page('zf-core-admin', 
+    public function registerConsolePages() {
+        $this->addConsolePage('ZF Core', 'ZF Core', 'update_core', 'zf-core-admin', '/admin/');
+
+        $this->addConsoleSubPage('zf-core-admin', 
+                'jQueryUI theme', 'jQueryUI theme', 'update_core', 'zf-core-jqueryui-theme', '/admin/jquery-ui-theme');
+        
+        $this->addConsoleSubPage('zf-core-admin', 
                 'phpinfo()', 'phpinfo()', 'update_core', 'zf-core-phpinfo', 
-                array('ZF_Core', 'renderConsolePagePhpinfo'), '', null); 
-        add_submenu_page('zf-core-admin', 
+                '/admin/phpinfo'); 
+
+        $this->addConsoleSubPage('zf-core-admin', 
                 'WP Hooks', 'WP Hooks', 'update_core', 'zf-core-wp-hooks', 
-                array('ZF_Core', 'renderConsolePageWpHooks'), '', null); 
-        add_submenu_page('zf-core-admin', 
+                '/admin/wp-hooks', '', null); 
+
+        $this->addConsoleSubPage('zf-core-admin', 
                 'E-mail', 'E-mail settings', 'update_core', 'zf-core-email', 
-                array('ZF_Core', 'renderConsolePageEmailOptions'), '', null); 
-        add_submenu_page('zf-core-admin', 
+                '/admin/email-options', '', null); 
+
+        $this->addConsoleSubPage('zf-core-admin', 
                 'Blockade', 'Blockade', 'update_core', 'zf-core-blockade', 
-                array('ZF_Core', 'renderConsolePageBlockadeOptions'), '', null); 
+                '/admin/blockade-options', '', null); 
     }
 
-
-    public static function renderConsolePageAdmin(){
-       echo ZF_Query::processRequest('/admin/', 'ZF_CORE');	
-    }
-
-    public static function renderConsolePageJQueryUIThemeSelect(){
-       echo ZF_Query::processRequest('/admin/jquery-ui-theme', 'ZF_CORE');	
-    }
-
-    public static function renderConsolePagePhpinfo(){
-       echo ZF_Query::processRequest('/admin/phpinfo', 'ZF_CORE');	
-    }
-
-    public static function renderConsolePageWpHooks(){
-       echo ZF_Query::processRequest('/admin/wp-hooks', 'ZF_CORE');	
-    }
-
-    public static function renderConsolePageEmailOptions(){
-       echo ZF_Query::processRequest('/admin/email-options', 'ZF_CORE');	
-    }
     
-    public static function renderConsolePageBlockadeOptions(){
-       echo ZF_Query::processRequest('/admin/blockade-options', 'ZF_CORE');	
-    }
-    
-    public static function addJQueryWidgets(){
+    public function addJQueryWidgets(){
         wp_enqueue_style('jquery-ui');
 //        wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-effects-fade');
@@ -537,7 +544,7 @@ class ZF_Core {
         <?php
     }
     
-    public static function fixTimezone(){
+    public function fixTimezone(){
         if(1):?>
         <script type="text/javascript">
             jQuery(document).ready(function($) {
@@ -556,21 +563,25 @@ class ZF_Core {
         <?php endif;
     }
     
+    /** deprecated **/
     public static function showAdminBar($show = true){
         self::$adminBar = $show;
         add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
     }
     
+    /** deprecated **/
     public static function hideAdminBar(){
         self::$adminBar = false;
         add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
     }
     
+    /** deprecated **/
     public static function showAdminBarToAdminOnly(){
         self::$adminBar = 'admin';
         add_filter('show_admin_bar', array('ZF_Core', 'isAdminBarShown'), 1, 1);
     }
     
+    /** deprecated **/
     public static function isAdminBarShown($show){
         if(self::$adminBar){
             if(self::$adminBar == 'admin'){
@@ -582,7 +593,31 @@ class ZF_Core {
         
         return false;
     }
-    
+
+    public function registerCustomPostTypes() {
+        
+    }
+
+    public function registerSidebars() {
+        
+    }
+
+    public function registerTaxonomies() {
+        
+    }
+
+    public static function baseUrl() {
+        return ZF_CORE_URL;
+    }
+
+    public static function blockStyles($block = true) {
+        
+    }
+
+    public static function getInstance() {
+        return self::$instance;
+    }
+
 } 
     
-ZF_Core::initPlugin();
+ZF_Core::init();

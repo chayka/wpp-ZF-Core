@@ -25,7 +25,6 @@
 //////////////////////////////////////////////////////////////////////
 // This section emulates the Zend Framework bootstrap file, without any application environment
 
-require_once 'ZF-Query.php';
 require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';
 
@@ -60,7 +59,8 @@ class ZF_Core extends WpPlugin{
                 ZF_CORE_APPLICATION_PATH,
                 realpath($pluginDir),
                 )));
-//            die( get_include_path());
+            
+            require_once 'ZF-Query.php';
             // Turn on autoloading, so we do not include each Zend Framework class
             require_once 'Zend/Loader/Autoloader.php';
             $autoloader = Zend_Loader_Autoloader::getInstance();

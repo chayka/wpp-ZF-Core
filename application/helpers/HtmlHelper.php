@@ -110,13 +110,6 @@ class HtmlHelper {
         return self::$mobileDetector;
     }
     
-    public static function renderMultiSpinner($populate='$.brx.multiSpinner'){
-        $view = new Zend_View();
-        $view->setScriptPath(ZF_CORE_PATH.'application/views/scripts');
-        $view->assign('populate', $populate);
-        echo $view->render('backbone/brx.MultiSpinner.phtml');
-    }
-    
 }
 
 

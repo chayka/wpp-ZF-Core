@@ -29,10 +29,10 @@ if($this->attachView){
             <div class="progress_label" attachpoint="progresslabel">100%</div>
         </div>
         <div attachPoint="boxButtons" class="box_buttons">
-            <button class="button_start" attachPoint="buttons.start" attachEvent="start">Start</button>
-            <button class="button_pause" attachPoint="buttons.pause" attachEvent="pause">Pause</button>
-            <button class="button_resume" attachPoint="buttons.resume" attachEvent="resume">Resume</button>
-            <button class="button_stop" attachPoint="buttons.stop" attachEvent="stop">Stop</button>
+            <button class="button button-small button_start" attachPoint="buttons.start" attachEvent="start">Start</button>
+            <button class="button button-small button_pause" attachPoint="buttons.pause" attachEvent="pause">Pause</button>
+            <button class="button button-small button_resume" attachPoint="buttons.resume" attachEvent="resume">Resume</button>
+            <button class="button button-small button_stop" attachPoint="buttons.stop" attachEvent="stop">Stop</button>
             <span class="field_per_iteration" attachPoint="fields.perIteration">
                 <label>Штук за итерацию:</label>
                 <input type="text" value="<?php echo $this->perIteration;?>" attachPoint="inputs.perIteration"/>

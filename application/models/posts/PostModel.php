@@ -663,7 +663,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * Unpacks db record while fetching model from DB 
      * 
      * @param stdObject $wpRecord
-     * @return \self
+     * @return PostModel
      */
     public static function unpackDbRecord( $wpRecord){
         $obj = new self();

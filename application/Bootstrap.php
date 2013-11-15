@@ -28,6 +28,7 @@ class ZFCore_Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
         $router->addRoute(self::MODULE, new Zend_Controller_Router_Route(':controller/:action/*', array('controller' => 'index', 'action'=>'index', 'module'=>self::MODULE)));
         $router->addRoute('autocomplete-taxonomy', new Zend_Controller_Router_Route('autocomplete/taxonomy/:taxonomy', array('controller' => 'autocomplete', 'action'=>'taxonomy', 'module'=>self::MODULE)));
+        $router->addRoute('update-meta-box', new Zend_Controller_Router_Route('metabox/update/:meta_box_id', array('controller' => 'metabox', 'action'=>'update', 'module'=>self::MODULE)));
 //        $router->addRoute('upload-attachment', new Zend_Controller_Router_Route('upload/attachment/*', array('controller' => 'post-model', 'action'=>'upload', 'module'=>self::MODULE)));
         $router->addRoute('zf-setup', new Zend_Controller_Router_Route('zf-setup/:action/*', array('controller' => 'admin', 'action'=>'index', 'module'=>self::MODULE)));
         $router->addRoute('restfull', $r);

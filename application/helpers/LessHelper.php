@@ -14,7 +14,8 @@ class LessHelper {
             require "library/lessc.inc.php";
 
             self::$instance = new lessc();
-            self::$instance->setFormatter('compressed');
+            $minimize = OptionHelper::getOption('minimizeMedia');
+            self::$instance->setFormatter($minimize?'compressed':'classic');
         }
         return self::$instance;
     }

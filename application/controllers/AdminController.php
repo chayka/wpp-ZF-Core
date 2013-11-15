@@ -1,10 +1,5 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of AdminController
  *
@@ -17,70 +12,74 @@ class ZFCore_AdminController extends Zend_Controller_Action{
     
     public function indexAction(){
 //        Util::turnRendererOff();
-        wp_enqueue_style('zf-core-admin', ZF_CORE_URL.'res/css/bem-zf_core_admin.less');
-        wp_enqueue_style('admin-setupForm');
+//        wp_enqueue_style('zf-core-admin', ZF_CORE_URL.'res/css/bem-zf_core_admin.less');
+        wp_enqueue_style('backbone-brx-optionsForm');
         wp_enqueue_script('backbone-brx-optionsForm');
 //        echo "Hi, i'm admin area";
     }
     
     public function emailOptionsAction(){
-        wp_enqueue_style('admin-setupForm');
-        wp_enqueue_script('jquery-brx-setupForm');
+        wp_enqueue_style('backbone-brx-optionsForm');
+        wp_enqueue_script('backbone-brx-optionsForm');
+//        wp_enqueue_style('backbone-brx-spinners');
+//        wp_enqueue_script('backbone-brx-spinners');
+//        wp_enqueue_style('admin-setupForm');
+//        wp_enqueue_script('jquery-brx-setupForm');
 
 //        $this->view->template = $options['template'] = get_option('EmailHelper.template', '', true);
-        $this->view->mail_from = $options['mail_from'] = get_option('EmailHelper.mail_from', 'postmaser@'.Util::serverName());
-        $this->view->mail_from_name = $options['mail_from_name'] = get_option('EmailHelper.mail_from_name', Util::serverName());
-        $this->view->mailer = $options['mailer'] = get_option('EmailHelper.mailer', 'php');
-        $this->view->smtp_host = $options['smtp_host'] = get_option('EmailHelper.smtp_host', 'localhost');
-        $this->view->smtp_port = $options['smtp_port'] = get_option('EmailHelper.smtp_port', '25');
-        $this->view->smtp_ssl = $options['smtp_ssl'] = get_option('EmailHelper.smtp_ssl', 'none');
-        $this->view->smtp_auth = $options['smtp_auth'] = get_option('EmailHelper.smtp_auth', false);
-        $this->view->smtp_user = $options['smtp_user'] = get_option('EmailHelper.smtp_user', '');
-        $this->view->smtp_pass = $options['smtp_pass'] = get_option('EmailHelper.smtp_pass', '');
-
-        $this->view->options = $options;
+//        $this->view->mail_from = $options['mail_from'] = get_option('EmailHelper.mail_from', 'postmaser@'.Util::serverName());
+//        $this->view->mail_from_name = $options['mail_from_name'] = get_option('EmailHelper.mail_from_name', Util::serverName());
+//        $this->view->mailer = $options['mailer'] = get_option('EmailHelper.mailer', 'php');
+//        $this->view->smtp_host = $options['smtp_host'] = get_option('EmailHelper.smtp_host', 'localhost');
+//        $this->view->smtp_port = $options['smtp_port'] = get_option('EmailHelper.smtp_port', '25');
+//        $this->view->smtp_ssl = $options['smtp_ssl'] = get_option('EmailHelper.smtp_ssl', 'none');
+//        $this->view->smtp_auth = $options['smtp_auth'] = get_option('EmailHelper.smtp_auth', false);
+//        $this->view->smtp_user = $options['smtp_user'] = get_option('EmailHelper.smtp_user', '');
+//        $this->view->smtp_pass = $options['smtp_pass'] = get_option('EmailHelper.smtp_pass', '');
+//
+//        $this->view->options = $options;
         
     }
     
-    public function updateEmailOptionsAction(){
-        Util::turnRendererOff();
-
-//        $template = InputHelper::getParam('template');
-        $mail_from = InputHelper::getParam('mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
-        $mail_from_name = InputHelper::getParam('mail_from_name', $_SERVER['SERVER_NAME']);
-        $mailer = InputHelper::getParam('mailer', 'php');
-        $smtp_host = InputHelper::getParam('smtp_host', 'localhost');
-        $smtp_port = InputHelper::getParam('smtp_port', '25');
-        $smtp_ssl  = InputHelper::getParam('smtp_ssl', 'none');
-        $smtp_auth  = InputHelper::getParam('smtp_auth', false);
-        $smtp_user  = InputHelper::getParam('smtp_user', '');
-        $smtp_pass  = InputHelper::getParam('smtp_pass', '');
-
-//        update_option('EmailHelper.template', $template);
-        update_option('EmailHelper.mail_from', $mail_from);
-        update_option('EmailHelper.mail_from_name', $mail_from_name);
-        update_option('EmailHelper.mailer', $mailer);
-        update_option('EmailHelper.smtp_host', $smtp_host);
-        update_option('EmailHelper.smtp_port', $smtp_port);
-        update_option('EmailHelper.smtp_ssl', $smtp_ssl);
-        update_option('EmailHelper.smtp_auth', $smtp_auth);
-        update_option('EmailHelper.smtp_user', $smtp_user);
-        update_option('EmailHelper.smtp_pass', $smtp_pass);
-        
-        JsonHelper::respond(array(
-//            'template' => get_option('EmailHelper.template', '', true),
-            'mail_from' => get_option('EmailHelper.mail_from', 'postmaster@'.$_SERVER['SERVER_NAME']),
-            'mail_from_name' => get_option('EmailHelper.mail_from_name', $_SERVER['SERVER_NAME']),
-            'mailer' => get_option('EmailHelper.mailer', 'php'),
-            'smtp_host' => get_option('EmailHelper.smtp_host', 'localhost'),
-            'smtp_port' => get_option('EmailHelper.smtp_port', '25'),
-            'smtp_ssl' => get_option('EmailHelper.smtp_ssl', 'none'),
-            'smtp_auth' => get_option('EmailHelper.smtp_auth', false),
-            'smtp_user' => get_option('EmailHelper.smtp_user', ''),
-            'smtp_pass' => get_option('EmailHelper.smtp_pass', ''),
-        ));
-        
-    }
+//    public function updateEmailOptionsAction(){
+//        Util::turnRendererOff();
+//
+////        $template = InputHelper::getParam('template');
+//        $mail_from = InputHelper::getParam('mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
+//        $mail_from_name = InputHelper::getParam('mail_from_name', $_SERVER['SERVER_NAME']);
+//        $mailer = InputHelper::getParam('mailer', 'php');
+//        $smtp_host = InputHelper::getParam('smtp_host', 'localhost');
+//        $smtp_port = InputHelper::getParam('smtp_port', '25');
+//        $smtp_ssl  = InputHelper::getParam('smtp_ssl', 'none');
+//        $smtp_auth  = InputHelper::getParam('smtp_auth', false);
+//        $smtp_user  = InputHelper::getParam('smtp_user', '');
+//        $smtp_pass  = InputHelper::getParam('smtp_pass', '');
+//
+////        update_option('EmailHelper.template', $template);
+//        update_option('EmailHelper.mail_from', $mail_from);
+//        update_option('EmailHelper.mail_from_name', $mail_from_name);
+//        update_option('EmailHelper.mailer', $mailer);
+//        update_option('EmailHelper.smtp_host', $smtp_host);
+//        update_option('EmailHelper.smtp_port', $smtp_port);
+//        update_option('EmailHelper.smtp_ssl', $smtp_ssl);
+//        update_option('EmailHelper.smtp_auth', $smtp_auth);
+//        update_option('EmailHelper.smtp_user', $smtp_user);
+//        update_option('EmailHelper.smtp_pass', $smtp_pass);
+//        
+//        JsonHelper::respond(array(
+////            'template' => get_option('EmailHelper.template', '', true),
+//            'mail_from' => get_option('EmailHelper.mail_from', 'postmaster@'.$_SERVER['SERVER_NAME']),
+//            'mail_from_name' => get_option('EmailHelper.mail_from_name', $_SERVER['SERVER_NAME']),
+//            'mailer' => get_option('EmailHelper.mailer', 'php'),
+//            'smtp_host' => get_option('EmailHelper.smtp_host', 'localhost'),
+//            'smtp_port' => get_option('EmailHelper.smtp_port', '25'),
+//            'smtp_ssl' => get_option('EmailHelper.smtp_ssl', 'none'),
+//            'smtp_auth' => get_option('EmailHelper.smtp_auth', false),
+//            'smtp_user' => get_option('EmailHelper.smtp_user', ''),
+//            'smtp_pass' => get_option('EmailHelper.smtp_pass', ''),
+//        ));
+//        
+//    }
     
     public function jqueryUiThemeAction(){
         $themeUrl = InputHelper::getParam('theme_url');
@@ -166,49 +165,49 @@ class ZFCore_AdminController extends Zend_Controller_Action{
     }
     
     public function blockadeOptionsAction(){
-        wp_enqueue_style('admin-setupForm');
+        wp_enqueue_style('backbone-brx-optionsForm');
         wp_enqueue_script('backbone-brx-optionsForm');
         
     }
     
-    public function contentFragmentMetaboxAction(){
-        global $post;
-        
-        $zfPost = PostModel::unpackDbRecord($post);
-//        wp_enqueue_style('admin-editor');
-//        wp_enqueue_script('admin-editor');
-        wp_nonce_field( ZF_CORE_PATH, 'content_fragment_metabox_content_nonce' );
-        $meta = get_post_meta($post->ID, null, true);
-//        Util::print_r($meta);
-        $meta = array();
-        $this->view->linkTo = $meta['link_to'] = get_post_meta($post->ID, 'content_fragment_link_to', true);
-
-        $this->view->meta = $meta;
-        
-        $this->view->postId = $post->ID;
-        $this->view->zfPost = $zfPost;
-        
-    }
+//    public function contentFragmentMetaboxAction(){
+//        global $post;
+//        
+//        $zfPost = PostModel::unpackDbRecord($post);
+////        wp_enqueue_style('admin-editor');
+////        wp_enqueue_script('admin-editor');
+//        wp_nonce_field( ZF_CORE_PATH, 'content_fragment_metabox_content_nonce' );
+////        Util::print_r($meta);
+//        $meta = array();
+//        $this->view->linkTo = $meta['link_to'] = get_post_meta($post->ID, 'content_fragment_link_to', true);
+//
+//        $this->view->meta = $meta;
+//        
+//        $this->view->postId = $post->ID;
+//        $this->view->zfPost = $zfPost;
+//        
+//    }
     
-    public function updateContentFragmentAction(){
-        Util::turnRendererOff();
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-        $postId = InputHelper::getParam('post_id');
-
-        if (!current_user_can('edit_post', $postId)) {
-            return;
-        }
-
-        if (!wp_verify_nonce($_POST['content_fragment_metabox_content_nonce'], ZF_CORE_PATH)) {
-            return;
-        }
-
-        $linkTo = InputHelper::getParam('content_fragment_link_to');
-        update_post_meta($postId, 'content_fragment_link_to', $linkTo);
         
-        return;
-    }
+//    public function updateContentFragmentAction(){
+//        Util::turnRendererOff();
+//        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+//            return;
+//        }
+//        $postId = InputHelper::getParam('post_id');
+//
+//        if (!current_user_can('edit_post', $postId)) {
+//            return;
+//        }
+//
+//        if (!wp_verify_nonce($_POST['content_fragment_metabox_content_nonce'], ZF_CORE_PATH)) {
+//            return;
+//        }
+//
+//        $linkTo = InputHelper::getParam('content_fragment_link_to');
+//        update_post_meta($postId, 'content_fragment_link_to', $linkTo);
+//        
+//        return;
+//    }
     
 }

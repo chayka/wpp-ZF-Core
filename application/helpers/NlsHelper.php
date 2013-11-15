@@ -12,7 +12,11 @@ class NlsHelper {
     protected static $nlsJsUrl;
     protected static $nlsJsDir;
     
-
+    /**
+     * returns Zend_Translate instance
+     * 
+     * @return Zend_Translate
+     */
     public static function getInstance() {
         if (!self::$instance) {
             self::$instance = new Zend_Translate('array', array(
@@ -22,15 +26,27 @@ class NlsHelper {
         return self::$instance;
     }
 
+    /**
+     * Set current language
+     * 
+     * @param type $lang
+     */
     public static function setLang($lang) {
         self::$lang = $lang;
     }
     
+    /**
+     * Function returns current language
+     * 
+     * @return string
+     */
     public static function getLang() {
         if (!self::$lang) {
             $locale = new Zend_Locale('en-us');
             try {
-                $locale = new Zend_Locale(Zend_Locale::BROWSER);
+                $option = OptionHelper::getOption('nlsLanguage', 'auto');
+//                die($option);
+                $locale = new Zend_Locale('auto' == $option? Zend_Locale::BROWSER: $option);
             } catch (Zend_Locale_Exception $e) {
                 $locale = new Zend_Locale('en-us');
             }
@@ -39,6 +55,12 @@ class NlsHelper {
         return self::$lang;
     }
     
+    /**
+     * This function detects Plugin or Theme that load localization at the present time.
+     * Used by load() function
+     * 
+     * @param string $path
+     */
     public static function setCurrentPlugin($path = ''){
         if(!$path){
             $bt = debug_backtrace();
@@ -62,16 +84,32 @@ class NlsHelper {
 //        Util::print_r(array(self::$nlsDir, self::$nlsJsDir, self::$nlsJsUrl));
     }
     
+    /**
+     * Set NLS dir for php
+     * 
+     * @param type $dir
+     */
     public static function setNlsDir($dir){
         self::$nlsDir = $dir;
     }
     
+    /**
+     * Get NLS dir for php
+     * 
+     * @param type $dir
+     */
     public static function getNlsDir(){
         return self::$nlsDir;
     }
 
-    public static function load($module, $nlsDir = null) {
-        self::setCurrentPlugin();
+    /**
+     * Load nls translation for the specified module
+     * 
+     * @param string $module
+     * @param string $nlsDir
+     */
+    public static function load($module, $nlsDir = null, $pluginDir = null) {
+        self::setCurrentPlugin($pluginDir);
         $nlsDir = $nlsDir?$nlsDir:self::getNlsDir();
         $srcLang = $nlsDir . self::getLang() . '/' . $module . '.' .self::getLang() .'.php';
         $srcDefault = $nlsDir . '/_default/' . $module . '._default.php';
@@ -79,16 +117,37 @@ class NlsHelper {
         self::getInstance()->addTranslation($src, self::getLang());
     }
 
-    public static function updateScriptPath(Zend_View $view) {
-        self::setCurrentPlugin();
+    /**
+     * If you need to use localized .phtml views (templates)
+     * you should call updateScriptPath(Zend_View $view) before 
+     * $view->render('...') call.
+     * In this case localized views will be searched in
+     * <plugin_or_theme_dir>/nls/<lng|_default>/views
+     * 
+     * @param Zend_View $view
+     */
+    public static function updateScriptPath(Zend_View $view = null, $pluginDir = null) {
+        self::setCurrentPlugin($pluginDir);
         $nlsScriptsDir = self::getNlsDir() . self::getLang().'/views';
         if (is_dir($nlsScriptsDir)) {
             $view->addScriptPath($nlsScriptsDir);
         }
     }
     
-    public static function registerScriptNls($handle, $script, $deps = array(), $ver = false, $in_footer = false){
-        self::setCurrentPlugin();
+    /**
+     * Register localization script.
+     * Keep in mind that you should add $handle to the dependecy array of the 
+     * script that is being localized;
+     * 
+     * @param type $handle
+     * @param type $script
+     * @param string $deps
+     * @param type $ver
+     * @param type $in_footer
+     * @return type
+     */
+    public static function registerScriptNls($handle, $script, $deps = array(), $ver = false, $in_footer = false, $pluginDir = null){
+        self::setCurrentPlugin($pluginDir);
         $nlsScript = FsHelper::setExtensionPrefix($script, self::getLang());
 //        echo "$nlsScript<br/>";
         if(!file_exists(self::$nlsJsDir.$nlsScript)){
@@ -110,6 +169,14 @@ class NlsHelper {
         wp_register_script($handle, $src, $deps, $ver, $in_footer);
     }
 
+    /**
+     * Get localized value, or value itself if localiztion is not found
+     * This function can get multiple args and work like sprintf($template, $arg1, ... $argN)
+     * Hint: Use $format = 'На %2$s сидят %1$d обезьян';
+     * 
+     * @param string $value String to translate
+     * @return string
+     */
     public static function _($value) {
         if(func_num_args()>1){
             $args = func_get_args();
@@ -119,15 +186,23 @@ class NlsHelper {
         return self::getInstance()->_($value);
     }
     
+    /**
+     * Echo localized value, or value itself if localiztion is not found
+     * This function can get multiple args and work like sprintf($template, $arg1, ... $argN)
+     * Hint: Use $format = 'На %2$s сидят %1$d обезьян';
+     * 
+     * @param string $value String to translate
+     * @return string
+     */
     public static function __($value){
         if(func_num_args()>1){
             $args = func_get_args();
             $args[0] = self::getInstance()->_($value);
-            echo call_user_func_array('sprintf', $args);
-            return ;
+            echo $res = call_user_func_array('sprintf', $args);
+            return $res;
         }
-        echo self::getInstance()->_($value);
-        return;
+        echo $res = self::getInstance()->_($value);
+        return $res;
     }
 
 }

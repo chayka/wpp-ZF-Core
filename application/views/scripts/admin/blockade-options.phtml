@@ -12,10 +12,10 @@
     <h2>Блокировка сайта</h2>
 </div>
 
-<div class="bem-admin_setup_form " backbone-view="brx.OptionsForm" scope="site" prefix="BlockadeHelper" style="display: none;">
+<div class="brx-options_form" backbone-view="brx.OptionsForm" scope="site" prefix="BlockadeHelper" style="display: none;">
     <div class="form_fields">
-        <div class="form_field field_is_blocked" attachpoint="fields.isBlocked">
-            <label>Блокировка сайта:</label>
+        <div class="form_field stretch field_is_blocked" attachpoint="fields.isBlocked">
+            <label class="width35">Блокировка сайта:</label>
             <span class="form_field-input_box">
                 <select>
                     <option value="0">Сайт разблокирован</option>
@@ -24,14 +24,14 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_title" attachpoint="fields.title">
-            <label>Заголовок:</label>
+        <div class="form_field stretch field_title" attachpoint="fields.title">
+            <label class="width25">Заголовок:</label>
             <span class="form_field-input_box">
                 <input type="text"/>
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_message" attachpoint="fields.message">
+        <div class="form_field fullsize field_message" attachpoint="fields.message">
             <label>Сообщение:</label>
             <span class="form_field-input_box">
                 <textarea>
@@ -41,7 +41,8 @@
         </div>
     </div>
     <div class="button_pane">
-        <button widget="button" attachevent="saveOptions">Применить</button>
+        <button class="button button-large button-primary" attachevent="saveOptions">Применить</button>
     </div>
 </div>
+<?php WidgetHelper::renderMultiSpinner();?>
 <?php ZF_Core::addJQueryWidgets();?>

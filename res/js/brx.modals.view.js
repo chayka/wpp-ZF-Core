@@ -119,8 +119,8 @@
             title: title || 'Подтверждение',
             modalClass: 'modal_confirm',
             buttons: [
-                {text: 'Да', click: callback/*function() {$(this).dialog("close");callback();}*/},
-                {text: 'Нет'/*, click: function() {$(this).dialog("close");}*/}
+                {text: 'Да', click: callback},
+                {text: 'Нет'}
             ]
         });
         

@@ -6,83 +6,85 @@
     <h2>Настройки почтового сервера</h2>
 </div>
 
-<div class="bem-admin_setup_form " widget="brx.setupForm" url="/api/zf-setup/update-email-options" style="display: none;">
+<!--<div class="bem-admin_setup_form " widget="brx.setupForm" url="/api/zf-setup/update-email-options" style="display: none;">-->
+<div class="brx-options_form" backbone-view="brx.OptionsForm" scope="" prefix="EmailHelper" style="display: none;">
     <div class="form_fields">
-        <div class="form_field field_template" attachpoint="fields.template">
-            <label>Шаблон стандартного письма:</label>
-            <span class="form_field-input_box"><input name="template" type="text" value="<?php echo $this->escape($this->template); ?>"/></span>
+        <div class="form_field stretch field_template" attachpoint="fields.template">
+            <label class="width50">Шаблон стандартного письма:</label>
+            <span class="form_field-input_box"><input name="template" type="text" value="<?php //echo $this->escape($this->template); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_mail_from" attachpoint="fields.mail_from">
-            <label>От кого (email):</label>
-            <span class="form_field-input_box"><input name="mail_from" type="text" value="<?php echo $this->escape($this->mail_from); ?>"/></span>
+        <div class="form_field stretch field_mail_from" attachpoint="fields.mail_from">
+            <label class="width35">От кого (email):</label>
+            <span class="form_field-input_box"><input name="mail_from" type="text" value="<?php //echo $this->escape($this->mail_from); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_from_name" attachpoint="fields.mail_from_name">
-            <label>От кого (имя):</label>
-            <span class="form_field-input_box"><input name="mail_from_name" type="text" value="<?php echo $this->escape($this->mail_from_name); ?>"/></span>
+        <div class="form_field stretch field_from_name" attachpoint="fields.mail_from_name">
+            <label class="width35">От кого (имя):</label>
+            <span class="form_field-input_box"><input name="mail_from_name" type="text" value="<?php //echo $this->escape($this->mail_from_name); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_mailer" attachpoint="fields.mailer">
-            <label>Транспорт:</label>
+        <div class="form_field stretch field_mailer" attachpoint="fields.mailer">
+            <label class="width35">Транспорт:</label>
             <span class="form_field-input_box">
-                <?php echo $this->formSelect('mailer', $this->mailer, array(), array(
+                <?php echo $this->formSelect('mailer', /*$this->mailer*/'php', array(), array(
                     'php'=>'php',
                     'smtp'=>'smtp',
                     'dkim'=>'dkim'
                 ));?>
-                <!--input name="mailer" type="text" value="<?php echo $this->escape($this->mailer); ?>"/-->
+                <!--input name="mailer" type="text" value="<?php //echo $this->escape($this->mailer); ?>"/-->
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_template" attachpoint="fields.smtp_host">
-            <label>SMTP-Сервер:</label>
-            <span class="form_field-input_box"><input name="smtp_host" type="text" value="<?php echo $this->escape($this->smtp_host); ?>"/></span>
+        <div class="form_field stretch field_template" attachpoint="fields.smtp_host">
+            <label class="width35">SMTP-Сервер:</label>
+            <span class="form_field-input_box"><input name="smtp_host" type="text" value="<?php //echo $this->escape($this->smtp_host); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_smtp_port" attachpoint="fields.smtp_port">
-            <label>SMTP-Порт:</label>
-            <span class="form_field-input_box"><input name="smtp_port" type="text" value="<?php echo $this->escape($this->smtp_port); ?>"/></span>
+        <div class="form_field stretch field_smtp_port" attachpoint="fields.smtp_port">
+            <label class="width35">SMTP-Порт:</label>
+            <span class="form_field-input_box"><input name="smtp_port" type="text" value="<?php //echo $this->escape($this->smtp_port); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_smtp_ssl" attachpoint="fields.smtp_ssl">
-            <label>SSL:</label>
+        <div class="form_field stretch field_smtp_ssl" attachpoint="fields.smtp_ssl">
+            <label class="width35">SSL:</label>
             <span class="form_field-input_box">
-                <?php echo $this->formSelect('smtp_ssl', $this->mailer, array(), array(
+                <?php echo $this->formSelect('smtp_ssl', /*$this->mailer*/'none', array(), array(
                     'none'=>'none',
                     'tsl'=>'tsl',
                 ));?>
-                <!--input name="smtp_ssl" type="text" value="<?php echo $this->escape($this->smtp_ssl); ?>"/-->
+                <!--input name="smtp_ssl" type="text" value="<?php //echo $this->escape($this->smtp_ssl); ?>"/-->
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_smtp_auth" attachpoint="fields.smtp_auth">
-            <label>Авторизация по smtp:</label>
+        <div class="form_field stretch field_smtp_auth" attachpoint="fields.smtp_auth">
+            <label class="width35">Авторизация по smtp:</label>
             <span class="form_field-input_box">
-                <?php echo $this->formSelect('smtp_auth', $this->mailer, array(), array(
+                <?php echo $this->formSelect('smtp_auth', /*$this->mailer*/'0', array(), array(
                     '0'=>'Нет',
                     '1'=>'Да',
                 ));?>
-                <!--input name="smtp_auth" type="text" value="<?php echo $this->escape($this->smtp_auth); ?>"/-->
+                <!--input name="smtp_auth" type="text" value="<?php // echo $this->escape($this->smtp_auth); ?>"/-->
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_smtp_user" attachpoint="fields.smtp_user">
-            <label>Пользователь:</label>
-            <span class="form_field-input_box"><input name="smtp_user" type="text" value="<?php echo $this->escape($this->smtp_user); ?>"/></span>
+        <div class="form_field stretch field_smtp_user" attachpoint="fields.smtp_user">
+            <label class="width35">Пользователь:</label>
+            <span class="form_field-input_box"><input name="smtp_user" type="text" value="<?php // echo $this->escape($this->smtp_user); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field field_smtp_pass" attachpoint="fields.smtp_pass">
-            <label>Пароль:</label>
-            <span class="form_field-input_box"><input name="smtp_pass" type="text" value="<?php echo $this->escape($this->smtp_pass); ?>"/></span>
+        <div class="form_field stretch field_smtp_pass" attachpoint="fields.smtp_pass">
+            <label class="width35">Пароль:</label>
+            <span class="form_field-input_box"><input name="smtp_pass" type="text" value="<?php // echo $this->escape($this->smtp_pass); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
     </div>
     <div class="button_pane">
-        <button widget="button" attachevent="saveOptions">Сохранить</button>
+        <button class="button button-large button-primary" attachevent="saveOptions">Сохранить</button>
     </div>
     <script type="text/javascript">
-        window.setupOptions = <?php echo JsonHelper::encode($this->options);?>;
+    //    window.setupOptions = <?php //echo JsonHelper::encode($this->options);?>;
     </script>
 </div>
+<?php WidgetHelper::renderMultiSpinner();?>
 <?php ZF_Core::addJQueryWidgets();?>

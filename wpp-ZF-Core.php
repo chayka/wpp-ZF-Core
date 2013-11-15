@@ -269,7 +269,7 @@ class ZF_Core extends WpPlugin{
         );
         register_post_type(self::POST_TYPE_CONTENT_FRAGMENT, $args);
         self::registerTaxonomyContentFagmentTag();
-        self::getInstance()->addAction('add_meta_boxes', 'addMetaBoxContentFragment' );
+        self::getInstance()->addMetaBoxContentFragment();
 //        add_action('add_meta_boxes', array('ZF_Core', 'addMetaBoxContentFragment') );
 //        add_action('save_post', array('ZF_Core', 'savePost'), 10, 2);
     }
@@ -284,9 +284,9 @@ class ZF_Core extends WpPlugin{
 //            'high'
 //        );
         $this->addMetaBox( 
-            'content_fragment_metabox',
+            'content_fragment',
             'Advanced',
-            '/admin/content-fragment-metabox',
+            '/metabox/content-fragment',
             'normal',
             'high',
             self::POST_TYPE_CONTENT_FRAGMENT
@@ -299,11 +299,11 @@ class ZF_Core extends WpPlugin{
 //    }
     
     public function savePost($postId, $post){
-        switch($post->post_type){
-            case self::POST_TYPE_CONTENT_FRAGMENT:
-                ZF_Query::processRequest('/admin/update-content-fragment/post_id/'.$postId, 'ZF_CORE');
-                break;
-        }
+//        switch($post->post_type){
+//            case self::POST_TYPE_CONTENT_FRAGMENT:
+//                ZF_Query::processRequest('/admin/update-content-fragment/post_id/'.$postId, 'ZF_CORE');
+//                break;
+//        }
     }
     
     public static function registerTaxonomyContentFagmentTag(){
@@ -344,6 +344,8 @@ class ZF_Core extends WpPlugin{
 //            add_action('wp_footer', array('ZF_Core', 'fixTimezone'));
             $this->addAction('wp_footer', 'fixTimezone');
         }
+        
+        $this->addAction('admin_print_styles', 'addAdminStyles');
         
     }
     
@@ -406,6 +408,7 @@ class ZF_Core extends WpPlugin{
         
         $this->registerStyle( 'backbone-brx-modals', 'brx.modals.view.less', array());
         $this->registerScript( 'backbone-brx-modals', 'brx.modals.view.js', array('jquery-ui-dialog', 'backbone-brx'));
+        $this->registerStyle( 'backbone-brx-optionsForm', 'brx.OptionsForm.view.less');
         $this->registerScript( 'backbone-brx-optionsForm', 'brx.OptionsForm.view.js', array('backbone-brx'));
         $this->registerScript( 'backbone-brx-jobControl', 'brx.JobControl.view.js', array('backbone-brx', 'jquery-ui-progressbar', 'backbone-brx-spinners'));
         $this->registerStyle( 'backbone-brx-jobControl', 'brx.JobControl.view.less', array('backbone-brx-spinners'));
@@ -463,9 +466,17 @@ class ZF_Core extends WpPlugin{
             $this->registerStyle( 'jquery-ui-'.$theme, self::getJQueryUIThemeCss($theme));
         }
         $this->registerStyle( 'jquery-ui', self::getJQueryUIThemeCss());
+        
+        $this->registerStyle('brx-forms', 'brx.forms.less');
+        $this->registerStyle('brx-wp-admin', 'brx.wp.admin.less');
 
     }
 
+    public function addAdminStyles(){
+        wp_enqueue_style('brx-forms');
+        wp_enqueue_style('brx-wp-admin');
+    }
+    
     public static function getJQueryUIThemeCss($theme = ''){
         if(!$theme){
             $theme = OptionHelper::getOption('jQueryUI.theme', 'smoothness');

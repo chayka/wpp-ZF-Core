@@ -26,7 +26,8 @@ abstract class WpPlugin{
             || define( $this->appId.'_URL',  $this->baseUrl);
 //        Util::print_r($this->basePath().'res/css');
         LessHelper::addImportDir($this->getBasePath().'res/css');
-        $this->registerResources();
+        $minimize = OptionHelper::getOption('minimizeMedia');
+        $this->registerResources($minimize);
         $this->registerRoutes($routes);
         $this->registerCustomPostTypes();
         $this->registerTaxonomies();
@@ -102,6 +103,10 @@ abstract class WpPlugin{
     
     abstract public function registerSidebars();
     
+    public function registerSidebar($name, $id){
+        register_sidebar(array('name' => $name, 'id'=>$id));
+    }
+    
     /**
      * You need to implement savePost(), deletePost() and trashedPost()
      * 
@@ -147,6 +152,7 @@ abstract class WpPlugin{
         $this->addFilter('post_type_link', 'postPermalink', 1, 3);
         $this->addFilter('post_link', 'postPermalink', 1, 3);
         $this->addFilter('term_link', 'termLink', 1, 3);
+        $this->addFilter('author_link', 'userLink', 1, 3);
     }
     
     /**
@@ -156,7 +162,7 @@ abstract class WpPlugin{
      * @param boolean   $leavename
      * @return string
      */
-    public static function postPermalink($permalink, $post, $leavename = false){
+    public function postPermalink($permalink, $post, $leavename = false){
         switch($post->post_type){
             case 'post':
                 return '/entry/'.$post->ID.'/'.($leavename?'%postname%':$post->post_name);
@@ -173,8 +179,19 @@ abstract class WpPlugin{
      * @param string $taxonomy
      * @return string
      */
-    public static function termLink($link, $term, $taxonomy){
+    public function termLink($link, $term, $taxonomy){
         return $link;
+    }
+
+    /**
+     * 
+     * @param string $link
+     * @param integer $userId
+     * @param string $nicename
+     * @return string
+     */
+    public function userLink($link, $userId, $nicename){
+        return sprintf('/user/%s/', $nicename);
     }
 //    abstract public static function enableSearch($query);
 //    
@@ -194,16 +211,20 @@ abstract class WpPlugin{
         wp_register_script($handle, $this->getUrlJs($relativeResJsPath), $dependencies);
     }
     
+    public function registerScriptNls($handle, $relativeResJsPath, $dependencies = array()){
+        NlsHelper::registerScriptNls($handle, $relativeResJsPath, $dependencies, null, null, $this->basePath);
+    }
+    
     abstract public function registerActions();
     
     public function addAction($action, $method, $priority = 10, $numberOfArguments = 1){
-        return add_action($action, $this->getCallbackMethod($method), $priority, $numberOfArguments);
+        return add_action($action, is_array($method)?$method:$this->getCallbackMethod($method), $priority, $numberOfArguments);
     }
     
     abstract public function registerFilters();
     
     public function addFilter($filter, $method, $priority = 10, $numberOfArguments = 1){
-        return add_filter($filter, $this->getCallbackMethod($method), $priority, $numberOfArguments);
+        return add_filter($filter, is_array($method)?$method:$this->getCallbackMethod($method), $priority, $numberOfArguments);
     }
     
     public function processRequest($requestUri){
@@ -258,7 +279,9 @@ abstract class WpPlugin{
      * You should implement registerMetaBoxes();
      */
     public function addSupport_Metaboxes(){
-        $this->addAction('add_meta_boxes', 'registerMetaBoxes');
+        $this->addAction('add_meta_boxes', 'addMetaBoxes');
+        $this->addAction('save_post', 'updateMetaBoxes', 50, 2);
+        $this->registerMetaBoxes();
     }
     
     /**
@@ -270,16 +293,55 @@ abstract class WpPlugin{
     
     public function renderMetaBox($post, $box){
         $boxId = Util::getItem($box, 'id');
-        $requestUri = Util::getItem($this->metaBoxUris, $boxId);
-        
+        $params = Util::getItem($this->metaBoxUris, $boxId, array());
+        $requestUri = Util::getItem($params, 'renderUri');
         $this->renderRequest($requestUri);
     }
 
+    /**
+     * 
+     * @param integer $postId
+     * @param WP_Post $post
+     */
+    public function updateMetaBoxes($postId, $post){
+        foreach($this->metaBoxUris as $id=>$uri){
+            ZF_Query::processRequest('/metabox/update/'.$id, 'ZF_CORE');
+        }
+    }
+    
+    /**
+     * Add Metabox
+     * 
+     * @param string $id
+     * @param string $title
+     * @param string $renderUri
+     * @param string $context 'normal', 'advanced', or 'side'
+     * @param string $priority 'high', 'core', 'default' or 'low'
+     * @param string $screen post type
+     */
     public function addMetaBox($id, $title, $renderUri, $context = 'advanced', $priority = 'default', $screen = null){
         
-        $this->metaBoxUris[$id] = $renderUri;
+//        $this->metaBoxUris[$id] = $renderUri;
+        $this->metaBoxUris[$id] = array(
+            'title' => $title,
+            'renderUri' => $renderUri,
+            'context' => $context,
+            'priority' => $priority,
+            'screen' => $screen,
+        );
         
-        add_meta_box($id, $title, $this->getCallbackMethod('renderMetaBox'), $screen, $context, $priority);
+    }
+    
+    public function addMetaBoxes(){
+        foreach($this->metaBoxUris as $id => $params){
+            $title = Util::getItem($params, 'title');
+            $context = Util::getItem($params, 'context');
+            $priority = Util::getItem($params, 'priority');
+            $screen = Util::getItem($params, 'screen');
+            add_meta_box($id, $title, $this->getCallbackMethod('renderMetaBox'), $screen, $context, $priority);
+        }
+        
+        wp_enqueue_style('brx-wp-admin');
     }
 
 }
@@ -300,23 +362,27 @@ abstract class WpTheme extends WpPlugin{
             || define( $this->appId.'_URL',  $this->baseUrl);
 //        Util::print_r($this->basePath().'res/css');
         LessHelper::addImportDir($this->getBasePath().'res/css');
-        $this->registerResources();
+        $minimize = OptionHelper::getOption('minimizeMedia');
+        $this->registerResources($minimize);
         $this->registerRoutes($routes);
         $this->registerCustomPostTypes();
         $this->registerTaxonomies();
         $this->registerSidebars();
         $this->registerActions();
         $this->registerFilters();
-        $this->addAction('admin_menu', 'registerConsolePages');
-        $this->addAction('add_meta_boxes', 'registerMetaBoxes');
+        $this->registerNavMenus();
+        $this->addFilter('wp_nav_menu_objects', 'customizeNavMenuItems', 1, 2);
         $this->addFilter('show_admin_bar', 'isAdminBarShown', 1, 1);
-
     }
     
     abstract public function registerNavMenus();
     
     public function registerNavMenu($location, $description){
         register_nav_menu($location, $description);
+    }
+    
+    public function customizeNavMenuItems($items, $args){
+        return $items; 
     }
 
     public function addSupport_Thumbnails($width = 0, $height = 0, $crop = false){

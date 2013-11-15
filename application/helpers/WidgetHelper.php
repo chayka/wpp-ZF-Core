@@ -55,6 +55,14 @@ class WidgetHelper {
         }
     }
     
+    public static function renderMultiSpinner($populate='$.brx.multiSpinner'){
+//        $view = new Zend_View();
+//        $view->setScriptPath(ZF_CORE_PATH.'application/views/scripts');
+//        $view->assign('populate', $populate);
+//        echo $view->render('backbone/brx.MultiSpinner.phtml');
+        self::renderWidget(array('populate'=>$populate), 'widgets/brx.MultiSpinner.phtml', 'backbone-brx-spinners');
+    }
+    
     public static function renderPagination(){
         
     }

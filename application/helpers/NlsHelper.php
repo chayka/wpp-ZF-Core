@@ -113,8 +113,15 @@ class NlsHelper {
         $nlsDir = $nlsDir?$nlsDir:self::getNlsDir();
         $srcLang = $nlsDir . self::getLang() . '/' . $module . '.' .self::getLang() .'.php';
         $srcDefault = $nlsDir . '/_default/' . $module . '._default.php';
-        $src = file_exists($srcLang) ? $srcLang : $srcDefault;
-        self::getInstance()->addTranslation($src, self::getLang());
+        $src = '';
+        if(file_exists($srcLang)){
+            $src = $srcLang;
+        }elseif(file_exists($srcDefault)){
+            $src = $srcDefault;
+        }
+        if($src){
+            self::getInstance()->addTranslation($src, self::getLang());
+        }
     }
 
     /**

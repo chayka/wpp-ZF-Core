@@ -19,7 +19,13 @@ class ZFCore_OptionsController extends Zend_Controller_Action{
         unset($options['scope']);
         unset($options['prefix']);
         foreach($options as $key=>$value){
+//            $match = array();
+//            $isSite = false;
             $prfixedKey = $prefix?$prefix.'.'.$key:$key;
+//            if(preg_match('%^site\.(.*)$%', $key, $match)){
+//                $isSite = true;
+//                $prfixedKey = $prefix?$prefix.'.'.$key:$key;
+//            }
             if('site' == $scope){
                 update_site_option($prfixedKey, $value);
                 $options[$key] = get_site_option($prfixedKey, '');

@@ -1,0 +1,137 @@
+
+
+.brx-count_down_timer{
+    display: block;
+    margin: 0 auto;
+    padding: 20px 0 50px;
+    position: relative;
+    text-align: center;
+    width: 49%;
+    * {
+        vertical-align: top;
+    }
+    
+    .call_to_action{
+        text-align: center;
+        margin-bottom: 1em;
+    }
+    
+    .clock{
+	position: relative;
+	top: 10px;
+	width: 40px;
+	height: 55px;
+	display: inline-block;
+	*display: inline;
+	zoom: 1;
+	background: transparent url(../img/analog-digit-sprites.png) no-repeat -260px -154px;
+        margin-right: 7px;
+    }
+    
+    .c-block{
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        margin: 0 18px 0 3px;
+        padding: 4px 0 40px 3px;
+        position: relative;
+        background: transparent url(../img/analog-digit-sprites.png) no-repeat -260px 0;
+        
+        .bl-inner{
+            position: relative;
+            margin-right: -10px;
+            height: 48px;
+            background: transparent url(../img/analog-digit-sprites.png) no-repeat -5px -48px;
+            span{
+                display: none;
+                font-size: 46px;
+                color: #fff;
+                line-height: 46px;
+                margin-left: 2px;
+            }
+            img{
+                display: none;
+                src: url(../img/analog-digit-sprites.png);
+            }
+        }
+                
+        .bl-inner:before{
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 3px;
+            background: transparent url(i/sprites.png) no-repeat -122px -48px;
+            height: 48px;
+        }
+        
+        .etitle{
+            position: absolute;
+            width: 110px;
+            text-align: center;
+            left: 50%;
+            margin-left: -47px;
+            top: 55px;
+            line-height: 30px;
+        }
+        
+        .etitle-1{font-size: 1.6em;}
+        
+        .etitle-2{
+            font-size: 1.37em;
+            padding-top: .1em;
+        }
+        
+        .etitle-3{
+            font-size: 1.12em;
+            padding-top: .2em;
+        }
+        
+        .etitle-4{
+            font-size: .87em;
+            padding-top: .3em;
+        }        
+    }
+    
+    .c-block:before{
+        content: '';
+        position: absolute;
+        left: 100%;
+        top: 0;
+        width: 31px;
+        background: transparent url(../img/analog-digit-sprites.png) no-repeat 100% -77px;
+        height: 77px;
+    }
+    
+    .c-block-1{
+        width: 20px;
+    }
+    .c-block-2{
+        width: 45px;
+    }
+    .c-block-3{
+        width: 70px;
+    }
+    
+    .deadline_message{
+        /*height: 100px;*/
+        text-align: center;
+        display: none;
+        span{
+            line-height: normal;
+            vertical-align: middle;
+        }
+    }
+}
+
+
+/*.brx-count_down_timer ins{width: 10px;}
+
+.brx-count_down_timer ins{background-position: -300px -154px;}*/
+
+
+
+
+
+
+

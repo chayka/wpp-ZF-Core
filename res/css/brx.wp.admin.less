@@ -41,8 +41,14 @@
                 input[type=checkbox]{
 
                 }
-                label[for]{
+                label{
+                    display: inline;
+                    float: none;
+                    input[type=radio]{
+                    display: inline;
+                    float: none;
 
+                    }
                 }
                 .fullsize{
                     width: 100%;
@@ -67,7 +73,6 @@
                 input[type=password],
                 select{
                     width: 100%;
-
                 }
                 textarea{
                     width: 100%;
@@ -80,6 +85,9 @@
                 }
                 label[for]{
 
+                }
+                .ui-datepicker-month, .ui-datepicker-year{
+                    width: auto;
                 }
             }
             .form_field-tips{

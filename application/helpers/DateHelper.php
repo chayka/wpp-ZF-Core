@@ -134,6 +134,12 @@ class DateHelper {
         return self::timeToJsonStr($zendDate);
     }
     
+    /**
+     * 
+     * @param Zend_Date $date1
+     * @param Zend_Date $date2
+     * @return Zend_Date;
+     */
     public static function difference(Zend_Date $date1, Zend_Date $date2 = null) {
         if(!$date2){
             $date2 = new Zend_Date();

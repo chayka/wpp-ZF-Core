@@ -524,27 +524,10 @@
             options.el = element;
             var modelVar = $(element).attr('model-var');
             if(modelVar){
-//                var parts = modelVar.split('.');
-//                var root = window;
-//                for(var x in parts){
-//                    var part = parts[x];
-//                    root = root[part];
-//                }
-//                options.model = root;
                 options.model = _.getVar(modelVar);
             }
             
             if(_.isString(view)){
-//                var parts = view.split('.');
-//                var root = $;
-//                for(var i in parts){
-//                    var part = parts[i];
-//                    if(0 == i && '$'==part){
-//                        continue;
-//                    }
-//                    root=root[part];
-//                }
-//                view = root;
                 view = _.getVar(view, $);
             }
             

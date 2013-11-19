@@ -10,6 +10,7 @@ function plural(word, num) {
 
 function relativeTimeWithPlural(number, withoutSuffix, key) {
     var format = {
+        'ss': 'секунда_секунды_секунд',
         'mm': 'минута_минуты_минут',
         'hh': 'час_часа_часов',
         'dd': 'день_дня_дней',
@@ -90,6 +91,7 @@ window.moment.lang('ru', {
         future : "через %s",
         past : "%s назад",
         s : "несколько секунд",
+        ss: relativeTimeWithPlural,
         m : relativeTimeWithPlural,
         mm : relativeTimeWithPlural,
         h : "час",

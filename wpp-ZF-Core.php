@@ -418,6 +418,9 @@ class ZF_Core extends WpPlugin{
         $this->registerScript('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
         $this->registerStyle('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.less');
         $this->registerScript('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.js', array('backbone-brx'));
+//        NlsHelper::registerScriptNls('backbone-brx-countDown-nls', 'brx.CountDown.view.js');
+        $this->registerScript('backbone-brx-countDown', 'brx.CountDown.view.js', array('backbone-brx', 'moment'));
+        $this->registerStyle('backbone-brx-countDown', 'brx.CountDown.view.less', array());
 
         $this->registerScript('google-youtube-loader', 'google.YouTube.ApiLoader.js', array('backbone-brx'));
         

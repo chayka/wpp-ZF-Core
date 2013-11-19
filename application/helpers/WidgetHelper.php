@@ -112,6 +112,13 @@ class WidgetHelper {
         self::renderRibbonSlider($items, $tpl, 'vertical');
     }
     
-    
+    public static function renderCountDownTimer($dtDeadline, $callToAction='', $deadlineMessage=''){
+//        Util::print_r($dtDeadline);
+        self::renderWidget(array(
+            'deadline'=>$dtDeadline,
+            'callToAction'=>$callToAction,
+            'deadlineMessage'=>$deadlineMessage,
+        ), 'widgets/brx.CountDown.view.phtml', 'backbone-brx-countDown');
+    }
     
 }

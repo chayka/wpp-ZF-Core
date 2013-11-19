@@ -1,0 +1,68 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+//Util::print_r($this->deadline);
+//$timeLeft = DateHelper::difference($this->deadline);
+//Util::print_r($timeLeft);
+/*
+    var christmas="november 31, 2013 0:0:00";
+    var currentTime=new Date();
+    var targetdate=new Date(christmas);     
+    var timediff=(targetdate-currentTime)/1000;
+    var oneMinute=60;
+    var oneHour=60*60;
+    var oneDay=60*60*24;
+    var dayfield=Math.floor(timediff/oneDay);
+    var hourfield=Math.floor((timediff-dayfield*oneDay)/oneHour);
+    var minutefield=Math.floor((timediff-dayfield*oneDay-hourfield*oneHour)/oneMinute);
+    var secondfield=Math.floor((timediff-dayfield*oneDay-hourfield*oneHour-minutefield*oneMinute));
+ 
+ */
+    $t = new Zend_Date();
+    $t = DateHelper::fixTimezone($t);
+    $now = $t->getTimestamp();
+    
+    $timediff = $this->deadline->getTimestamp()-$now;
+    $outdated = ($timediff < 0);
+    $oneMinute = 60;
+    $oneHour = 60 * 60;
+    $oneDay = 60 * 60 * 24;
+    $daysLeft=floor($timediff/$oneDay);
+    $hoursLeft=floor(($timediff-$daysLeft*$oneDay)/$oneHour);
+    $minutesLeft=floor(($timediff-$daysLeft*$oneDay-$hoursLeft*$oneHour)/$oneMinute);
+    $secondsLeft=floor(($timediff-$daysLeft*$oneDay-$hoursLeft*$oneHour-$minutesLeft*$oneMinute));
+?>
+<div class="brx-count_down_timer" backbone-view="brx.CountDown" showDeadline="<?php echo $this->deadlineMessage?'1':'';?>" outdated="<?php echo $outdated?'1':'';?>">
+    <div class="timer" <?php HtmlHelper::hidden($outdated);?>>
+        <div class="call_to_action"><?php echo $this->callToAction;?></div>
+        <em class="clock"></em>
+        <div class="c-block c-block-3">
+            <div backbone-view="brx.AnalogDigit" format="dd" attachView="days_cnt" class="bl-inner">
+                <span><?php echo $daysLeft<0?0:$daysLeft;?></span>
+            </div> 
+            <span class="etitle etitle-1"></span>
+        </div> 
+        <div class="c-block c-block-2">
+            <div backbone-view="brx.AnalogDigit" format="hh" attachView="hourses_cnt" class="bl-inner">
+                <span><?php echo $hoursLeft<0?0:$hoursLeft;?></span>
+            </div> 
+            <span class="etitle etitle-2"></span>
+        </div> 
+        <div class="c-block c-block-2">
+            <div backbone-view="brx.AnalogDigit" format="mm" attachView="minutes_cnt" class="bl-inner">
+                <span><?php echo $minutesLeft<0?0:$minutesLeft;?></span>
+            </div> 
+            <span class="etitle etitle-3"></span>
+        </div> 
+        <div class="c-block c-block-2">
+            <div backbone-view="brx.AnalogDigit" format="ss" attachView="seconds_cnt" class="bl-inner">
+                <span><?php echo $secondsLeft<0?0:$secondsLeft;?></span>
+            </div> 
+            <span class="etitle etitle-4"></span>
+        </div>
+    </div>
+    <div class="deadline_message"><span><?php echo $this->deadlineMessage;?></span></div>
+</div>

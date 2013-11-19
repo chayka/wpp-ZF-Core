@@ -337,8 +337,14 @@ abstract class WpPlugin{
             $title = Util::getItem($params, 'title');
             $context = Util::getItem($params, 'context');
             $priority = Util::getItem($params, 'priority');
-            $screen = Util::getItem($params, 'screen');
-            add_meta_box($id, $title, $this->getCallbackMethod('renderMetaBox'), $screen, $context, $priority);
+            $screens = Util::getItem($params, 'screen');
+            if(is_array($screens)){
+                foreach($screens as $screen){
+                    add_meta_box($id, $title, $this->getCallbackMethod('renderMetaBox'), $screen, $context, $priority);
+                }
+            }else{
+                add_meta_box($id, $title, $this->getCallbackMethod('renderMetaBox'), $screens, $context, $priority);
+            }
         }
         
         wp_enqueue_style('brx-wp-admin');

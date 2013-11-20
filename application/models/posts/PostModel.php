@@ -391,15 +391,6 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     /**
-     * Cheack if post is attachment image
-     * 
-     * @return boolean
-     */
-    public function isAttachmentImage(){
-        return preg_match('%^image%', $this->getMimeType());
-    }
-    
-    /**
      * Set attachment mime type
      * 
      * @param type $mimeType
@@ -410,6 +401,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $this;
     }
 
+    /**
+     * Cheack if post is attachment image
+     * 
+     * @return boolean
+     */
+    public function isAttachmentImage(){
+        return preg_match('%^image%', $this->getMimeType());
+    }
+    
     /**
      * Get comment status
      * 
@@ -1134,6 +1134,13 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                 ->orderBy('comment_ID');
     }
     
+    /**
+     * Get attachment url
+     * @return string
+     */
+    public function getAttachmentUrl(){
+        return wp_get_attachment_url($this->getId());
+    }
     
     /**
      * Get image data in case this post is an attachment image.
@@ -1217,7 +1224,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return string(html)
      */
     public function getThumbnailImage($size = 'post-thumbnail', $attrs = array()){
-        return get_the_post_thumbnail($this->getId(), $size, $attr);
+        return get_the_post_thumbnail($this->getId(), $size, $attrs);
     }
     
     /**

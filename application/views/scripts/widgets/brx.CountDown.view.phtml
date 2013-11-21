@@ -22,7 +22,7 @@
  
  */
     $t = new Zend_Date();
-    $t = DateHelper::fixTimezone($t);
+    DateHelper::fixTimezone($t);
     $now = $t->getTimestamp();
     
     $timediff = $this->deadline->getTimestamp()-$now;

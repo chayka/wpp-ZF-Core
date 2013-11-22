@@ -6,6 +6,7 @@ require_once "Zend/Locale.php";
 class NlsHelper {
 
     protected static $instance;
+    protected static $locale;
     protected static $lang;
     protected static $nlsDir;
     protected static $nlsScriptsDir;
@@ -42,6 +43,26 @@ class NlsHelper {
      */
     public static function getLang() {
         if (!self::$lang) {
+//            $locale = new Zend_Locale('en-us');
+//            try {
+//                $option = OptionHelper::getOption('nlsLanguage', 'auto');
+////                die($option);
+//                $locale = new Zend_Locale('auto' == $option? Zend_Locale::BROWSER: $option);
+//            } catch (Zend_Locale_Exception $e) {
+//                $locale = new Zend_Locale('en-us');
+//            }
+            self::$lang = self::getLocale()->getLanguage();
+        }
+        return self::$lang;
+    }
+    
+    /**
+     * Function returns current locale
+     * 
+     * @return Zend_Locale
+     */
+    public static function getLocale() {
+        if (!self::$locale) {
             $locale = new Zend_Locale('en-us');
             try {
                 $option = OptionHelper::getOption('nlsLanguage', 'auto');
@@ -50,9 +71,9 @@ class NlsHelper {
             } catch (Zend_Locale_Exception $e) {
                 $locale = new Zend_Locale('en-us');
             }
-            self::$lang = $locale->getLanguage();
+            self::$locale = $locale;
         }
-        return self::$lang;
+        return self::$locale;
     }
     
     /**

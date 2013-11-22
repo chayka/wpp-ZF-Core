@@ -187,8 +187,8 @@
                var fromX = _.getItem(rule, 'minWidth', 0);
                var toX = _.getItem(rule, 'maxWidth', 'infinity');
 //               var checkin = fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
-               var minWidthScrolly = parseInt($.scrolly.meter.css('min-width'));
-               var maxWidthScrolly = $.scrolly.meter.css('max-width');
+               var minWidthScrolly = $.scrolly.meter.length?parseInt($.scrolly.meter.css('min-width')):0;
+               var maxWidthScrolly = $.scrolly.meter.length?$.scrolly.meter.css('max-width'):'none';
                maxWidthScrolly = maxWidthScrolly === 'none'?'infinity':parseInt(maxWidthScrolly);
                var checkin = fromX === minWidthScrolly && toX === maxWidthScrolly;
                needScroll |= checkin;
@@ -232,8 +232,8 @@
 //               var to = i < areas - 1 ? item.rules[i+1].since:'bottom';
 //               var checkin = fromY <= scrollPos && ('bottom' === toY || scrollPos < toY)
 //                        &&   fromX <= windowWidth && ('infinity' === toX || windowWidth < toX);
-               var minWidthScrolly = parseInt($.scrolly.meter.css('min-width'));
-               var maxWidthScrolly = $.scrolly.meter.css('max-width');
+               var minWidthScrolly = $.scrolly.meter.length?parseInt($.scrolly.meter.css('min-width')):0;
+               var maxWidthScrolly = $.scrolly.meter.length?$.scrolly.meter.css('max-width'):'none';
                maxWidthScrolly = maxWidthScrolly === 'none'?'infinity':parseInt(maxWidthScrolly);
                var checkin = fromY <= scrollPos && ('bottom' === toY || scrollPos < toY)
                         &&   fromX === minWidthScrolly && toX === maxWidthScrolly;

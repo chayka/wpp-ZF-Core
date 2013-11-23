@@ -25,7 +25,6 @@
 //////////////////////////////////////////////////////////////////////
 // This section emulates the Zend Framework bootstrap file, without any application environment
 
-
 require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';
 

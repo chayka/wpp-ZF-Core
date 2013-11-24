@@ -320,6 +320,9 @@ class ZF_Core extends WpPlugin{
 
         $this->registerScript( 'require', ($minimize?'vendors/require.min.js':'vendors/require.js'));
 
+        $this->registerScript( 'less', ($minimize?'vendors/less-1.3.1.min.js':'vendors/less-1.3.3.js'));
+        $this->registerStyle( 'less-styles', 'styles.less?ver=1.0');
+
         // dropkick.js
         $this->registerStyle( 'jquery-dropkick', 'vendors/jquery.dropkick-1.0.0.less', array());
         $this->registerScript( 'jquery-dropkick', 'vendors/jquery.dropkick-1.0.0.js', array('jquery'));

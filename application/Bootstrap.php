@@ -6,9 +6,6 @@ class ZFCore_Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
     public function run(){
         $this->setupRouting();
-        $front = Util::getFront();
-        WpHelper::getInstance();
-        parent::run();
     }
     
     public function setupRouting(){

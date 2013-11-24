@@ -27,6 +27,10 @@
 
 require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';
+require_once 'application/helpers/LessHelper.php';
+require_once 'application/helpers/OptionHelper.php';
+require_once 'application/helpers/NlsHelper.php';
+require_once 'ZF-Query.php';
 
 class ZF_Core extends WpPlugin{
     public static $zfCoreTree;
@@ -42,70 +46,18 @@ class ZF_Core extends WpPlugin{
         
 //        self::registerActions();
 //        self::registerFilters();
-
-        try {
-            $pluginDir = plugin_dir_path( __FILE__ );
-            defined('ZF_CORE_APPLICATION_PATH') 
-                || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
-            defined('ZF_CORE_PATH') 
-                || define('ZF_CORE_PATH', $pluginDir);
-            defined('ZF_CORE_URL') 
-                || define( 'ZF_CORE_URL', preg_replace('%^[\w\d]+\:\/\/[\w\d\.]+%', '',plugin_dir_url(__FILE__)) );
-            // Add /library directory to our include path
-//            die(ZF_CORE_URL);
-            set_include_path(implode(PATH_SEPARATOR, array(
-                get_include_path(), 
-                realpath($pluginDir . '/library'),
-                ZF_CORE_APPLICATION_PATH,
-                realpath($pluginDir),
-                )));
-            
-            require_once 'ZF-Query.php';
-            // Turn on autoloading, so we do not include each Zend Framework class
-            require_once 'Zend/Loader/Autoloader.php';
-            $autoloader = Zend_Loader_Autoloader::getInstance();
-            spl_autoload_register(array('ZF_Core', 'autoloader'));
-
-            FirebugHelper::getInstance();
-            
-            // Create registry object and setting it as the static instance in the Zend_Registry class
-            $registry = new Zend_Registry();
-            Zend_Registry::setInstance($registry);
-
-            // Load configuration file and store the data in the registry
-            $configuration = new Zend_Config_Ini($pluginDir . '/application/configs/application.ini', Util::isDevelopment()?'development':'production');
-            Zend_Registry::set('configuration', $configuration);
-
-            /*
-             * We want to set the encoding to UTF-8, so we won't rely on the ViewRenderer action helper by default,
-             * but will construct view object and deliver it to the ViewRenderer after setting some options.
-             */
-            $view = new Zend_View(array('encoding' => 'UTF-8'));
-            $viewRendered = new Zend_Controller_Action_Helper_ViewRenderer($view);
-            Zend_Controller_Action_HelperBroker::addHelper($viewRendered);
-
-            // if everything went well, set a status flag
-            define('WP_ZEND_LIBRARY', TRUE);
-
-            require_once 'application/helpers/LessHelper.php';
-            
-//            self::registerResources($minimize = false);
-            
-//            self::registerCustomPostTypeContentFragment();
-            
-            require_once 'application/helpers/WpDbHelper.php';
-
-        } catch (Exception $e) {
-            // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
-            echo '<span style="font-weight:bold;">WP Zend Library:</span> ' . nl2br($e);
-        }
-
-        //require_once 'ZendB/Log.php';
-        Log::setDir(ZF_CORE_PATH.'logs');
+        $pluginDir = plugin_dir_path( __FILE__ );
+        defined('ZF_CORE_APPLICATION_PATH') 
+            || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
+        // Add /library directory to our include path
+        set_include_path(implode(PATH_SEPARATOR, array(
+            get_include_path(), 
+            realpath($pluginDir . '/library'),
+            ZF_CORE_APPLICATION_PATH,
+            realpath($pluginDir),
+            )));
         LessHelper::setImportDir(ABSPATH);
-//        LessHelper::addImportDir(ZF_CORE_PATH.'res/css');
-//        Log::start();
-//        require_once 'ZF-Query.php';
+
         self::$instance = $plugin = new ZF_Core(__FILE__, array(
             'admin', 'autocomplete', 'upload',
             'post-model',
@@ -121,18 +73,23 @@ class ZF_Core extends WpPlugin{
         $plugin->addSupport_Metaboxes();
         $plugin->addSupport_PostProcessing();
         
+        try {
+            
+            // Turn on autoloading, so we do not include each Zend Framework class
+//            require_once 'Zend/Loader/Autoloader.php';
+//            $autoloader = Zend_Loader_Autoloader::getInstance();
+            spl_autoload_register(array('ZF_Core', 'autoloader'));
 
-//        ZF_Query::registerApplication('ZF_CORE', ZF_CORE_APPLICATION_PATH, array(
-//            'admin', 'autocomplete', 'upload',
-//            'post-model',
-//            'comment-model',
-//            'user-model',
-//            'social', 'zf-setup',
-//            'timezone',
-//            'options',
-//            'blockade',
-//        ));
+            // if everything went well, set a status flag
+            define('WP_ZEND_LIBRARY', TRUE);
 
+        } catch (Exception $e) {
+            // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
+            echo '<span style="font-weight:bold;">WP Zend Library:</span> ' . nl2br($e);
+        }
+
+        //require_once 'ZendB/Log.php';
+        Log::setDir(ZF_CORE_PATH.'logs');
         
     }
     
@@ -520,17 +477,15 @@ class ZF_Core extends WpPlugin{
     
     public function addJQueryWidgets(){
         wp_enqueue_style('jquery-ui');
-//        wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-effects-fade');
-        wp_enqueue_script('jquery-effects-drop');
-        wp_enqueue_script('jquery-effects-blind');
-        wp_enqueue_script('jquery-ui-widget');
-        wp_enqueue_script('jquery-ui-templated');
-        wp_enqueue_script('jquery-brx-placeholder');
-        wp_enqueue_script('jquery-brx-modalBox');
+//        wp_enqueue_script('jquery-effects-drop');
+//        wp_enqueue_script('jquery-effects-blind');
+//        wp_enqueue_script('jquery-ui-widget');
+//        wp_enqueue_script('jquery-ui-templated');
+//        wp_enqueue_script('jquery-brx-placeholder');
+//        wp_enqueue_script('jquery-brx-modalBox');
         wp_enqueue_style('jquery-brx-spinner');
         wp_enqueue_script('jquery-brx-spinner');
-//        wp_enqueue_script('Backbone');
         wp_enqueue_script('backbone-wp-models');
         wp_enqueue_style('backbone-brx-modals');
         wp_enqueue_script('backbone-brx-modals');
@@ -548,7 +503,6 @@ class ZF_Core extends WpPlugin{
         <script>
         jQuery(document).ready(function($) {
             $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);
-            $.ui.parseWidgets('<?php echo ZF_CORE_URL?>res/js/');
             if($.brx && $.brx.parseBackboneViews){
                 $.brx.parseBackboneViews();
             }

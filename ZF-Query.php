@@ -7,14 +7,12 @@ add_action('parse_request', array('ZF_Query', 'parseRequest'));
 
 //Template fallback
 //add_action("template_redirect", array('ZF_Query', 'themeRedirect'));
-add_filter('archive_template', array('ZF_Query', 'archiveTemplate'), 1, 2);
-add_filter('author_template', array('ZF_Query', 'authorTemplate'), 1, 2);
-add_filter('category_template', array('ZF_Query', 'categoryTemplate'), 1, 2);
-add_filter('tag_template', array('ZF_Query', 'tagTemplate'), 1, 2);
-add_filter('taxonomy_template', array('ZF_Query', 'taxonomyTemplate'), 1, 2);
+//add_filter('archive_template', array('ZF_Query', 'archiveTemplate'), 1, 2);
+//add_filter('author_template', array('ZF_Query', 'authorTemplate'), 1, 2);
+//add_filter('category_template', array('ZF_Query', 'categoryTemplate'), 1, 2);
+//add_filter('tag_template', array('ZF_Query', 'tagTemplate'), 1, 2);
+//add_filter('taxonomy_template', array('ZF_Query', 'taxonomyTemplate'), 1, 2);
 add_filter('page_template', array('ZF_Query', 'pageTemplate'), 1, 2);
-//add_filter('paged_template', array('AnotherGuru', 'pagedTemplate'), 1, 2);
-//add_filter('search_template', array('AnotherGuru', 'searchTemplate'), 1, 2);
 add_filter('single_template', array('ZF_Query', 'singleTemplate'), 1, 2);
 
 
@@ -159,17 +157,12 @@ class ZF_Query extends WP_Query {
             $the_q = $wp_the_query;
             try{
                 $front = Util::getFront();
-//                $front->setControllerDirectory(array('default' => $appPath.'/controllers'));
                 $front->resetInstance();
-//                $front->setDispatcher(new Zend_Controller_Dispatcher_Standard());
-//                $front->setRouter(null);
-                //print_r($front);
                 $front->setParam('displayExceptions', true);
                 $front->returnResponse(true);
-                $application->bootstrap()->getBootStrap()->setupRouting();
-                $r = $front->dispatch()->getBody();
+                $application->bootstrap()->getBootStrap()->run();
+                $r = $front->dispatch();
                 $wp_the_query = $the_q;
-//                Util::print_r($application);
                 unset($application);
                 unset($front);
                 //$r = $application->bootstrap()->getBootStrap()->run();
@@ -453,9 +446,9 @@ class ZF_Query extends WP_Query {
             }  
         }
 
-        if ($load && '' != $located)
+        if ($load && '' != $located){
             load_template($located, $require_once);
-
+        }
         return $located;
     }
     

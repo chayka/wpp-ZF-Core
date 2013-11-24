@@ -29,7 +29,6 @@ require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';
 require_once 'application/helpers/LessHelper.php';
 require_once 'application/helpers/OptionHelper.php';
-require_once 'application/helpers/NlsHelper.php';
 require_once 'ZF-Query.php';
 
 class ZF_Core extends WpPlugin{
@@ -57,6 +56,8 @@ class ZF_Core extends WpPlugin{
             realpath($pluginDir),
             )));
         LessHelper::setImportDir(ABSPATH);
+        
+        require_once 'application/helpers/NlsHelper.php';
 
         self::$instance = $plugin = new ZF_Core(__FILE__, array(
             'admin', 'autocomplete', 'upload',

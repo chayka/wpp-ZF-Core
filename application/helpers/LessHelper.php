@@ -1,7 +1,5 @@
 <?php
 
-wp_register_script( 'less', ZF_CORE_URL.($minimize?'res/js/vendors/less-1.3.1.min.js':'res/js/vendors/less-1.3.3.js'));
-wp_register_style( 'less-styles', ZF_CORE_URL.'res/css/styles.less?ver=1.0');
 add_filter('style_loader_tag', array('LessHelper', 'styleLoaderTag'), 1, 2);
 
 class LessHelper {

@@ -22,19 +22,16 @@
 
  */
 
-//////////////////////////////////////////////////////////////////////
-// This section emulates the Zend Framework bootstrap file, without any application environment
-
-        $pluginDir = plugin_dir_path( __FILE__ );
-        defined('ZF_CORE_APPLICATION_PATH') 
-            || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
-        // Add /library directory to our include path
-        set_include_path(implode(PATH_SEPARATOR, array(
-            get_include_path(), 
-            realpath($pluginDir . '/library'),
-            ZF_CORE_APPLICATION_PATH,
-            realpath($pluginDir),
-            )));
+$pluginDir = plugin_dir_path( __FILE__ );
+defined('ZF_CORE_APPLICATION_PATH') 
+    || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
+// Add /library directory to our include path
+set_include_path(implode(PATH_SEPARATOR, array(
+    get_include_path(), 
+    realpath($pluginDir . '/library'),
+    ZF_CORE_APPLICATION_PATH,
+    realpath($pluginDir),
+)));
 
 require_once 'library/ZendB/Util.php';
 require_once 'application/helpers/WpPluginHelper.php';

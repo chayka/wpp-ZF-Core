@@ -9,6 +9,11 @@
     <div class="brx-ribbon_slider-prev" attachPoint="buttonSlidePrev" attachEvent="slidePrev"></div>
     <div class="brx-ribbon_slider-ribbon"  attachPoint="ribbon">
         <div class="brx-ribbon_slider-slider"  attachPoint="slider">
+            <?php foreach($this->items as $item):?>
+            <div class="brx-ribbon_slider-item">
+                <?php echo $item;?>
+            </div>
+            <?php endforeach;?>
         </div>    
     </div>
     <div class="brx-ribbon_slider-next" attachPoint="buttonSlideNext" attachEvent="slideNext"></div>

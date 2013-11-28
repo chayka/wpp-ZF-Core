@@ -1,7 +1,8 @@
 (function($, _){
     _.declare('brx.RibbonSlider', $.brx.View, {
         options:{
-           direction: 'vertical' 
+           direction: 'vertical',
+           items: {}
         },
         
         postCreate: function(){
@@ -11,11 +12,42 @@
         render: function(){
     
         },
+        
+        getDirection: function(){
+            if(this.get('direction')==='auto'){
+                var slider = this.get('slider');
+                var itemViews = slider.find('.brx-ribbon_slider-item');
                 
-        isVertical: function(){
-            return this.get('direction')==='vertical';
+                var direction = slider.width() === itemViews.width() ? 'vertical':'horizontal';
+                
+                this.$el.removeClass('vertical horizontal').addClass(direction);
+            }
+            return this.get('direction');
         },
                 
+        isVertical: function(){
+            return this.getDirection();
+//            return this.get('direction')==='vertical';
+        },
+        
+        addItem: function(el, key){
+            var $el = $(el);
+            $el.addClass('brx-ribbon_slider-item');
+            $el.appendTo(this.get('slider'));
+            this.options.items[key]=$el;
+        },
+                
+        removeItem: function(key){
+            var $el = _.getItem(this.options.items, key);
+            if($el){
+                $el.remove();
+                delete this.options.items[key];
+            }
+        },
+        
+        getItem: function(key){
+            return _.getItem(this.options.items, key);
+        },
   
         slide: function(sign){
             var slider = this.get('slider');

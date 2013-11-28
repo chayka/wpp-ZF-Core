@@ -500,8 +500,8 @@ class ZF_Core extends WpPlugin{
                 
         ?>
                     
-        <div widget="generalSpinner"></div>
-        <div widget="modalBox"></div>    
+        <!--div widget="generalSpinner"></div>
+        <div widget="modalBox"></div-->    
         <script>
         jQuery(document).ready(function($) {
             $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);

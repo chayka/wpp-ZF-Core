@@ -100,16 +100,16 @@ class WidgetHelper {
         self::renderWidget($params, 'widgets/brx.AttachmentPicker.view.phtml', 'backbone-brx-attachmentPicker');
     }
     
-    protected static function renderRibbonSlider($items, $tpl='', $direction='horizontal'){
+    protected static function renderRibbonSlider($items = array(), $direction='auto'){
         self::renderWidget(array('items'=>$items, 'direction'=>$direction), 'widegets/brx.RibbonSlider.view.phtml', 'backbone-brx-ribbonSlider');
     }
     
-    public static function renderRibbonSliderHorizontal($items, $tpl=''){
-        self::renderRibbonSlider($items, $tpl, 'horizontal');
+    public static function renderRibbonSliderHorizontal($items){
+        self::renderRibbonSlider($items, 'horizontal');
     }
     
-    public static function renderRibbonSliderVertical($items, $tpl=''){
-        self::renderRibbonSlider($items, $tpl, 'vertical');
+    public static function renderRibbonSliderVertical($items){
+        self::renderRibbonSlider($items, 'vertical');
     }
     
     public static function renderCountDownTimer($dtDeadline, $callToAction='', $deadlineMessage=''){

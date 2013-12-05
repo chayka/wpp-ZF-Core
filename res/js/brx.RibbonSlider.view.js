@@ -2,15 +2,26 @@
     _.declare('brx.RibbonSlider', $.brx.View, {
         options:{
            direction: 'vertical',
+           offset: 0,
            items: {}
         },
         
         postCreate: function(){
-            
+            this.render();
+            this.get('slider').swipe({
+                triggerOnTouchEnd : true,
+                swipeStatus : $.proxy(this.onSwipe, this),
+                excludedElements: '',//"label, button, input, select, textarea, a, .noSwipe",
+                allowPageScroll:"vertical"                
+            });
         },
                 
         render: function(){
-    
+            this.renderNavVisibility();
+            if(this.get('direction')!=='auto'){
+                this.$el.addClass(this.get('direction'));
+            }
+//            this.get('slider').css('width',);
         },
         
         getDirection: function(){
@@ -21,12 +32,13 @@
                 var direction = slider.width() === itemViews.width() ? 'vertical':'horizontal';
                 
                 this.$el.removeClass('vertical horizontal').addClass(direction);
+                return direction;
             }
             return this.get('direction');
         },
                 
         isVertical: function(){
-            return this.getDirection();
+            return this.getDirection()==='vertical';
 //            return this.get('direction')==='vertical';
         },
         
@@ -35,6 +47,7 @@
             $el.addClass('brx-ribbon_slider-item');
             $el.appendTo(this.get('slider'));
             this.options.items[key]=$el;
+            this.renderNavVisibility();
         },
                 
         removeItem: function(key){
@@ -42,16 +55,66 @@
             if($el){
                 $el.remove();
                 delete this.options.items[key];
+                this.renderNavVisibility();
             }
         },
         
         getItem: function(key){
             return _.getItem(this.options.items, key);
         },
-  
-        slide: function(sign){
+        
+        renderNavVisibility: function(currentTopOrLeft){
             var slider = this.get('slider');
-            var currentTopOrLeft = parseInt(slider.css(this.isVertical()?'top':'left'));
+            if(currentTopOrLeft === undefined){
+                currentTopOrLeft = parseInt(slider.css(this.isVertical()?'top':'left'));
+            }
+            var itemViews = slider.find('.brx-ribbon_slider-item');
+            var itemCount = itemViews.length;
+            var itemSize = 0;
+            var itemMargin = 0;
+            if(itemCount){
+                itemSize = this.isVertical()?itemViews.height():itemViews.width();
+                itemMargin = parseInt(itemViews.css(this.isVertical()?'margin-bottom':'margin-right'));
+                itemSize+=itemMargin;
+            }
+            if(!this.isVertical() && itemSize){
+                slider.css('width', (itemSize * itemCount - itemMargin)+'px');
+            }
+            var ribbonSize = this.isVertical()?this.get('ribbon').height():this.get('ribbon').width();
+            console.dir({slider:this.get('slider')});
+            if(currentTopOrLeft >= 0){
+                this.get('buttonSlidePrev').css('opacity', 0);
+            }else{
+                this.get('buttonSlidePrev').css('opacity', 1);
+            }
+            var maxTopOrLeft = -(itemCount* itemSize - itemMargin - ribbonSize);
+            if(currentTopOrLeft <= maxTopOrLeft){
+                this.get('buttonSlideNext').css('opacity', 0);
+            }else{
+                this.get('buttonSlideNext').css('opacity', 1);
+            }
+        },
+        
+        scroll: function(distance, duration){
+            if(duration === undefined){
+                duration = 600;
+            }
+            this.get('slider').css("-webkit-transition-duration", (duration/1000).toFixed(1) + "s");              
+            this.get('slider').css(this.isVertical()?'top':'left', distance+'px');
+//            this.get('slider').css("-webkit-transform", this.isVertical()?
+//                "translate3d(0px,"+distance +"px,0px)":
+//                "translate3d("+distance +"px,0px,0px)");
+        },
+        
+        scrollOffset: function(offset, duration){
+            var currentTopOrLeft = this.getInt('offset');
+            this.scroll(currentTopOrLeft - offset, duration);
+        },
+        
+        slide: function(sign){
+            sign = sign || 0;
+            var slider = this.get('slider');
+            var currentTopOrLeft = this.getInt('offset');//= parseInt(slider.css(this.isVertical()?'top':'left'));
             var itemViews = slider.find('.brx-ribbon_slider-item');
             var itemSize = this.isVertical()?itemViews.height():itemViews.width();
             var itemMargin = parseInt(itemViews.css(this.isVertical()?'margin-bottom':'margin-right'));
@@ -59,7 +122,7 @@
             var itemCount = itemViews.length;
             var ribbonSize = this.isVertical()?this.get('ribbon').height():this.get('ribbon').width();
             var itemsSeen = Math.floor((ribbonSize+itemMargin) / itemSize);
-            var offset = itemsSeen * itemSize;
+            var offset = sign?itemsSeen * itemSize:0;
             if(sign < 0){
                 offset*=-1;
             }
@@ -67,19 +130,15 @@
             var newTopOrLeft = currentTopOrLeft - offset;
             if(newTopOrLeft >= 0){
                 newTopOrLeft = 0;
-                this.get('buttonSlidePrev').css('opacity', 0);
-            }else{
-                this.get('buttonSlidePrev').css('opacity', 1);
             }
             var maxTopOrLeft = -(itemCount* itemSize - itemMargin - ribbonSize);
             if(newTopOrLeft <= maxTopOrLeft){
                 newTopOrLeft = maxTopOrLeft;
-                this.get('buttonSlideNext').css('opacity', 0);
-            }else{
-                this.get('buttonSlideNext').css('opacity', 1);
             }
-            this.get('slider').css({'top': newTopOrLeft+'px'});
-
+//            this.get('slider').css(this.isVertical()?'top':'left', newTopOrLeft+'px');
+            this.renderNavVisibility(newTopOrLeft);
+            this.setInt('offset', newTopOrLeft);
+            this.scroll(newTopOrLeft);
         },
                 
         slidePrev: function(){
@@ -88,6 +147,36 @@
 
         slideNext: function(){
             this.slide(1);
+        },
+        
+        onSwipe: function(event, phase, direction, distance, fingers){
+            switch(phase){
+                case 'move':
+                    var controlDirection = this.getDirection();
+                    if('left' === direction && 'horizontal' === controlDirection
+                    || 'top' === direction && 'vertical' === controlDirection){
+                        this.scrollOffset(distance, 0);
+                    }
+                    if('right' === direction && 'horizontal' === controlDirection
+                    || 'bottom' === direction && 'vertical' === controlDirection){
+                        this.scrollOffset(-distance, 0);
+                    }
+                    break;
+                case 'cancel':
+                    this.slide();
+                    break;
+                case 'end':
+                    var controlDirection = this.getDirection();
+                    if('left' === direction && 'horizontal' === controlDirection
+                    || 'top' === direction && 'vertical' === controlDirection){
+                        this.slideNext();
+                    }
+                    if('right' === direction && 'horizontal' === controlDirection
+                    || 'bottom' === direction && 'vertical' === controlDirection){
+                        this.slidePrev();
+                    }
+                    break;
+            }
         }
         
     });

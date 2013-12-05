@@ -340,6 +340,7 @@ class ZF_Core extends WpPlugin{
             $this->registerScript( 'moment', ($minimize?'vendors/moment/min/moment.min.js':'vendors/moment/moment.js'));
         }
         
+        $this->registerScript('jquery-touch-swipe', $minimize?'vendors/jquery.touchSwipe.min.js':'vendors/jquery.touchSwipe.js');
         
         $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
@@ -376,7 +377,7 @@ class ZF_Core extends WpPlugin{
         $this->registerStyle('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.less');
         $this->registerScript('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
         $this->registerStyle('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.less');
-        $this->registerScript('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.js', array('backbone-brx'));
+        $this->registerScript('backbone-brx-ribbonSlider', 'brx.RibbonSlider.view.js', array('backbone-brx', 'jquery-touch-swipe'));
 //        NlsHelper::registerScriptNls('backbone-brx-countDown-nls', 'brx.CountDown.view.js');
         $this->registerScript('backbone-brx-countDown', 'brx.CountDown.view.js', array('backbone-brx', 'moment'));
         $this->registerStyle('backbone-brx-countDown', 'brx.CountDown.view.less', array());
@@ -396,6 +397,7 @@ class ZF_Core extends WpPlugin{
         $this->registerScript( 'modenizr', 'vendors/modernizr-2.6.2.min.js');
 
         $this->registerScript( 'jquery-scrolly', 'vendors/jquery.scrolly.js', array('jquery', 'underscore-brx'));
+        
 
         $jQueryThemes = array(
             'black-tie',

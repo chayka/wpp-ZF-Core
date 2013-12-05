@@ -200,7 +200,7 @@ class DateHelper {
     }
     
     public static function fixTimezone(Zend_Date $date){
-        if($_SESSION['timezone']){
+        if(isset($_SESSION['timezone'])){
             $date->setTimezone($_SESSION['timezone']);
         }
         return $date;

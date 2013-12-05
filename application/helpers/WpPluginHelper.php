@@ -153,6 +153,7 @@ abstract class WpPlugin{
         $this->addFilter('post_link', 'postPermalink', 1, 3);
         $this->addFilter('term_link', 'termLink', 1, 3);
         $this->addFilter('author_link', 'userLink', 1, 3);
+        $this->addFilter('get_comment_link', 'commentPermalink', 1, 2);
     }
     
     /**
@@ -192,6 +193,10 @@ abstract class WpPlugin{
      */
     public function userLink($link, $userId, $nicename){
         return sprintf('/user/%s/', $nicename);
+    }
+    
+    public function commentPermalink($permalink, $comment){
+        return $permalink;
     }
 //    abstract public static function enableSearch($query);
 //    

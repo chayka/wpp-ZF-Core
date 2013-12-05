@@ -5,7 +5,8 @@
  * and open the template in the editor.
  */
 ?>
-<div class="brx-ribbon_slider" backbone-view="brx.RibbonSlider" direction="<?php echo $this->direction;?>">
+<div class="brx-ribbon_slider" backbone-view="brx.RibbonSlider" direction="<?php echo $this->direction;?>" <?php 
+    foreach($this->htmlAttrs as $key=>$value){printf('%s="%s" ', $key, $this->escape($value));};?>>
     <div class="brx-ribbon_slider-prev" attachPoint="buttonSlidePrev" attachEvent="slidePrev"></div>
     <div class="brx-ribbon_slider-ribbon"  attachPoint="ribbon">
         <div class="brx-ribbon_slider-slider"  attachPoint="slider">

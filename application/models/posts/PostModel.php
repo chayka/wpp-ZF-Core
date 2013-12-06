@@ -1483,7 +1483,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return boolean is input valid
      */
     public function validateInput($input = array(), $action = 'create') {
-        return true;
+        $valid = true; //apply_filters('PostModel.validateInput', true, $input, $action);
+        return $valid;
     }
 
     /**

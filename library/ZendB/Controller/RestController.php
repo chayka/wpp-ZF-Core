@@ -32,6 +32,7 @@ class RestController extends Zend_Rest_Controller{
         $class = $this->getModelClassName();
         $model = new $class();
         $model = InputHelper::getModelFromInput($model);
+        $meta = InputHelper::getParam('meta', array());
 //        Util::print_r($model); die();
         $errors = $model->getValidationErrors();
         if(!empty($errors)){
@@ -40,6 +41,11 @@ class RestController extends Zend_Rest_Controller{
             $id = $model->insert();
             if ($id) {
                 $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
+                if(count($meta)){
+                    foreach ($meta as $key=>$value){
+                        $model->updateMeta($key, $value);
+                    }
+                }
                 apply_filters($class . '.created', $model);
                 if ($respond) {
                     JsonHelper::respond($model);
@@ -58,12 +64,18 @@ class RestController extends Zend_Rest_Controller{
         $class = $this->getModelClassName();
         $model = call_user_func(array($class, 'selectById'), $id);
         $model = InputHelper::getModelFromInput($model);
+        $meta = InputHelper::getParam('meta', array());
         $errors = $model->getValidationErrors();
         if(!empty($errors)){
             JsonHelper::respondErrors($errors);
         }else{ 
             try{
             if($model->update()){
+                if(count($meta)){
+                    foreach ($meta as $key=>$value){
+                        $model->updateMeta($key, $value);
+                    }
+                }
                 $model = call_user_func(array($class, 'selectById'), $id);
                 apply_filters($class.'.updated', $model);
                 if($respond){

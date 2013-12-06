@@ -238,6 +238,63 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->wpUser = $wpUser;
     }
 
+    /**
+     * Get user meta single key-value pair or all key-values
+     * 
+     * @param int $usetId Comment ID.
+     * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
+     * @param bool $single Whether to return a single value.
+     * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
+     */
+    public static function getUserMeta($usetId, $key = '', $single = true){
+        $meta = get_user_meta($usetId, $key, $single);
+        if(!$key && $single && $meta && is_array($meta)){
+            $m = array();
+            foreach($meta as $k => $values){
+                $m[$k]= is_array($values)?reset($values):$values;
+            }
+            
+            return $m;
+        }
+        return $meta;
+    }
+
+    /**
+     * Update user meta value for the specified key in the DB
+     * 
+     * @param integer $userId
+     * @param string $key
+     * @param string $value
+     * @param string $oldValue
+     * @return bool False on failure, true if success.
+     */
+    public static function updateUserMeta($userId, $key, $value, $oldValue = ''){
+        return update_user_meta($userId, $key, $value, $oldValue);
+    }
+    
+    /**
+     * Get user meta single key-value pair or all key-values
+     * 
+     * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
+     * @param bool $single Whether to return a single value.
+     * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
+     */
+    public function getMeta($key = '', $single = true) {
+        return  self::getUserMeta($this->getId(), $key, $single);
+    }
+
+    /**
+     * Update user meta value for the specified key in the DB
+     * 
+     * @param string $key
+     * @param string $value
+     * @param string $oldValue
+     * @return bool False on failure, true if success.
+     */
+    public function updateMeta($key, $value, $oldValue = '') {
+        self::updateUserMeta($this->getId(), $key, $value, $oldValue);
+    }
+    
     public static function getDbIdColumn() {
         return 'ID';
     }
@@ -254,7 +311,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $obj->setId($wpRecord->ID);
         $obj->setLogin($wpRecord->user_login);
         $obj->setEmail($wpRecord->user_email);
-        $obj->setNicename($wpRecord->nice_name);
+        $obj->setNicename($wpRecord->user_nicename);
         $obj->setUrl($wpRecord->user_url);
         $obj->setDisplayName($wpRecord->display_name);
 //        $obj->setNickname($wpRecord->nickname);
@@ -465,6 +522,28 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['aim'] = $this->getAim();
         $jsonItem['yim'] = $this->getYim();
         $jsonItem['profile_link'] = $this->getProfileLink();
+        $meta = $this->getMeta();
+        if($meta){
+            $adminMeta = array(
+                'rich_editing',
+                'comment_shortcuts',
+                'admin_color',
+                'use_ssl',
+                'wp_capabilities',
+                'wp_user_level',
+                'default_password_nag',
+                'show_admin_bar_front',
+            );
+
+            if(!AclHelper::isAdmin()){
+                foreach($adminMeta as $key){
+                    if(isset($meta[$key])){
+                        unset($meta[$key]);
+                    }
+                }
+            }
+            $jsonItem['meta']=$meta;
+        }
         
         return $jsonItem;
     }
@@ -482,7 +561,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->setId(Util::getItem($input, 'id', 0));
         $this->setLogin(Util::getItem($input, 'user_login'));
         $this->setEmail(Util::getItem($input, 'user_email'));
-        $this->setNicename(Util::getItem($input, 'nice_name'));
+        $this->setNicename(Util::getItem($input, 'user_nicename'));
         $this->setUrl(Util::getItem($input, 'user_url'));
         $this->setDisplayName(Util::getItem($input, 'display_name'));
 //        $this->setNickname(Util::getItem($input, 'nickname'));
@@ -495,6 +574,27 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->setJabber(Util::getItem($input, 'jabber'));
         $this->setAim(Util::getItem($input, 'aim'));
         $this->setYim(Util::getItem($input, 'yim'));
+        
+        $adminMeta = array(
+            'rich_editing',
+            'comment_shortcuts',
+            'admin_color',
+            'use_ssl',
+            'wp_capabilities',
+            'wp_user_level',
+            'default_password_nag',
+            'show_admin_bar_front',
+        );
+        
+        $meta = InputHelper::getParam('meta');
+        if(!AclHelper::isAdmin() && $meta && is_array($meta)){
+            foreach($adminMeta as $key){
+                if(isset($meta[$key])){
+                    unset($meta[$key]);
+                }
+                InputHelper::setParam('meta', $meta);
+            }
+        }
         
     }
 

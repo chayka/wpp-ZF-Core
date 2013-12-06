@@ -167,6 +167,7 @@ class ZF_Query extends WP_Query {
                 unset($front);
                 //$r = $application->bootstrap()->getBootStrap()->run();
             }catch(Exception $e){
+//                Util::print_r($e->getTraceAsString());
                 return $e->getMessage();
             }
             $_SERVER['REQUEST_URI'] = $tmpUri;

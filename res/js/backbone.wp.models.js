@@ -30,7 +30,8 @@
                 post_mime_type: '',
                 href: '',
                 terms: [],
-                comments: []
+                comments: [],
+                meta: {}
             };
             
         },
@@ -268,6 +269,14 @@
         
         getThumbData_Full: function(){
             return this.getThumbData('full');
+        },
+        
+        setMeta: function(key, value){
+            return this.set('meta.'+key, value);
+        },
+        
+        getMeta: function(key, defaultValue){
+            return this.get('meta.'+key, defaultValue)
         }
         
     });
@@ -310,7 +319,8 @@
                 comment_type: null,
                 comment_date: null,
                 comment_date_gmt: null,
-                user_id: 0
+                user_id: 0,
+                meta: {}
             };
             
         },
@@ -516,6 +526,14 @@
                 
         voteDown: function(callback){
             this.vote(-1, callback);
+        },
+        
+        setMeta: function(key, value){
+            return this.set('meta.'+key, value);
+        },
+        
+        getMeta: function(key, defaultValue){
+            return this.get('meta.'+key, defaultValue)
         }
     });
 
@@ -558,7 +576,8 @@
                 jabber: '',
                 aim: '',
                 yim: '',
-                profile_link: ''
+                profile_link: '',
+                meta: {}
             };
             
         },
@@ -688,6 +707,14 @@
                 
         getProfileLink: function(){
             return this.get('profile_link', '');
+        },
+        
+        setMeta: function(key, value){
+            return this.set('meta.'+key, value);
+        },
+        
+        getMeta: function(key, defaultValue){
+            return this.get('meta.'+key, defaultValue)
         }
         
     });

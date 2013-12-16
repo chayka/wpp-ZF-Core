@@ -40,12 +40,12 @@ class RestController extends Zend_Rest_Controller{
         }else{
             $id = $model->insert();
             if ($id) {
-                $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id);
                 if(count($meta)){
                     foreach ($meta as $key=>$value){
                         $model->updateMeta($key, $value);
                     }
                 }
+                $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id, false);
                 apply_filters($class . '.created', $model);
                 if ($respond) {
                     JsonHelper::respond($model);
@@ -71,12 +71,13 @@ class RestController extends Zend_Rest_Controller{
         }else{ 
             try{
             if($model->update()){
-                if(count($meta)){
+//                Util::print_r($meta);
+                if(count($meta) && is_array($meta)){
                     foreach ($meta as $key=>$value){
                         $model->updateMeta($key, $value);
                     }
                 }
-                $model = call_user_func(array($class, 'selectById'), $id);
+                $model = call_user_func(array($class, 'selectById'), $id, false);
                 apply_filters($class.'.updated', $model);
                 if($respond){
     //                $json = $model->packJsonItem();

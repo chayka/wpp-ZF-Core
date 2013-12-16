@@ -50,6 +50,9 @@ class JsonHelper {
     }
 
     public static function respond($payload = '', $code = 0, $message = '') {
+        if($code){
+//            header("HTTP/1.0 400 Bad request", true, 400);
+        }
         return die(self::packResponse($payload, $code, $message));
     }
     

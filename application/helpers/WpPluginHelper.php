@@ -114,8 +114,8 @@ abstract class WpPlugin{
      */
     public function addSupport_PostProcessing($priority = 100){
         $this->addAction('save_post', 'savePost', $priority, 2);
-        $this->addAction('delete_post', 'deletePost', $priority, 2);
-        $this->addAction('trashed_post', 'trashedPost', $priority, 2);
+        $this->addAction('delete_post', 'deletePost', $priority, 1);
+        $this->addAction('trashed_post', 'trashedPost', $priority, 1);
     }
     
     /**
@@ -130,19 +130,17 @@ abstract class WpPlugin{
     /**
      * 
      * @param integer $postId
-     * @param WP_Post $post
      */
-    public function deletePost($postId, $post){
+    public function deletePost($postId){
         
     }
     
     /**
      * 
      * @param integer $postId
-     * @param WP_Post $post
      */
-    public function trashedPost($postId, $post){
-        $this->deletePost($postId, $post);
+    public function trashedPost($postId){
+        $this->deletePost($postId);
     }
 
     /**

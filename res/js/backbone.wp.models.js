@@ -658,11 +658,19 @@
         },
         
         setFirstName: function(val){
-            return this.set('user_login', val);
+            return this.set('first_name', val);
+        },
+                
+        getFirstName: function(){
+            return this.get('first_name', '');
+        },
+        
+        setLastName: function(val){
+            return this.set('last_name', val);
         },
                 
         getLastName: function(){
-            return this.get('user_login', '');
+            return this.get('last_name', '');
         },
         
         setDescription: function(val){

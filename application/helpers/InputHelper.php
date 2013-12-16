@@ -50,13 +50,16 @@ class InputHelper {
     
     public static function getParam($param, $default = '') {
         self::initChains();
-        $chain = Util::getItem(self::$chains, $param, self::$chains['*']);
         if(!Util::getFront()->getRequest()){
-//            Util::print_r(debug_backtrace());
             Util::getFront()->setRequest('Zend_Controller_Request_Http');
         }
         $value = Util::getFront()->getRequest()->getParam($param, $default);
-        return $chain->filter($value);
+        return self::filter($value, $param);
+//        if(is_array($value)){
+//            return self::filter($value);
+//        }
+//        $chain = Util::getItem(self::$chains, $param, self::$chains['*']);
+//        return $chain->filter($value);
     }
     
     public static function getParams() {
@@ -70,21 +73,30 @@ class InputHelper {
     }
     /**
      * 
+     * @param string $value
+     * @param string $key
+     * @return stering
+     */
+    public static function filter($value, $key = '*'){
+        self::initChains();
+        if(is_array($value)){
+            return self::filterArray($value);
+        }
+        $chain = Util::getItem(self::$chains, $key, self::$chains['*']);
+        return $chain->filter($value);
+    }
+    /**
+     * 
      * @param array(string) $values
      * @param string $key
      * @return stering
      */
-    public static function filter($values, $key = ''){
+    public static function filterArray($values){
         self::initChains();
-        if(!$key){
-            foreach($values as $k=>$v){
-                $values[$k] = self::filter($k, $v);
-            }
-            return $values;
+        foreach($values as $k=>$v){
+            $values[$k] = self::filter($v, $k);
         }
-        $value = Util::getItem($values, $key);
-        $chain = Util::getItem(self::$chains, $key, self::$chains['*']);
-        return $chain->filter($value);
+        return $values;
     }
 
     public static function storeInput($id = '') {

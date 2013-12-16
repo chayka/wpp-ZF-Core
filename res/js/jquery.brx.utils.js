@@ -187,37 +187,6 @@
         }
         
         return res;
-//        switch(code){
-//            case 'auth_required':
-//                message = message || 
-//                'Для выполнения данной операции необходимо авторизоваться на сайте';
-//                window.modalDialog(message, null, {
-//                    title: 'Требуется авторизация',
-//                    buttons: [
-//                        {text: 'Продолжить анонимно', click: function(){
-//                                $(this).dialog('close');
-//                        }},
-//                        {text: 'Зарегистрироваться', click: function(){
-//                                $(document).trigger('authForm.join');
-//                                $(this).dialog('close');
-//                        }},
-//                        {text: 'Войти', click: function(){
-//                                $(document).trigger('authForm.login');
-//                                $(this).dialog('close');
-//                        }}
-//                    ],
-//                    width: 400
-//                });
-//                return true;
-//            case 'permission_required':
-//                message = message || 
-//                'У вас недостаточно прав для выполнения данной операции';
-//                window.modalAlert(message);
-//                return true;
-//            case 'reputation_required':
-//                break;
-//        }
-//        return false;
     }
     
     $.brx.utils.handleErrors = function(data){

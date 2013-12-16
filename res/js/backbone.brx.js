@@ -474,17 +474,6 @@
                         this.options[i] = this.$el.attr(i+'-array').split(',');
                     }
                     if( this.$el.attr(i+'-var')){
-//                        var parts = this.$el.attr(i+'-var').split('.');
-//                        var root = window;
-//                        for(var x in parts){
-//                            var part = parts[x];
-//                            if(!parseInt(x)  && part == '$'){
-//                                root = $;
-//                                continue;
-//                            }
-//                            root = root[part];
-//                        }
-//                        this.options[i] = root;
                         this.options[i] = _.getVar(this.$el.attr(i+'-var'));
                     }
                 }

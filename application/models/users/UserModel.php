@@ -524,6 +524,20 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['profile_link'] = $this->getProfileLink();
         $meta = $this->getMeta();
         if($meta){
+            $reservedMeta = array(
+                'first_name', 
+                'last_name', 
+                'description',
+                'rich_editing', 
+                'jabber',
+                'aim',
+                'yim',
+            );
+            foreach($reservedMeta as $key){
+                if(isset($meta[$key])){
+                    unset($meta[$key]);
+                }
+            }
             $adminMeta = array(
                 'rich_editing',
                 'comment_shortcuts',
@@ -540,6 +554,11 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                     if(isset($meta[$key])){
                         unset($meta[$key]);
                     }
+                }
+            }
+            foreach ($meta as $key=>$value){
+                if(strpos($key, 'wp_')===0 || is_serialized($meta[$key])){
+                    unset($meta[$key]);
                 }
             }
             $jsonItem['meta']=$meta;
@@ -585,6 +604,15 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             'default_password_nag',
             'show_admin_bar_front',
         );
+        $reservedMeta = array(
+            'first_name', 
+            'last_name', 
+            'description',
+            'rich_editing', 
+            'jabber',
+            'aim',
+            'yim',
+        );
         
         $meta = InputHelper::getParam('meta');
         if(!AclHelper::isAdmin() && $meta && is_array($meta)){
@@ -592,9 +620,21 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                 if(isset($meta[$key])){
                     unset($meta[$key]);
                 }
-                InputHelper::setParam('meta', $meta);
             }
         }
+        foreach($reservedMeta as $key){
+            if(isset($meta[$key])){
+                unset($meta[$key]);
+            }
+        }
+        if(isset($meta) && is_array($meta)){
+            foreach($meta as $key=>$value){
+                if(strpos($key, 'wp_')===0){
+                    unset($meta[$key]);
+                }
+            }
+        }
+        InputHelper::setParam('meta', $meta);
         
     }
 

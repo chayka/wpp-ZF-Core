@@ -149,7 +149,7 @@ class AclHelper {
     
     public static function isOwner(/*PostModel*/ $obj){
         $user = UserModel::currentUser();
-        return ($obj->getUserId() == $user->getId() || $user->getRole()=='administrator');
+        return ($obj->getUserId() && ($obj->getUserId() == $user->getId()) || $user->getRole()=='administrator');
     }
     
     public static function apiOwnershipRequired(/*PostModel*/ $obj, $message = ''){

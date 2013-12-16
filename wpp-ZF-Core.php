@@ -345,7 +345,8 @@ class ZF_Core extends WpPlugin{
         $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
         $this->registerScript( 'underscore-brx', 'underscore.brx.js', array(($isAdminPost?'underscore':'Underscore')));
-        $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment'));
+        $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment', 'brx-ajax'));
+        $this->registerScript( 'brx-ajax', 'brx.ajax.js', array('underscore-brx'));
 
         $this->registerScript( 'backbone-wp-models', 'backbone.wp.models.js', array('backbone-brx'));
         $this->registerScript( 'backbone-brx-pagination', 'backbone.brx.Pagination.view.js', array('backbone-brx'));

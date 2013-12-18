@@ -179,8 +179,9 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function getCapabilities(){
+        global $wpdb;
         if(!$this->capabilities){
-            $this->capabilities = $this->getMeta('wp_capabilities', true);
+            $this->capabilities = $this->getMeta($wpdb->prefix.'capabilities', true);
 //            Util::print_r($this->capabilities);
 //            die();
         }

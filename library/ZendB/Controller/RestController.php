@@ -42,7 +42,9 @@ class RestController extends Zend_Rest_Controller{
             if ($id) {
                 if(count($meta)){
                     foreach ($meta as $key=>$value){
-                        $model->updateMeta($key, $value);
+                        if(strpos($key, 'wp_')===false && !is_serialized($meta[$key])){
+                            $model->updateMeta($key, $value);
+                        }
                     }
                 }
                 $model = call_user_func(array($this->getModelClassName(), 'selectById'), $id, false);
@@ -74,7 +76,9 @@ class RestController extends Zend_Rest_Controller{
 //                Util::print_r($meta);
                 if(count($meta) && is_array($meta)){
                     foreach ($meta as $key=>$value){
-                        $model->updateMeta($key, $value);
+                        if(strpos($key, 'wp_')===false && !is_serialized($meta[$key])){
+                            $model->updateMeta($key, $value);
+                        }
                     }
                 }
                 $model = call_user_func(array($class, 'selectById'), $id, false);

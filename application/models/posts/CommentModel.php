@@ -35,6 +35,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
 
     protected static $commentsCacheById = array();
     protected static $commentsCacheByPostId = array();
+    protected static $jsonMetaFields = array();
 
     /**
      * PostModel constructor
@@ -912,6 +913,11 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $comment = $this->getWpComment();
     }
     
+    public static function setJsonMetaFields($metaFields) {
+        self::$jsonMetaFields = $metaFields;
+    }
+
+
     /**
      * Packs this post into assoc array for JSON representation.
      * Used for API Output
@@ -936,7 +942,10 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         $jsonItem['comment_type'] = $this->getType();
         $jsonItem['comment_date'] = DateHelper::datetimeToJsonStr($this->getDtCreated());
         $jsonItem['comment_date_gmt'] = DateHelper::datetimeToJsonStr($this->getDtCreatedGMT());
-        $meta = $this->getMeta();
+        $meta = array();
+        foreach(self::$jsonMetaFields as $field){
+            $meta[$field] = $this->getMeta($field);
+        }
         if($meta){
             $jsonItem['meta']=$meta;
         }

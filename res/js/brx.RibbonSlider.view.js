@@ -3,7 +3,8 @@
         options:{
            direction: 'vertical',
            offset: 0,
-           items: {}
+           items: {},
+           currentPage: 0,
         },
         
         postCreate: function(){
@@ -63,6 +64,7 @@
             return _.getItem(this.options.items, key);
         },
         
+        
         renderNavVisibility: function(currentTopOrLeft){
             var slider = this.get('slider');
             if(currentTopOrLeft === undefined){
@@ -72,13 +74,22 @@
             var itemCount = itemViews.length;
             var itemSize = 0;
             var itemMargin = 0;
+            var ribbonSize = 0;
+            var itemsSeen = 0;
+            var totalPages = 0;
+            var currentPage = 0;
             if(itemCount){
                 itemSize = this.isVertical()?itemViews.height():itemViews.width();
                 itemMargin = parseInt(itemViews.css(this.isVertical()?'margin-bottom':'margin-right'));
                 itemSize+=itemMargin;
+                ribbonSize = this.isVertical()?this.get('ribbon').height():this.get('ribbon').width();
+                itemsSeen = Math.floor((ribbonSize+itemMargin) / itemSize);
+                totalPages = Math.ceil(itemCount / itemsSeen);
+                currentPage = -Math.floor(currentTopOrLeft / itemSize / itemsSeen);
+                this.renderPages(currentPage, totalPages);
             }
             if(!this.isVertical() && itemSize){
-                slider.css('width', (itemSize * itemCount - itemMargin)+'px');
+                slider.css('width', (itemSize * itemCount)+'px');
             }
             var ribbonSize = this.isVertical()?this.get('ribbon').height():this.get('ribbon').width();
             console.dir({slider:this.get('slider')});
@@ -95,11 +106,40 @@
             }
         },
         
+        renderPages: function(current, total){
+            var box = this.get('pagesBox');
+            var pages = box.find('li');
+            if(pages.length < total){
+                for(var i = pages.length; i < total; i++){
+                    var page = $('<li data-slide-ribbon-to="'+i+'" class=""></li>');
+                    page.click($.proxy(function(e){
+                        console.dir({e: e});
+                        var li = e.currentTarget;
+                        var p = parseInt($(li).attr('data-slide-ribbon-to'));
+                        this.slideToPage(p);
+                    }, this));
+                    page.appendTo(box);
+                }
+            }else if(pages.length > total){
+                for(var i = pages.length-1; i>=total; i--){
+                    box.find('li[data-slide-ribbon-to='+i+']').remove();
+                }
+            }
+            pages.removeClass('active');
+            box.find('li[data-slide-ribbon-to='+current+']').addClass('active');
+            box.css('opacity', total>1?1:0);
+            this.setInt('currentPage', current);
+        },
+        
         scroll: function(distance, duration){
             if(duration === undefined){
                 duration = 600;
             }
-            this.get('slider').css("-webkit-transition-duration", (duration/1000).toFixed(1) + "s");              
+            var v = (duration/1000).toFixed(1) + "s";
+            this.get('slider').css("transition-duration", v);              
+            this.get('slider').css("-webkit-transition-duration", v);              
+            this.get('slider').css("-moz-transition-duration", v);              
+            this.get('slider').css("-o-transition-duration", v);              
             this.get('slider').css(this.isVertical()?'top':'left', distance+'px');
 //            this.get('slider').css("-webkit-transform", this.isVertical()?
 //                "translate3d(0px,"+distance +"px,0px)":
@@ -109,6 +149,13 @@
         scrollOffset: function(offset, duration){
             var currentTopOrLeft = this.getInt('offset');
             this.scroll(currentTopOrLeft - offset, duration);
+        },
+        
+        slideToPage: function(page){
+            console.log('page: '+page);
+            var current = this.getInt('currentPage');
+            var offset = page - current;
+            this.slide(offset);
         },
         
         slide: function(sign){
@@ -123,9 +170,10 @@
             var ribbonSize = this.isVertical()?this.get('ribbon').height():this.get('ribbon').width();
             var itemsSeen = Math.floor((ribbonSize+itemMargin) / itemSize);
             var offset = sign?itemsSeen * itemSize:0;
-            if(sign < 0){
-                offset*=-1;
-            }
+//            if(sign < 0){
+//                offset*=-1;
+//            }
+            offset*=sign;
             console.dir({slider:this.get('slider')});
             var newTopOrLeft = currentTopOrLeft - offset;
             if(newTopOrLeft >= 0){

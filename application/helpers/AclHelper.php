@@ -139,7 +139,7 @@ class AclHelper {
     
     public static function apiOwnershipForbidden(/*AG_PostModel*/ $obj, $message = ''){
         $user = UserModel::currentUser();
-        if($obj->getUserId() == $user->getId() && $user->getRole()!='administrator'){
+        if($obj->getUserId() == $user->getId() && !$user->hasRole('administrator')){
             if(!$message){
                 $message = 'Данная операция с собственным объектом невозможна';
             }
@@ -149,12 +149,12 @@ class AclHelper {
     
     public static function isOwner(/*PostModel*/ $obj){
         $user = UserModel::currentUser();
-        return ($obj->getUserId() && ($obj->getUserId() == $user->getId()) || $user->getRole()=='administrator');
+        return ($obj->getUserId() && ($obj->getUserId() == $user->getId()) || $user->hasRole('administrator'));
     }
     
     public static function apiOwnershipRequired(/*PostModel*/ $obj, $message = ''){
         $user = UserModel::currentUser();
-        if($obj->getUserId() != $user->getId() && $user->getRole()!='administrator'){
+        if($obj->getUserId() != $user->getId() && !$user->hasRole('administrator')){
             if(!$message){
                 $message = 'У вас недостаточно прав для модификации данного объекта';
             }
@@ -164,7 +164,7 @@ class AclHelper {
     
     public static function isNotOwner(/*AG_PostModel*/ $obj){
         $user = UserModel::currentUser();
-        return ($obj->getUserId() != $user->getId() || $user->getRole()=='administrator');
+        return ($obj->getUserId() != $user->getId() || $user->hasRole('administrator'));
     }
     
     public static function isUserRole($role, $user = null){
@@ -173,7 +173,7 @@ class AclHelper {
         }elseif(!($user instanceof UserModel)){
             $user = UserModel::unpackDbRecord($user);
         }
-        return ($user->getRole()==$role);
+        return ($user->hasRole($role));
     }
 
     public static function isAdmin($user = null){

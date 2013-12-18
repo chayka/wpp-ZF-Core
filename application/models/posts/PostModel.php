@@ -48,6 +48,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     
     protected static $postsCacheById = array();
     protected static $postsCacheBySlug = array();
+    protected static $jsonMetaFields = array();
 
     /**
      * PostModel constructor
@@ -1347,6 +1348,9 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $wp_the_query->comment_count = $this->getCommentCount();
     }
     
+    public static function setJsonMetaFields($metaFields) {
+        self::$jsonMetaFields = $metaFields;
+    }
     /**
      * Packs this post into assoc array for JSON representation.
      * Used for API Output
@@ -1393,7 +1397,10 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             );
             $jsonItem['thumbnail'] = $thumb;
         }
-        $meta = $this->getMeta();
+        $meta = array();
+        foreach(self::$jsonMetaFields as $field){
+            $meta[$field] = $this->getMeta($field);
+        }
         if($meta){
             $jsonItem['meta'] = $meta;
         }

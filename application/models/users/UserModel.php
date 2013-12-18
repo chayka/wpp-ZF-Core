@@ -18,6 +18,8 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     protected static $userCacheById = array();
     protected static $userCacheByEmail = array();
     protected static $userCacheByLogin = array();
+    
+    protected static $jsonMetaFields = array();
 
     protected static $currentUser;
     
@@ -44,6 +46,8 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     protected $richEditing;
     
     protected $role;
+    
+    protected $capabilities;
     
     /**
      * User e-mail
@@ -174,12 +178,42 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $this->richEditing = $richEditing;
     }
 
-    public function getRole() {
-        $caps = array();
-        if($this->getId()){
-            $caps = get_user_meta( $this->getId(), 'wp_capabilities', false );
+    public function getCapabilities(){
+        if(!$this->capabilities){
+            $this->capabilities = $this->getMeta('wp_capabilities', true);
+//            Util::print_r($this->capabilities);
+//            die();
         }
-        return $this->role?$this->role:key($caps);
+        return $this->capabilities?$this->capabilities:array();
+    }
+    
+    public function hasRole($role){
+        return $this->hasCapability($role);
+    }
+    
+    public function hasCapability($capability){
+        return Util::getItem($this->getCapabilities(), $capability);
+    }
+    
+    public function getRole() {
+        if($this->getId() && !$this->role){
+            $caps = $this->getCapabilities();
+            $standardRoles = array(
+                'administrator',
+                'editor',
+                'author',
+                'contributor',
+                'subscriber'
+            );
+            
+            foreach ($standardRoles as $role){
+                if($this->hasRole($role)){
+                    $this->role = $role;
+                    break;
+                }
+            }
+        }
+        return $this->role;
     }
 
     public function setRole($role) {
@@ -503,6 +537,11 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return self::$currentUser;
     }
     
+    public static function setJsonMetaFields($metaFields) {
+        self::$jsonMetaFields = $metaFields;
+    }
+
+
     public function packJsonItem() {
         $jsonItem = array();
         $jsonItem['id'] = $this->getId();
@@ -522,7 +561,10 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['aim'] = $this->getAim();
         $jsonItem['yim'] = $this->getYim();
         $jsonItem['profile_link'] = $this->getProfileLink();
-        $meta = $this->getMeta();
+        $meta = array();
+        foreach(self::$jsonMetaFields as $field){
+            $meta[$field] = $this->getMeta($field);
+        }
         if($meta){
             $reservedMeta = array(
                 'first_name', 

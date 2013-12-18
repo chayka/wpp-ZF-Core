@@ -7,6 +7,11 @@ interface JsonReadyInterface {
      * @return array($key=>$value);
      */
     public function packJsonItem();
+    
+    /**
+     * Set array of fields that should be exported to json
+     */
+//    public static function setJsonMetaFields($metaFields);
 }
 
 class JsonHelper {

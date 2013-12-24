@@ -75,8 +75,8 @@ class ZF_Core extends WpPlugin{
         try {
             
             // Turn on autoloading, so we do not include each Zend Framework class
-//            require_once 'Zend/Loader/Autoloader.php';
-//            $autoloader = Zend_Loader_Autoloader::getInstance();
+            require_once 'Zend/Loader/Autoloader.php';
+            $autoloader = Zend_Loader_Autoloader::getInstance();
             spl_autoload_register(array('ZF_Core', 'autoloader'));
 
             // if everything went well, set a status flag

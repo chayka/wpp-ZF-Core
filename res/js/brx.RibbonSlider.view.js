@@ -140,10 +140,14 @@
             this.get('slider').css("-webkit-transition-duration", v);              
             this.get('slider').css("-moz-transition-duration", v);              
             this.get('slider').css("-o-transition-duration", v);              
-            this.get('slider').css(this.isVertical()?'top':'left', distance+'px');
-//            this.get('slider').css("-webkit-transform", this.isVertical()?
-//                "translate3d(0px,"+distance +"px,0px)":
-//                "translate3d("+distance +"px,0px,0px)");
+//            this.get('slider').css(this.isVertical()?'top':'left', distance+'px');
+            v = this.isVertical()?
+                "translate3d(0px,"+distance +"px,0px)":
+                "translate3d("+distance +"px,0px,0px)";
+            this.get('slider').css("transform", v);
+            this.get('slider').css("-webkit-transform", v);
+            this.get('slider').css("-moz-transform", v);
+            this.get('slider').css("-o-transform", v);
         },
         
         scrollOffset: function(offset, duration){

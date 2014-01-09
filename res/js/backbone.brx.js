@@ -391,7 +391,9 @@
 //            console.log('templated._parseTemplate');
             var w = this;
             this.$el.restoreTemplatedAttrs();
+            // deprecated begins
             $('[widget-template], [backbone-view-template]', w.el).storeTemplatedAttrs();
+            
             $('[widget]', w.el).each(function(i){
                 var widgetName = $(this).attr("widget");
                 if(widgetName){
@@ -409,31 +411,37 @@
                     $(this).storeAttr('widget');
                 }
             });
-            $('[backbone-view]', w.el).each(function(i){
-                var viewName = $(this).attr("backbone-view");
+            // deprecated ends
+            
+            $('[data-view], [backbone-view]', w.el).each(function(i){
+                var viewName = $(this).attr("data-view") || $(this).attr("backbone-view");
                 if(viewName){
                     var view = $.brx.createBackboneView(viewName, this);
-                    var attachPoint = $(this).attr("attachPoint");
-                    if(attachPoint){
-                        w.option(attachPoint, view.$el);
-                        $(this).storeAttr('attachPoint');
+//                    var attachPoint = $(this).attr("data-attach-node") || $(this).attr("attachPoint");
+//                    if(attachPoint){
+//                        w.option(attachPoint, view.$el);
+//                        $(this).storeAttr("data-attach-node")
+//                                .storeAttr('attachPoint');
+//                    }
+                    var attachView = $(this).attr("data-attach-view") || $(this).attr("attachView");
+                    if(attachView){
+                        w.option(attachView, view);
+                        $(this).storeAttr('data-attach-view')
+                                .storeAttr('attachView');
                     }
-                    var attachWidget = $(this).attr("attachView");
-                    if(attachWidget){
-                        w.option(attachWidget, view);
-                        $(this).storeAttr('attachView');
-                    }
-                    $(this).storeAttr('backbone-view');
+                    $(this).storeAttr('data-view')
+                            .storeAttr('backbone-view');
                 }
             });
-            $('[attachPoint]', w.el).each(function(i){
-                var attachPoint = $(this).attr("attachPoint");
+            $('[data-attach-node], [attachPoint]', w.el).each(function(i){
+                var attachPoint = $(this).attr("data-attach-node") || $(this).attr("attachPoint");
 //                console.dir({'attachPoint':{point: attachPoint, widget: w, element: $(this)}});
                 w.option(attachPoint, $(this));
-                $(this).storeAttr('attachPoint');
+                $(this).storeAttr('data-attach-node')
+                        .storeAttr('attachPoint');
             });
-            $('[attachEvent]', w.el).each(function(j){
-                var attachEvent = $(this).attr("attachEvent");
+            $('[data-attach-event], [attachEvent]', w.el).each(function(j){
+                var attachEvent = $(this).attr("data-attach-event") || $(this).attr("attachEvent");
                 var re1 = /\s*\w+\s*:\s*[^\s,]+/g;
                 var re2 = /\s*(\w+)\s*:\s*([^\s,]+)/;
                 var bindings = attachEvent.match(re1);
@@ -449,10 +457,11 @@
                     $(this).unbind('click').bind('click', $.proxy(w[attachEvent], w));
                 }
 //                console.dir({'attachEvent':{event: attachEvent, widget: w, element: $(this)}});
-                $(this).storeAttr('attachEvent');
+                $(this).storeAttr('data-attach-event')
+                        .storeAttr('attachEvent');
             });
-            $('[plugin]', w.el).each(function(j){
-                var plugin = $(this).attr("plugin");
+            $('[data-plugin], [plugin]', w.el).each(function(j){
+                var plugin = $(this).attr("data-plugin") || $(this).attr("plugin");
 //                console.log(plugin);
                 var path = plugin.split('.');
                 var handler = $.fn;
@@ -462,25 +471,31 @@
                 }
 //                console.dir({handler: handler, '$': $});
                 handler(this);
-                $(this).storeAttr('plugin');
+                $(this).storeAttr('data-plugin')
+                        .storeAttr('plugin');
             });
 //            console.dir({'widget':w});
             for(var i in this.options){
                 if(!$.isFunction(this.options[i])){
-                    if( this.$el.attr(i)){
-                        this.options[i] = this.$el.attr(i);
+                    var variable = this.$el.attr('data-'+i) || this.$el.attr(i);
+                    if(variable){
+                        this.options[i] = variable;
                     }
-                    if( this.$el.attr(i+'-array')){
-                        this.options[i] = this.$el.attr(i+'-array').split(',');
+                    var arr = this.$el.attr('data-array-'+i) || this.$el.attr(i+'-array');
+                    if(arr){
+                        this.options[i] = arr.split(',');
                     }
-                    if( this.$el.attr(i+'-var')){
-                        this.options[i] = _.getVar(this.$el.attr(i+'-var'));
+                    var imported = this.$el.attr('data-import'+i) || this.$el.attr(i+'-var');
+                    if(imported){
+                        this.options[i] = _.getVar(imported);
                     }
                 }
             }
             
-            if(this.$el.attr('populate')){
-                _.setVar(this.$el.attr('populate'), this);
+            var exported = this.$el.attr('data-export') || this.$el.attr('populate')
+            
+            if(exported){
+                _.setVar(exported, this);
             }
 
         },
@@ -506,15 +521,24 @@
             Backbone.Events.trigger('brx.MultiSpinner.hide', id);
         }
     });
-
-    $.brx.createBackboneView = function(view, element, options){
+    
+    
+    /**
+     * Function to create view object
+     * 
+     * @param string|constructor view
+     * @param DOMElement element
+     * @param object options
+     * @returns $.brx.View
+     */
+    $.brx.createView = $.brx.createBackboneView = function(view, element, options){
         if(view){
             options = options || {};
             options.el = element;
-            var modelVar = $(element).attr('model-var');
-            if(modelVar){
-                options.model = _.getVar(modelVar);
-            }
+//            var modelVar = $(element).attr('model-var');
+//            if(modelVar){
+//                options.model = _.getVar(modelVar);
+//            }
             
             if(_.isString(view)){
                 view = _.getVar(view, $);
@@ -525,14 +549,25 @@
         return null;
     };
     
-    $.fn.createBackboneView = function(view, options){
+    /**
+     * Function to create view object on a queried element
+     * $('.selector').createBackboneView = function('brx.View', {});
+     * 
+     * @param string|constructor view
+     * @param object options
+     * @returns $
+     */
+    $.fn.createView = $.fn.createBackboneView = function(view, options){
         $.brx.createBackboneView(view, this, options);
         return this;
     };
     
-    $.brx.parseBackboneViews = function(){
-        $('[backbone-view]').each(function(i){
-            var view = $(this).attr("backbone-view");
+    /**
+     * Parse HTML code and create views out of found DOMElements with data-view specified
+     */
+    $.brx.parseViews = $.brx.parseBackboneViews = function(){
+        $('[data-view], [backbone-view]').each(function(i){
+            var view = $(this).attr("data-view") || $(this).attr("backbone-view");
             $(this).createBackboneView(view);
         });
         $(document).restoreTemplatedAttrs();
@@ -962,10 +997,15 @@
         
         checkLength: function ( fieldId, fieldLabel, min, max, messageTemplate ) {
             fieldLabel = fieldLabel || this.labels(fieldId).text().replace(':', '');
-            min = min || this.fields(fieldId).attr('check-length-min') || 0;
-            max = max || this.fields(fieldId).attr('check-length-max') || 0;
+            var field = this.fields(fieldId);
+            var short = field.attr('data-check-length');// 'Длина значения должна быть от <%= min %> до <%= max => символов.|0|16'
+            var shorts = _.empty(short)?[]:short.split('|');
+            min = min || _.getItem(shorts, 1) || field.attr('data-check-length-min') || field.attr('check-length-min') || 0;
+            max = max || _.getItem(shorts, 2) || field.attr('data-check-length-max') || field.attr('check-length-max') || 0;
             messageTemplate = messageTemplate 
-                || this.fields(fieldId).attr('check-length-message')
+                || _.getItem(shorts, 0)
+                || field.attr('data-check-length-message')
+                || field.attr('check-length-message')
                 || "Длина значения должна быть от <%= min %> до <%= max => символов.";
             var message = _.template(messageTemplate, {min: min, max: max, label: fieldLabel}); 
             var input = this.options.inputs[fieldId];
@@ -978,10 +1018,18 @@
         },
 
         checkRegexp: function ( fieldName, regexp, errorMessage ) {
+            var field = this.fields(fieldName);
+            var short = field.attr('data-check-regexp'); // 'Неверный формат телефона...|/\d{7}/i'
+            var shorts = _.empty(short)?[]:short.split('|');
+            var patternAndModifiers = /\/(.*)\/(\w*)$/.exec(_.getItem(shorts, 1));
+            var message = _.getItem(shorts, 0) || field.attr('data-check-regexp-message') || field.attr('check-regexp-message');
+            var pattern = _.getItem(patternAndModifiers, 1) || field.attr('data-check-regexp-pattern') || field.attr('check-regexp-pattern');
+            var modifiers = _.getItem(patternAndModifiers, 2) || field.attr('data-check-regexp-modifiers') || field.attr('check-regexp-modifiers');
+            
             regexp = regexp 
-                || new RegExp(this.fields(fieldName).attr('check-regexp-pattern'),this.fields(fieldName).attr('check-regexp-modifiers'));
+                || new RegExp(pattern, modifiers);
             errorMessage = errorMessage 
-                || this.fields(fieldName).attr('check-regexp-message')
+                || message
                 || 'Неверный формат';
             var input = this.options.inputs[fieldName];
             if ( !( regexp.test( input.val() ) ) ) {
@@ -993,16 +1041,23 @@
         },
     
         checkEmail: function (fieldName, errorMessage){
+            var field = this.fields(fieldName);
             errorMessage = errorMessage 
-                || this.fields(fieldName).attr('check-email')
-                || "(образец: master@potroydom.by)";
+                || field.attr('data-check-email')
+                || field.attr('check-email')
+                || "(образец: user@domain.com)";
             return this.checkRegexp( fieldName, /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i, errorMessage );
         },
 		
         checkPassword: function (fieldName, min, errorTemplate){
-            min = min || this.fields(fieldName).attr('check-pass-min') || 0;
+            var field = this.fields(fieldName);
+            var short = field.attr('data-check-pass'); // 'Пароль должен быть не короче <%= min %> символов.|8'
+            var shorts = _.empty(short)?[]:short.split('|');
+            min = min || _.getItem(shorts, 1) || field.attr('data-check-pass-min') || field.attr('check-pass-min') || 0;
             errorTemplate = errorTemplate 
-                || this.fields(fieldName).attr('check-pass-message')
+                || _.getItem(shorts, 0) 
+                || field.attr('data-check-pass-message')
+                || field.attr('check-pass-message')
                 || "Пароль должен быть не короче <%= min %> символов.";
             var errorMessage = _.template(errorTemplate, {min: min});
             var input = this.options.inputs[fieldName];
@@ -1015,11 +1070,19 @@
         },
         
         checkPasswordMatch: function(pass1FieldId, pass2FieldId, errorMessage){
+            var field = this.fields(pass1FieldId);
+            var short = field.attr('data-check-pass-match'); // 'pass1id|Введенные пароли отличаются'
+            var shorts = _.empty(short)?[]:short.split('|');
+            
             pass2FieldId = pass2FieldId
-                || this.fields(pass1FieldId).attr('check-pass-match-id');
+                || _.getItem(shorts, 0) 
+                || field.attr('data-check-pass-match-id')                
+                || field.attr('check-pass-match-id');
 
             errorMessage = errorMessage 
-                || this.fields(pass1FieldId).attr('check-pass-match-message')
+                || _.getItem(shorts, 1) 
+                || field.attr('data-check-pass-match-message')                
+                || field.attr('check-pass-match-message')
                 || "Введенные пароли отличаются";
             var inputPass1 = this.options.inputs[pass1FieldId];
             var inputPass2 = this.options.inputs[pass2FieldId];
@@ -1033,8 +1096,10 @@
         },
         
         checkRequired: function ( fieldName, errorMessage ) {
+            var field = this.fields(fieldName);
             errorMessage = errorMessage 
-                || this.fields(fieldName).attr('check-required')
+                || field.attr('data-check-required')
+                || field.attr('check-required')
                 || "Необходимо заполнить";
             var input = this.options.inputs[fieldName];
             var val = this.getFieldValue(fieldName);
@@ -1048,8 +1113,10 @@
         },
 
         checkRequiredTinyMce: function ( fieldName, errorMessage ) {
+            var field = this.fields(fieldName);
             errorMessage = errorMessage 
-                || this.fields(fieldName).attr('check-required')
+                || field.attr('data-check-required')
+                || field.attr('check-required')
                 || "Необходимо заполнить";
             var value = this.getTinyMceContent(fieldName).replace(/<[^>]+>/g).trim();
             var valid = value.length > 0;
@@ -1062,27 +1129,34 @@
         },
         
         checkField: function(fieldId){
-            valid = true;
+            var field = this.fields(fieldId);
+            var valid = true;
             this.setFormFieldStateClear(fieldId);
-            value = this.getFieldValue(fieldId);
-            if(valid && this.fields(fieldId).attr('check-required')){
+            var value = this.getFieldValue(fieldId);
+            if(valid && (field.attr('data-check-required') || field.attr('check-required'))){
                 valid = valid && this.checkRequired(fieldId);
             }else if(!value){
                 return true;
             }
-            if(valid && this.fields(fieldId).attr('check-email')){
+            if(valid && (field.attr('data-check-email') || field.attr('check-email'))){
                 valid = valid && this.checkEmail(fieldId);
             }
-            if(valid && this.fields(fieldId).attr('check-regexp-pattern')){
+            if(valid && (field.attr('data-check-regexp') || field.attr('data-check-regexp-pattern') || field.attr('check-regexp-pattern'))){
                 valid = valid && this.checkRegexp(fieldId);
             }
-            if(valid && this.fields(fieldId).attr('check-length-min') || this.fields(fieldId).attr('check-length-max')){
+            if(valid && (field.attr('data-check-length') 
+                    || field.attr('data-check-length-min') || field.attr('data-check-length-max') 
+                    || field.attr('check-length-min') || field.attr('check-length-max'))){
                 valid = valid && this.checkLength(fieldId);
             }
-            if(valid && this.fields(fieldId).attr('check-pass-min')){
+            if(valid && (field.attr('data-check-pass') 
+                    || field.attr('data-check-pass-min') 
+                    || field.attr('check-pass-min'))){
                 valid = valid && this.checkPassword(fieldId);
             }
-            if(valid && this.fields(fieldId).attr('check-pass-match-id')){
+            if(valid && (field.attr('data-check-pass-match') 
+                    || field.attr('data-check-pass-match-id') 
+                    || field.attr('check-pass-match-id'))){
                 valid = valid && this.checkPasswordMatch(fieldId);
             }
             return valid;

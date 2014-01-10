@@ -603,7 +603,7 @@
             if(this.options.fields[key]){
                 var field = this.options.fields[key];
                 if(!this.inputs(key)){
-                    this.inputs(key, field.find('input, textarea, select'));
+                    this.inputs(key, field.find('input, input[type=email], input[type=tel], textarea, select'));
                 }
                 if(!this.labels(key)){
                     this.labels(key, field.find('label:first'));
@@ -944,6 +944,7 @@
         },
         
         setFormFieldState: function(fieldId, message, isError){
+//            console.log(fieldId);
             var field = this.options.fields[fieldId];
             var label = this.options.labels[fieldId];
             var input = this.options.inputs[fieldId];

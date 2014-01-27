@@ -6,17 +6,20 @@
             elementAsTemplate: true,
             taxonomy: 'category',
             viewMode: 'all',
-            modal: 0
+            modal: 0,
+            max: 10,
+            title: 'Выберите категории',
+            forbidLevels: []
         },
 
         postCreate: function() {
-            this.set('taxonomy', this.$el.attr('taxonomy')||'category');
-            this.set('title', this.$el.attr('title')||'Выберите категории');
-            this.set('max', parseInt(this.$el.attr('max')||10));
+//            this.set('taxonomy', this.$el.attr('taxonomy')||'category');
+//            this.set('title', this.$el.attr('title')||'Выберите категории');
+            this.set('max', parseInt(this.get('max'))||10);
             this.set('ids', this.get('hiddenInput').val()?
                 this.get('hiddenInput').val().split(','):[]);
-            this.set('forbidLevels', this.$el.attr('forbidLevels')?
-                this.$el.attr('forbidLevels').split(','):[]);
+//            this.set('forbidLevels', this.$el.attr('forbidLevels')?
+//                this.$el.attr('forbidLevels').split(','):[]);
             for(var i = 0; i < this.get('forbidLevels').length; i++){
                 this.options.forbidLevels[i]=parseInt(this.options.forbidLevels[i]);
             }
@@ -24,14 +27,6 @@
                 var input = $(element);
                 var label = input.next();
                 var li = input.parent();
-//                var id = input.attr('id');
-//                var found = id.match(/in-([\D]+)-([\d]+)/);
-//                if(found){
-//                    id = 'cb-'+found[1]+'-'+found[2];
-//                }
-//                input.insertBefore(label);
-//                label.attr('for', id);
-//                input.attr('id', id);
                 input.change($.proxy(this.checkedOption, this));
                 li.hover(function(event){
                     $(this).addClass('state_highlight');

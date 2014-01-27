@@ -1,6 +1,6 @@
 <?php
 
-class ZFCore_OptionsController extends Zend_Controller_Action{
+class ZF_Core_OptionsController extends Zend_Controller_Action{
 
     public function init(){
         Util::turnRendererOff();
@@ -35,6 +35,9 @@ class ZFCore_OptionsController extends Zend_Controller_Action{
             }
             
         }
+//        die('dd');
+//        echo "trash";
+//        JsonHelper::respondError('Scary error');
         JsonHelper::respond($options);
     }
     

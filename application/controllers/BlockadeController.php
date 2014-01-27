@@ -1,6 +1,6 @@
 <?php
 
-class ZFCore_BlockadeController extends Zend_Controller_Action{
+class ZF_Core_BlockadeController extends Zend_Controller_Action{
 
     public function init(){
         Util::turnRendererOn();

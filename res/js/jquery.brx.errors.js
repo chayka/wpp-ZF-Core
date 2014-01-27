@@ -1,4 +1,0 @@
-(function($){
-    $.brx = $.brx || {};
-}(jQuery));
-

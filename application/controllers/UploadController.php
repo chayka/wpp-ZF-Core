@@ -1,6 +1,6 @@
 <?php
 
-class ZFCore_UploadController extends Zend_Controller_Action{
+class ZF_Core_UploadController extends Zend_Controller_Action{
 
     public function init(){
         Util::turnRendererOff();
@@ -15,6 +15,7 @@ class ZFCore_UploadController extends Zend_Controller_Action{
         $error = "";
         $message = "";
         $fileElementName = 'file';
+//        die('sdd');
         if (!empty($_FILES[$fileElementName]['error'])) {
             switch ($_FILES[$fileElementName]['error']) {
 

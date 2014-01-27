@@ -24,7 +24,7 @@
 //                    this.setFormFieldStateClear(field);
 //                }, this));
                 var screenId = this.getFieldScreenId(field);
-                if($.brx.utils.empty(this.options.screenFields[screenId])){
+                if(_.empty(this.options.screenFields[screenId])){
                     this.options.screenFields[screenId]=[];
                 }
                 this.options.screenFields[screenId].push(field);
@@ -239,11 +239,11 @@
             for (var field in this.options.fields){
                 data[field] = this.getFieldValue(field);
             }
-            this.clearMessage();
-            this.showSpinner('Submitting data...');
-            this.get('model').save(data, {
+            
+            this.saveModel(data, {
+                spinnerMessage: 'Submitting data...',
+                errorMessage: 'Data submission failed',
                 success: $.proxy(function(model, response, options){
-                    this.hideSpinner();
                     console.dir({'application success': {
                             'model': model,
                             'response': response,
@@ -253,27 +253,45 @@
 //                        this.set('setupOptions', data.payload);
                         this.render();
                         this.showCompletion();
-                    }else{
-                          this.handleAjaxErrors(response);
                     }
-                    this.showMessage();
-                    
-                }, this),
-                
-                error: $.proxy(function(model, xhr, options){
-                    this.hideSpinner();
-                    console.dir({'application error': {
-                            'model': model,
-                            'xhr': xhr,
-                            'options' : options
-                        }});
-                    var message = $.brx.utils.processFail(xhr) 
-                        || 'Data submission failed';
-                    this.setMessage(message, true);
-                    this.showMessage();
-                    
                 }, this)
             });
+            
+//            this.clearMessage();
+//            this.showSpinner('Submitting data...');
+//            this.get('model').save(data, {
+//                success: $.proxy(function(model, response, options){
+//                    this.hideSpinner();
+//                    console.dir({'application success': {
+//                            'model': model,
+//                            'response': response,
+//                            'options' : options
+//                        }});
+//                    if(0 === response.code){
+////                        this.set('setupOptions', data.payload);
+//                        this.render();
+//                        this.showCompletion();
+//                    }else{
+//                          this.handleAjaxErrors(response);
+//                    }
+//                    this.showMessage();
+//                    
+//                }, this),
+//                
+//                error: $.proxy(function(model, xhr, options){
+//                    this.hideSpinner();
+//                    console.dir({'application error': {
+//                            'model': model,
+//                            'xhr': xhr,
+//                            'options' : options
+//                        }});
+//                    var message = $.brx.utils.processFail(xhr) 
+//                        || 'Data submission failed';
+//                    this.setMessage(message, true);
+//                    this.showMessage();
+//                    
+//                }, this)
+//            });
 
         },
         

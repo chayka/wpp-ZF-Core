@@ -5,11 +5,11 @@
  * and open the template in the editor.
  */
 ?>
-<div class="brx-ribbon_slider" backbone-view="brx.RibbonSlider" direction="<?php echo $this->direction;?>" <?php 
+<div class="brx-ribbon_slider" data-view="brx.RibbonSlider" data-direction="<?php echo $this->direction;?>" <?php 
     foreach($this->htmlAttrs as $key=>$value){printf('%s="%s" ', $key, $this->escape($value));};?>>
-    <div class="brx-ribbon_slider-prev" attachPoint="buttonSlidePrev" attachEvent="slidePrev"></div>
-    <div class="brx-ribbon_slider-ribbon"  attachPoint="ribbon">
-        <div class="brx-ribbon_slider-slider"  attachPoint="slider">
+    <div class="brx-ribbon_slider-prev" data-attach-point="buttonSlidePrev" data-attach-event="slidePrev"></div>
+    <div class="brx-ribbon_slider-ribbon"  data-attach-point="ribbon">
+        <div class="brx-ribbon_slider-slider"  data-attach-point="slider">
             <?php foreach($this->items as $item):?>
             <div class="brx-ribbon_slider-item">
                 <?php echo $item;?>
@@ -17,6 +17,6 @@
             <?php endforeach;?>
         </div>    
     </div>
-    <div class="brx-ribbon_slider-next" attachPoint="buttonSlideNext" attachEvent="slideNext"></div>
-    <ol class="brx-ribbon_slider-pages" attachPoint="pagesBox"></ol>
+    <div class="brx-ribbon_slider-next" data-attach-point="buttonSlideNext" data-attach-event="slideNext"></div>
+    <ol class="brx-ribbon_slider-pages" data-attach-point="pagesBox"></ol>
 </div>

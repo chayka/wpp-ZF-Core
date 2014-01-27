@@ -13,7 +13,7 @@
             console.log('OptionsForm.postCreate');
             this.initFields();
             this.setupFieldsChecks();
-            if(!$.brx.utils.empty(this.get('options'))){
+            if(!_.empty(this.get('options'))){
                 this.renderOptions();
             }else{
                 this.loadOptions();
@@ -39,36 +39,50 @@
             };
             console.dir({load:data});
         
-            this.showSpinner('Загрузка данных...');
-//                this.disableInputs();
-            $.ajax('/api/options/get/', {
+            this.ajax('/api/options/get/', {
                 data:data,
-                dataType: 'json',
-                type: 'post'
-            })
+                spinnerMessage: 'Загрузка данных...',
+                errorMessage: 'Ошибка загрузки данных',
+                success: $.proxy(function(data){
+                    console.dir({'data': data});
+                    if(0 === data.code){
+                        this.set('options', data.payload);
 
-            .done($.proxy(function(data){
-                console.dir({'data': data});
-                if(0 === data.code){
-                    this.set('options', data.payload);
-                    
-                    this.renderOptions(data.payload);
-                    this.$el.show();
-                }else{
-                      this.handleAjaxErrors(data);
-                }
-            },this))
-
-            .fail($.proxy(function(response){
-                var message = $.brx.utils.processFail(response) 
-                    || 'Ошибка загрузки данных';
-                this.setMessage(message, true);
-            },this))
-
-            .always($.proxy(function(){
-               this.hideSpinner();
-               this.showMessage();
-            },this));
+                        this.renderOptions(data.payload);
+                        this.$el.show();
+                    }
+                },this)
+            });
+        
+//            this.showSpinner('Загрузка данных...');
+//            $.ajax('/api/options/get/', {
+//                data:data,
+//                dataType: 'json',
+//                type: 'post'
+//            })
+//
+//            .done($.proxy(function(data){
+//                console.dir({'data': data});
+//                if(0 === data.code){
+//                    this.set('options', data.payload);
+//                    
+//                    this.renderOptions(data.payload);
+//                    this.$el.show();
+//                }else{
+//                      this.handleAjaxErrors(data);
+//                }
+//            },this))
+//
+//            .fail($.proxy(function(response){
+//                var message = $.brx.utils.processFail(response) 
+//                    || 'Ошибка загрузки данных';
+//                this.setMessage(message, true);
+//            },this))
+//
+//            .always($.proxy(function(){
+//               this.hideSpinner();
+//               this.showMessage();
+//            },this));
         },
         
         saveOptions: function(event){
@@ -81,35 +95,46 @@
                 data[field] = this.getFieldValue(field);
             }
             console.dir({save:data});
-        
-            this.showSpinner('Обновление данных...');
-//                this.disableInputs();
-            $.ajax('/api/options/set/', {
+
+            this.ajax('/api/options/set/', {
                 data:data,
-                dataType: 'json',
-                type: 'post'
-            })
-
-            .done($.proxy(function(data){
-                console.dir({'data': data});
-                if(0 === data.code){
-                    this.set('options', data.payload);
-                    this.renderOptions(data.payload);
-                }else{
-                      this.handleAjaxErrors(data);
-                }
-            },this))
-
-            .fail($.proxy(function(response){
-                var message = $.brx.utils.processFail(response) 
-                    || 'Ошибка обновления данных';
-                this.setMessage(message, true);
-            },this))
-
-            .always($.proxy(function(){
-               this.hideSpinner();
-               this.showMessage();
-            },this));
+                spinnerMessage: 'Обновление данных...',
+                errorMessage: 'Ошибка обновления данных',
+                success: $.proxy(function(data){
+                    console.dir({'data': data});
+                    if(0 === data.code){
+                        this.set('options', data.payload);
+                        this.renderOptions(data.payload);
+                    }
+                },this)
+            });
+//            this.showSpinner('Обновление данных...');
+//            $.ajax('/api/options/set/', {
+//                data:data,
+//                dataType: 'json',
+//                type: 'post'
+//            })
+//
+//            .done($.proxy(function(data){
+//                console.dir({'data': data});
+//                if(0 === data.code){
+//                    this.set('options', data.payload);
+//                    this.renderOptions(data.payload);
+//                }else{
+//                      this.handleAjaxErrors(data);
+//                }
+//            },this))
+//
+//            .fail($.proxy(function(response){
+//                var message = $.brx.utils.processFail(response) 
+//                    || 'Ошибка обновления данных';
+//                this.setMessage(message, true);
+//            },this))
+//
+//            .always($.proxy(function(){
+//               this.hideSpinner();
+//               this.showMessage();
+//            },this));
 
         }
 

@@ -95,7 +95,6 @@ $.resourceLoader = {
     $.ui.createTemplatedWidget = function(widget, element, options){
         if(widget){
             options = options || {};
-//            $(element).restoreTemplatedAttrs();
             var m = widget.match(/([\w\d]+)\.([\w\d]+)/)
             if(m){
                 var namespace = m[1];
@@ -103,15 +102,8 @@ $.resourceLoader = {
             }
             element = element || $('<div></div>')[0];
             var forbidden = ['id', 'class', 'style', 'href', 'src', 'widget' ];
-//            for(var i in element.attributes){
-//                var value = element.attributes[i].value;
-//                var key = element.attributes[i].name;
-//                if($.inArray(key, forbidden)<0){
-//                    options[key] = value;
-//                }
-//            }
             var r = $(element)[widget](options).data(widget);
-//                console.dir({'$.ui.createTemplatedWidget': r});
+
             return r;
         }
         return null;

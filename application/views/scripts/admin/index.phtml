@@ -13,9 +13,9 @@
     <h2>Общие настройки ZF Core</h2>
 </div>
 
-<div class="brx-options_form" backbone-view="brx.OptionsForm" scope="" prefix="ZF-Core" style="display: none;">
+<div class="brx-options_form" data-view="brx.OptionsForm" data-scope="" data-prefix="ZF-Core" style="display: none;">
     <div class="form_fields">
-        <div class="form_field stretch field_nls_language" attachpoint="fields.nlsLanguage">
+        <div class="form_field stretch field_nls_language" data-attach-point="fields.nlsLanguage">
             <label class="width35">Язык локализации:</label>
             <span class="form_field-input_box">
                 <select>
@@ -26,7 +26,7 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_minimize_media" attachpoint="fields.minimizeMedia">
+        <div class="form_field stretch field_minimize_media" data-attach-point="fields.minimizeMedia">
             <label class="width35">Минимизация статики:</label>
             <span class="form_field-input_box">
                 <select>
@@ -36,24 +36,21 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-<!--        <div class="form_field stretch field_title" attachpoint="fields.title">
-            <label class="width25">Заголовок:</label>
+        <div class="form_field stretch field_environment" data-attach-point="fields.environment">
+            <label class="width35">Окружение:</label>
             <span class="form_field-input_box">
-                <input type="text"/>
+                <select>
+                    <option value="production">Production</option>
+                    <option value="staging">Staging</option>
+                    <option value="testing">Testing</option>
+                    <option value="development">Development</option>
+                </select>
             </span>
             <div class="form_field-tips"></div>
-        </div>-->
-<!--        <div class="form_field fullsize field_message" attachpoint="fields.message">
-            <label>Сообщение:</label>
-            <span class="form_field-input_box">
-                <textarea>
-                </textarea>
-            </span>
-            <div class="form_field-tips"></div>
-        </div>-->
+        </div>
     </div>
     <div class="button_pane">
-        <button class="button button-large button-primary" attachevent="saveOptions">Применить</button>
+        <button class="button button-large button-primary" data-attach-event="saveOptions">Применить</button>
     </div>
 </div>
 <?php WidgetHelper::renderMultiSpinner();?>

@@ -1,4 +1,4 @@
-(function( $ ) {
+(function( $, _ ) {
     $.widget( "brx.placeholder", {
  
 //        _parentPrototype: $.ui.templated.prototype,
@@ -38,7 +38,7 @@
                 this.set('fakePassword', fakeHTML);
                 this.element
                     .blur($.proxy(function(){
-                        if($.brx.utils.empty(this.element[0].value)){
+                        if(_.empty(this.element[0].value)){
                             this.element.after(this.get('fakePassword').show()).hide();
                         }
                     }, this))
@@ -47,7 +47,7 @@
             }else{
                 this.element
                     .blur($.proxy(function(){
-                        if($.brx.utils.empty(this.element[0].value)||this.element[0].value == this.get('text')){
+                        if(_.empty(this.element[0].value)||this.element[0].value == this.get('text')){
                             this.element[0].value = this.get('text');
                             this.element.addClass('placeholder');
                         }else if(!this.isPlaceholderValue()){
@@ -96,20 +96,16 @@
         },
          
         // Use the _setOption method to respond to changes to options
-        _setOption: function( key, value ) {
-//            console.dir({'brx.loginForm._setOption':{key:key, value:value}});
-            $.ui.templated.prototype._setOption.apply( this, arguments );
-            switch( key ) {
-//                case "message":
-//                    this.getTemplate().html(value);
-//                    this.options.message = value;
-//                    break;
-            }
- 
-            // In jQuery UI 1.8, you have to manually invoke the _setOption method from the base widget
-            // In jQuery UI 1.9 and above, you use the _super method instead
-//            this._super( "_setOption", key, value );
-        },
+//        _setOption: function( key, value ) {
+//            $.ui.templated.prototype._setOption.apply( this, arguments );
+//            switch( key ) {
+////                case "message":
+////                    this.getTemplate().html(value);
+////                    this.options.message = value;
+////                    break;
+//            }
+// 
+//        },
         
         isPlaceholderValue: function(){
             return this.get('text') == this.element[0].value;
@@ -138,5 +134,5 @@
         // In jQuery UI 1.9 and above, you would define _destroy instead of destroy and not call the base method
         }
     });
-}( jQuery ) );
+}( jQuery, _ ) );
 

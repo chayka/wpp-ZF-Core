@@ -35,30 +35,30 @@
     $minutesLeft=floor(($timediff-$daysLeft*$oneDay-$hoursLeft*$oneHour)/$oneMinute);
     $secondsLeft=floor(($timediff-$daysLeft*$oneDay-$hoursLeft*$oneHour-$minutesLeft*$oneMinute));
 ?>
-<div class="brx-count_down_timer" backbone-view="brx.CountDown" showDeadline="<?php echo $this->deadlineMessage?'1':'';?>" outdated="<?php echo $outdated?'1':'';?>">
+<div class="brx-count_down_timer" data-view="brx.CountDown" data-showDeadline="<?php echo $this->deadlineMessage?'1':'';?>" data-outdated="<?php echo $outdated?'1':'';?>">
     <div class="timer" <?php HtmlHelper::hidden($outdated);?>>
         <div class="call_to_action"><?php echo $this->callToAction;?></div>
         <em class="clock"></em>
         <div class="c-block c-block-3">
-            <div backbone-view="brx.AnalogDigit" format="dd" attachView="days_cnt" class="bl-inner">
+            <div data-view="brx.AnalogDigit" data-format="dd" data-attach-view="days_cnt" class="bl-inner">
                 <span><?php echo $daysLeft<0?0:$daysLeft;?></span>
             </div> 
             <span class="etitle etitle-1"></span>
         </div> 
         <div class="c-block c-block-2">
-            <div backbone-view="brx.AnalogDigit" format="hh" attachView="hourses_cnt" class="bl-inner">
+            <div data-view="brx.AnalogDigit" data-format="hh" data-attach-view="hourses_cnt" class="bl-inner">
                 <span><?php echo $hoursLeft<0?0:$hoursLeft;?></span>
             </div> 
             <span class="etitle etitle-2"></span>
         </div> 
         <div class="c-block c-block-2">
-            <div backbone-view="brx.AnalogDigit" format="mm" attachView="minutes_cnt" class="bl-inner">
+            <div data-view="brx.AnalogDigit" data-format="mm" data-attach-view="minutes_cnt" class="bl-inner">
                 <span><?php echo $minutesLeft<0?0:$minutesLeft;?></span>
             </div> 
             <span class="etitle etitle-3"></span>
         </div> 
         <div class="c-block c-block-2">
-            <div backbone-view="brx.AnalogDigit" format="ss" attachView="seconds_cnt" class="bl-inner">
+            <div data-view="brx.AnalogDigit" data-format="ss" data-attach-view="seconds_cnt" class="bl-inner">
                 <span><?php echo $secondsLeft<0?0:$secondsLeft;?></span>
             </div> 
             <span class="etitle etitle-4"></span>

@@ -54,7 +54,11 @@
                 iframe = $('#' + options.iframeID).load(function()
                 {
                     response = iframe.contents().find('body');
-
+                    console.dir({'post form': {
+                            arguments: arguments,
+                            response: response
+                        }});
+                    
 
                     if (options.json)
                     {

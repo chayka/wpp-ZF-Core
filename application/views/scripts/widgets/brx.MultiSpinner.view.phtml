@@ -1,0 +1,9 @@
+<?php
+
+wp_enqueue_script('backbone-brx-spinners');
+wp_enqueue_style('backbone-brx-spinners');
+?>
+<div data-view="brx.MultiSpinner" data-export="<?php echo $this->populate;?>" class="brx_multi_spinner">
+    <div class="spinner_counter" data-attach-point="counterView"></div>
+    <div class="spinners" data-attach-point="spinnersBox"></div>
+</div>

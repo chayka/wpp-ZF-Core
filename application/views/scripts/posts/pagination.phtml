@@ -7,12 +7,12 @@
 ?>
 <div class="<?php echo $this->cssClass?:'pagination'?>" <?php HtmlHelper::hidden($this->model->getTotalPages()<=1);?>
     <?php if($this->js): wp_enqueue_script('backbone-brx-pagination');?>
-        backbone-view="brx.Pagination"
-        currentPage="<?php echo $this->model->getCurrentPage()?>"
-        totalPages="<?php echo $this->model->getTotalPages()?>"
-        hrefTemplate="<?php echo str_replace('.page.', '<%= page %>', $this->model->getPageLinkPattern());?>"
+        data-view="brx.Pagination"
+        data-currentPage="<?php echo $this->model->getCurrentPage()?>"
+        data-totalPages="<?php echo $this->model->getTotalPages()?>"
+        data-hrefTemplate="<?php echo str_replace('.page.', '<%= page %>', $this->model->getPageLinkPattern());?>"
         <?php if(is_string($this->js)):?>
-        populate="<?php echo $this->js;?>"
+        data-export="<?php echo $this->js;?>"
         <?php endif;?>
     <?php endif?> 
     <?php foreach($this->attributes as $key=>$value){

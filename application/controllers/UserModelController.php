@@ -11,7 +11,7 @@ require_once 'application/models/users/UserModel.php';
  *
  * @author borismossounov
  */
-class ZFCore_UserModelController extends RestController {
+class ZF_Core_UserModelController extends RestController {
     public function init(){
         parent::init();
         $this->setModelClassName('UserModel');

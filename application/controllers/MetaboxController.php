@@ -1,6 +1,6 @@
 <?php
 
-class ZFCore_MetaboxController extends Zend_Controller_Action{
+class ZF_Core_MetaboxController extends Zend_Controller_Action{
 
     public function init(){
     }

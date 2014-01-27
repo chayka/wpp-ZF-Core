@@ -27,9 +27,10 @@ class ZF_Query extends WP_Query {
     
     protected static $_post = null;
     
-    public static function registerApplication($id, $path, $routes, $widgets = array(), $env = ''){
+    public static function registerApplication($id, $path, $routes, $env = ''){
         if(!$env){
-            $env = Util::isDevelopment()?'development':'production';
+            $env = OptionHelper::getOption('environment', 'production');
+            //Util::isDevelopment()?'development':'production';
         }
         self::$applications[$id] = array(
             'path' => $path,
@@ -41,9 +42,9 @@ class ZF_Query extends WP_Query {
             self::$routes[$route] = $id;
         }
     
-        foreach($widgets as $widget){
-            self::$widgets[$widget] = $id;
-        }
+//        foreach($widgets as $widget){
+//            self::$widgets[$widget] = $id;
+//        }
     }
     
     public static function parseRequest(){
@@ -121,9 +122,9 @@ class ZF_Query extends WP_Query {
             
             $appPath = Util::getItem($appInfo, 'path');
 
-            $appEnv = getenv($appId.'_APPLICATION_ENV') ? 
-                getenv($appId.'_APPLICATION_ENV') : 
-                Util::getItem($appInfo, 'environment', 'production');
+//            $appEnv = getenv($appId.'_APPLICATION_ENV') ? 
+//                getenv($appId.'_APPLICATION_ENV') : 
+            $appEnv =  Util::getItem($appInfo, 'environment', 'production');
 
             if(!$app){
                 
@@ -161,7 +162,7 @@ class ZF_Query extends WP_Query {
                 $front->setParam('displayExceptions', true);
                 $front->returnResponse(true);
                 $application->bootstrap()->getBootStrap()->run();
-                $r = $front->dispatch();
+                $r = $front->dispatch().'';
                 $wp_the_query = $the_q;
                 unset($application);
                 unset($front);
@@ -286,19 +287,14 @@ class ZF_Query extends WP_Query {
         global $wp_query;
         
         $this->request = '';
-//        parent::get_posts();
-//        $tmp = $_SERVER['REQUEST_URI'];
-//        $_SERVER['REQUEST_URI'] = $this->req_uri_zf;
-//        echo$this->req_uri_zf;
-        try {
-//            $zf_response = require_once WPP_ANOTHERGURU_PATH . 'zf-app/public/index.php';
+//        try {
             $zf_response = self::processRequest();
-//            die($zf_response);
-        }catch(Exception $e){
-            echo '('.$e->getMessage().')';
-        }
-//        $_SERVER['REQUEST_URI'] = $tmp;
-//        remove_all_filters();
+            if(WpHelper::getNotFound()){
+                $zf_response = self::processRequest('/not-found-404/');
+            }
+//        }catch(Exception $e){
+//            echo '('.$e->getMessage().')';
+//        }
         $posts = WpHelper::getPosts();
         if($posts){
             $wpq = WpHelper::getQuery();
@@ -328,56 +324,56 @@ class ZF_Query extends WP_Query {
 //            Util::print_r($posts);
         }else{
 //            echo $zf_response;
-            if(!WpHelper::getNotFound()){
-                $post_zf = array(
-                    "ID" => WpHelper::getPostId(),
-                    "post_author" => WpHelper::getPostAuthor(),
-                    "post_date" => '',
-                    "post_date_gmt" => '',
-                    "post_content" => $zf_response,
-                    "post_title" => WpHelper::getPostTitle(),
-                    "post_excerpt" => WpHelper::getPostDescription(),
-                    "post_status" => "publish",
-                    "comment_status" => "closed",
-                    "ping_status" => "closed",
-                    "post_password" => "",
-                    "post_name" => "",
-                    "to_ping" => "",
-                    "pinged" => "",
-                    "post_modified" => "",
-                    "post_modified_gmt" => "",
-                    "post_content_filtered" => "",
-                    "post_parent" => 0,
-                    "guid" => "",
-                    "menu_order" => 1,
-                    "post_type" => WpHelper::getPostType(),
-                    "post_mime_type" => "",
-                    "comment_count" => "0",
-                    "ancestors" => array(),
-                    "filter" => "",
-                    "page_template" => WpHelper::getPageTemplate(),
-                    "nav_menu_id" => WpHelper::getNavMenuId(),
-                    "nav_menu" => WpHelper::getNavMenu(),
-                    "sidebar_id" => WpHelper::getSideBarId(),
-                    "sidebar_static" => WpHelper::getSideBarStatic()
-                );
+            $post_zf = array(
+                "ID" => WpHelper::getPostId(),
+                "post_author" => WpHelper::getPostAuthor(),
+                "post_date" => '',
+                "post_date_gmt" => '',
+                "post_content" => $zf_response,
+                "post_title" => WpHelper::getPostTitle(),
+                "post_excerpt" => WpHelper::getPostDescription(),
+                "post_status" => "publish",
+                "comment_status" => "closed",
+                "ping_status" => "closed",
+                "post_password" => "",
+                "post_name" => "",
+                "to_ping" => "",
+                "pinged" => "",
+                "post_modified" => "",
+                "post_modified_gmt" => "",
+                "post_content_filtered" => "",
+                "post_parent" => 0,
+                "guid" => "",
+                "menu_order" => 1,
+                "post_type" => WpHelper::getPostType(),
+                "post_mime_type" => "",
+                "comment_count" => "0",
+                "ancestors" => array(),
+                "filter" => "",
+                "page_template" => WpHelper::getPageTemplate(),
+                "nav_menu_id" => WpHelper::getNavMenuId(),
+                "nav_menu" => WpHelper::getNavMenu(),
+                "sidebar_id" => WpHelper::getSideBarId(),
+                "sidebar_static" => WpHelper::getSideBarStatic()
+            );
 
-                global $post;
-                $post = (object) $post_zf;
+            global $post;
+            $post = (object) $post_zf;
+            
+            $this->post = $post;
+            if(!WpHelper::getNotFound()){
+                $this->is_single = 1;
                 $this->posts = array($post);
-                $this->post = $post;
                 $this->post_count = count($this->posts);
                 $this->queried_object = $post;
                 $this->queried_object_id = $post->ID;
-                $this->is_single = 1;
             }else{
                 $this->is_single = 0;
                 $this->posts = array();
-                $this->post = null;
+//                $this->post = null;
                 $this->post_count = 0;
                 $this->queried_object = null;
                 $this->queried_object_id = 0;
-                
             }
             $this->current_post = -1;
 

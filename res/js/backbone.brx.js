@@ -1,46 +1,46 @@
 (function($, Backbone, _) {
 
-    $.declare = function(classname, parent, implementation){
-        var parts = classname.split('.');
-        var root = $;
-        var part = '';
-        for(var i = 0; i < parts.length; i++){
-            part = parts[i];
-            if(i === parts.length - 1){
-                break;
-            }
-            root[part] = root[part] || {};
-            root = root[part];
-        }
-        
-        if(_.isUndefined(implementation)){
-            implementation = parent;
-            parent = null;
-        }
-        
-        var options = null;
-        
-        if(parent){
-            options = $.extend(true, {}, _.getItem(parent, 'options', {}));
-            if(parent.__super__){
-                options = $.extend(true, {}, options, _.getItem(parent.__super__, 'options', {}));
-            }
-            if(parent.prototype){
-//                options = $.extend( {}, options, _.getItem(parent.prototype, 'options', {}));
-            }
-            options = $.extend(true, {}, options, _.getItem(implementation, 'options', {}));
-            implementation.options = options;
-            if(_.has(parent, 'extend') && _.isFunction(parent.extend)){
-                root[part] = parent.extend(implementation);
-            }else{
-                root[part] = _.extend(parent, implementation);
-            }
-        }else{
-            root[part] = implementation;
-        }
-        
-        return;// root[part];
-    };
+//    $.declare = function(classname, parent, implementation){
+//        var parts = classname.split('.');
+//        var root = $;
+//        var part = '';
+//        for(var i = 0; i < parts.length; i++){
+//            part = parts[i];
+//            if(i === parts.length - 1){
+//                break;
+//            }
+//            root[part] = root[part] || {};
+//            root = root[part];
+//        }
+//        
+//        if(_.isUndefined(implementation)){
+//            implementation = parent;
+//            parent = null;
+//        }
+//        
+//        var options = null;
+//        
+//        if(parent){
+//            options = $.extend(true, {}, _.getItem(parent, 'options', {}));
+//            if(parent.__super__){
+//                options = $.extend(true, {}, options, _.getItem(parent.__super__, 'options', {}));
+//            }
+//            if(parent.prototype){
+////                options = $.extend( {}, options, _.getItem(parent.prototype, 'options', {}));
+//            }
+//            options = $.extend(true, {}, options, _.getItem(implementation, 'options', {}));
+//            implementation.options = options;
+//            if(_.has(parent, 'extend') && _.isFunction(parent.extend)){
+//                root[part] = parent.extend(implementation);
+//            }else{
+//                root[part] = _.extend(parent, implementation);
+//            }
+//        }else{
+//            root[part] = implementation;
+//        }
+//        
+//        return;// root[part];
+//    };
     
 //    _.empty = function(value){
 //        return 	!value
@@ -241,8 +241,15 @@
             id = id || '*';
             id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
             Backbone.Events.trigger('brx.MultiSpinner.hide', id);
-        }
+        },
         
+        ajax: function(url, options){
+            return $.brx.Ajax.request.apply(this, arguments);
+        },
+        
+        prepareAjax: function(options){
+            return $.brx.Ajax.prepare.apply(this, arguments);
+        }
     });
     
 //    $.brx.Collection = Backbone.Collection.extend({
@@ -275,6 +282,14 @@
             id = id || '*';
             id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
             Backbone.Events.trigger('brx.MultiSpinner.hide', id);
+        },
+        
+        ajax: function(url, options){
+            return $.brx.Ajax.request.apply(this, arguments);
+        },
+        
+        prepareAjax: function(options){
+            return $.brx.Ajax.prepare.apply(this, arguments);
         }
     });
     
@@ -284,7 +299,8 @@
         nlsNamespace: '',
         
         options:{
-            templateSelector: null
+            templateSelector: null,
+            message: {text: '', isError: false}
         },
         
         initialize: function(options){
@@ -297,18 +313,7 @@
             }
             this.postCreate();
         },
-                
-        beautifyButtons: function(){
-            switch($.brx.getOption('ZfCore.uiFramework')){
-                case 'bootstrap':
-                    this.$('button').addClass('btn');
-                    break;
-                case 'jQueryUI':
-                    this.$('button').button();
-                    break;
-            }
-        },
-        
+                        
         postCreate: function(){
             
         },
@@ -336,6 +341,10 @@
         
         set: function(key, value){
             if(!key) return this;
+            if(!_.isString(key) && _.isObject(key)){
+                this.options = _.extend(this.options, key);
+                return this;
+            }
             var parts = key.split('.');
             var root = this.options;
             for(var i = 0; i < parts.length - 1; i++){
@@ -388,117 +397,9 @@
         },
         
         _parseElement: function(){
-//            console.log('templated._parseTemplate');
-            var w = this;
-            this.$el.restoreTemplatedAttrs();
-            // deprecated begins
-            $('[widget-template], [backbone-view-template]', w.el).storeTemplatedAttrs();
-            
-            $('[widget]', w.el).each(function(i){
-                var widgetName = $(this).attr("widget");
-                if(widgetName){
-                    var widget = $.ui.createTemplatedWidget(widgetName, this);
-                    var attachPoint = $(this).attr("attachPoint");
-                    if(attachPoint){
-                        w.option(attachPoint, widget.element || widget.$element);
-                        $(this).storeAttr('attachPoint');
-                    }
-                    var attachWidget = $(this).attr("attachWidget");
-                    if(attachWidget){
-                        w.option(attachWidget, widget);
-                        $(this).storeAttr('attachWidget');
-                    }
-                    $(this).storeAttr('widget');
-                }
-            });
-            // deprecated ends
-            
-            $('[data-view], [backbone-view]', w.el).each(function(i){
-                var viewName = $(this).attr("data-view") || $(this).attr("backbone-view");
-                if(viewName){
-                    var view = $.brx.createBackboneView(viewName, this);
-//                    var attachPoint = $(this).attr("data-attach-node") || $(this).attr("attachPoint");
-//                    if(attachPoint){
-//                        w.option(attachPoint, view.$el);
-//                        $(this).storeAttr("data-attach-node")
-//                                .storeAttr('attachPoint');
-//                    }
-                    var attachView = $(this).attr("data-attach-view") || $(this).attr("attachView");
-                    if(attachView){
-                        w.option(attachView, view);
-                        $(this).storeAttr('data-attach-view')
-                                .storeAttr('attachView');
-                    }
-                    $(this).storeAttr('data-view')
-                            .storeAttr('backbone-view');
-                }
-            });
-            $('[data-attach-node], [attachPoint]', w.el).each(function(i){
-                var attachPoint = $(this).attr("data-attach-node") || $(this).attr("attachPoint");
-//                console.dir({'attachPoint':{point: attachPoint, widget: w, element: $(this)}});
-                w.option(attachPoint, $(this));
-                $(this).storeAttr('data-attach-node')
-                        .storeAttr('attachPoint');
-            });
-            $('[data-attach-event], [attachEvent]', w.el).each(function(j){
-                var attachEvent = $(this).attr("data-attach-event") || $(this).attr("attachEvent");
-                var re1 = /\s*\w+\s*:\s*[^\s,]+/g;
-                var re2 = /\s*(\w+)\s*:\s*([^\s,]+)/;
-                var bindings = attachEvent.match(re1);
-                if(bindings && bindings.length > 0){
-                    for(var i = 0; i < bindings.length; i++){
-//                        console.dir({'binding':bindings[i].match(re2)});
-                        var binding = bindings[i].match(re2);
-                        var eventId = binding[1];
-                        var handlerId = binding[2];
-                        $(this).unbind(eventId).bind(eventId, $.proxy(w[handlerId], w));
-                    }
-                }else{
-                    $(this).unbind('click').bind('click', $.proxy(w[attachEvent], w));
-                }
-//                console.dir({'attachEvent':{event: attachEvent, widget: w, element: $(this)}});
-                $(this).storeAttr('data-attach-event')
-                        .storeAttr('attachEvent');
-            });
-            $('[data-plugin], [plugin]', w.el).each(function(j){
-                var plugin = $(this).attr("data-plugin") || $(this).attr("plugin");
-//                console.log(plugin);
-                var path = plugin.split('.');
-                var handler = $.fn;
-                for(var i in path){
-                    var key = path[i];
-                    handler = handler[key];
-                }
-//                console.dir({handler: handler, '$': $});
-                handler(this);
-                $(this).storeAttr('data-plugin')
-                        .storeAttr('plugin');
-            });
-//            console.dir({'widget':w});
-            for(var i in this.options){
-                if(!$.isFunction(this.options[i])){
-                    var variable = this.$el.attr('data-'+i) || this.$el.attr(i);
-                    if(variable){
-                        this.options[i] = variable;
-                    }
-                    var arr = this.$el.attr('data-array-'+i) || this.$el.attr(i+'-array');
-                    if(arr){
-                        this.options[i] = arr.split(',');
-                    }
-                    var imported = this.$el.attr('data-import'+i) || this.$el.attr(i+'-var');
-                    if(imported){
-                        this.options[i] = _.getVar(imported);
-                    }
-                }
-            }
-            
-            var exported = this.$el.attr('data-export') || this.$el.attr('populate')
-            
-            if(exported){
-                _.setVar(exported, this);
-            }
-
+            return $.brx.Parser.parseViewElement(this);
         },
+        
                 
         nls: function(key){
             if( this.nlsNamespace.length){
@@ -519,62 +420,73 @@
             id = id || '*';
             id = this.nlsNamespace?this.nlsNamespace+'.'+id:id;
             Backbone.Events.trigger('brx.MultiSpinner.hide', id);
+        },
+        
+        setMessage: function(message, isError){
+            this.option('message.text', message);
+            this.option('message.isError', isError);
+        },
+        
+        clearMessage: function(){
+            this.option('message.text', '');
+            this.option('message.isError', false);
+        },
+        
+        showMessage: function(){
+            if(this.option('message.text.length')){
+                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
+            }
+        },
+        
+        hideMessage: function(){
+        },
+        
+        handleAjaxErrors: function(data){
+            this.processErrors($.brx.Ajax.handleErrors(data));
+        },
+        
+        processErrors: function(errors){
+            console.dir({'processErrors': errors});
+            for(var key in errors){
+                var errorMessage = errors[key];
+                this.setMessage(errorMessage, true);
+                break;
+            }
+        },
+        
+        ajax: function(url, options){
+            return $.brx.Ajax.request.apply(this, arguments);
+        }, 
+        
+        prepareAjax: function(options){
+            return $.brx.Ajax.prepare.apply(this, arguments);
+        },
+        
+        prepareAjaxForm: function(attachPoint, options){
+            options.form = this.get(attachPoint);
+            return $.brx.Ajax.setupIframeForm.apply(this, [options]);
+        },
+        
+        saveModel: function(data, options, model){
+            model = model || this.getModel();
+            model.save(data, this.prepareAjax(options));
+        },
+        
+        fetchModel: function(options, model){
+            model = model || this.getModel();
+            model.fetch(this.prepareAjax(options));
+        },
+        
+        destroyModel: function(options, model){
+            model = model || this.getModel();
+            model.destroy(this.prepareModelSyncOptions(options));
         }
+        
+        
+        
     });
     
     
-    /**
-     * Function to create view object
-     * 
-     * @param string|constructor view
-     * @param DOMElement element
-     * @param object options
-     * @returns $.brx.View
-     */
-    $.brx.createView = $.brx.createBackboneView = function(view, element, options){
-        if(view){
-            options = options || {};
-            options.el = element;
-//            var modelVar = $(element).attr('model-var');
-//            if(modelVar){
-//                options.model = _.getVar(modelVar);
-//            }
-            
-            if(_.isString(view)){
-                view = _.getVar(view, $);
-            }
-            
-            return new view(options);
-        }
-        return null;
-    };
-    
-    /**
-     * Function to create view object on a queried element
-     * $('.selector').createBackboneView = function('brx.View', {});
-     * 
-     * @param string|constructor view
-     * @param object options
-     * @returns $
-     */
-    $.fn.createView = $.fn.createBackboneView = function(view, options){
-        $.brx.createBackboneView(view, this, options);
-        return this;
-    };
-    
-    /**
-     * Parse HTML code and create views out of found DOMElements with data-view specified
-     */
-    $.brx.parseViews = $.brx.parseBackboneViews = function(){
-        $('[data-view], [backbone-view]').each(function(i){
-            var view = $(this).attr("data-view") || $(this).attr("backbone-view");
-            $(this).createBackboneView(view);
-        });
-        $(document).restoreTemplatedAttrs();
-        
-    };
-
-//    $.brx.FormView = $.brx.View.extend({
     _.declare('brx.FormView', $.brx.View, {
         
         options: { 
@@ -583,7 +495,6 @@
             labels: {},
             hints: {},
             buttons: {},
-            message: {text: '', isError: false}
         },
         
         initialize: function(options){
@@ -701,14 +612,14 @@
                 jCheckbox.removeAttr('checked');
             }
             
-//            jCheckbox.attr('checked', !$.brx.utils.empty(state));
+//            jCheckbox.attr('checked', !_.empty(state));
         },
         
         getTinyMceContent: function(editorId){
-            if(!$.brx.utils.empty(window.tinyMCE)
-            && !$.brx.utils.empty(window.tinyMCE.editors[editorId])){
+            if(!_.empty(window.tinyMCE)
+            && !_.empty(window.tinyMCE.editors[editorId])){
                 return window.tinyMCE.editors[editorId].getContent();    
-            }else if(!$.brx.utils.empty(this.options.inputs[editorId])){
+            }else if(!_.empty(this.options.inputs[editorId])){
                 return this.options.inputs[editorId].val();
             }
             return '';
@@ -728,10 +639,10 @@
         },
         
         setTinyMceContent: function(editorId, content){
-            if(!$.brx.utils.empty(window.tinyMCE)
-            && !$.brx.utils.empty(window.tinyMCE.editors[editorId])){
+            if(!_.empty(window.tinyMCE)
+            && !_.empty(window.tinyMCE.editors[editorId])){
                 window.tinyMCE.editors[editorId].setContent(content);            
-            }else if(!$.brx.utils.empty(this.options.inputs[editorId])){
+            }else if(!_.empty(this.options.inputs[editorId])){
                 this.options.inputs[editorId].val(content);
             }
         },
@@ -746,8 +657,8 @@
             if(this.inputs(fieldId).is('input[type=checkbox]')){
                 return this.fields(fieldId).find('input[type=chekbox]:checked').next().text();
             }
-            if(!$.brx.utils.empty(window.tinyMCE) &&
-                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+            if(!_.empty(window.tinyMCE) &&
+                !_.empty(window.tinyMCE.editors[fieldId])){
                 return this.getTinyMceContent(fieldId);
             }
             return this.inputs(fieldId).data('placeholder')?
@@ -765,8 +676,8 @@
             if(this.inputs(fieldId).is('input[type=checkbox]')){
                 return this.fields(fieldId).find('input[type=chekbox]:checked').val();
             }
-            if(!$.brx.utils.empty(window.tinyMCE) &&
-                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+            if(!_.empty(window.tinyMCE) &&
+                !_.empty(window.tinyMCE.editors[fieldId])){
                 return this.getTinyMceContent(fieldId);
             }
             if(this.inputs(fieldId).data('datepicker')){
@@ -787,8 +698,8 @@
             if(this.inputs(fieldId).is('input[type=checkbox]')){
                 return this.setCheckboxState(fieldId, value);
             }
-            if(!$.brx.utils.empty(window.tinyMCE) &&
-                !$.brx.utils.empty(window.tinyMCE.editors[fieldId])){
+            if(!_.empty(window.tinyMCE) &&
+                !_.empty(window.tinyMCE.editors[fieldId])){
                 return this.setTinyMceContent(fieldId, value);
             }
             if(this.inputs(fieldId).data('datepicker') && value instanceof Date){
@@ -896,7 +807,7 @@
         
         stored: function(id){
             window.storedInput = window.storedInput || {};
-            return $.brx.utils.getItem(window.storedInput, id, null);
+            return _.getItem(window.storedInput, id, null);
         },
         
         unstore: function(id){
@@ -922,25 +833,6 @@
         hideFieldSpinner: function(fieldId){
             this.options.inputs[fieldId].removeClass('ui-autocomplete-loading');
             this.options.hints[fieldId].text('');
-        },
-        
-        setMessage: function(message, isError){
-            this.option('message.text', message);
-            this.option('message.isError', isError);
-        },
-        
-        clearMessage: function(){
-            this.option('message.text', '');
-            this.option('message.isError', false);
-        },
-        
-        showMessage: function(){
-            if(this.option('message.text.length')){
-                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
-            }
-        },
-        
-        hideMessage: function(){
         },
         
         setFormFieldState: function(fieldId, message, isError){
@@ -1174,16 +1066,16 @@
             return valid;
         },
 
-        handleAjaxErrors: function(data){
-            this.processErrors($.brx.utils.handleErrors(data));
-        },
+//        handleAjaxErrors: function(data){
+//            this.processErrors($.brx.utils.handleErrors(data));
+//        },
         
         processErrors: function(errors){
             console.dir({'processErrors': errors});
-            for(key in errors){
+            for(var key in errors){
                 var errorMessage = errors[key];
                 var field = 'messageBox';
-                if(!$.brx.utils.empty(this.options.fields[key])){
+                if(!_.empty(this.options.fields[key])){
                     field = key;
                 }
                 if(field!=='messageBox'){

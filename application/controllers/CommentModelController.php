@@ -11,7 +11,7 @@ require_once 'application/models/posts/CommentModel.php';
  *
  * @author borismossounov
  */
-class ZFCore_CommentModelController extends RestController {
+class ZF_Core_CommentModelController extends RestController {
     public function init(){
         parent::init();
         $this->setModelClassName('CommentModel');

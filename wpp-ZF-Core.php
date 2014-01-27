@@ -34,7 +34,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 require_once 'library/ZendB/Util.php';
-require_once 'application/helpers/WpPluginHelper.php';
+require_once 'application/classes/WpTheme.php';
 require_once 'application/helpers/LessHelper.php';
 require_once 'application/helpers/OptionHelper.php';
 require_once 'ZF-Query.php';
@@ -66,6 +66,7 @@ class ZF_Core extends WpPlugin{
             'timezone',
             'options',
             'blockade',
+            'not-found-404'
         ));
         
         $plugin->addSupport_ConsolePages();
@@ -86,6 +87,8 @@ class ZF_Core extends WpPlugin{
             // try/catch works best in object mode (which we cannot use here), so not all errors will be caught
             echo '<span style="font-weight:bold;">WP Zend Library:</span> ' . nl2br($e);
         }
+        
+        require_once 'application/classes/WpPluginBootstrap.php';
 
         //require_once 'ZendB/Log.php';
         Log::setDir(ZF_CORE_PATH.'logs');
@@ -342,27 +345,28 @@ class ZF_Core extends WpPlugin{
         
         $this->registerScript('jquery-touch-swipe', $minimize?'vendors/jquery.touchSwipe.min.js':'vendors/jquery.touchSwipe.js');
         
-        $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
+//        $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
         
         $this->registerScript( 'underscore-brx', 'underscore.brx.js', array(($isAdminPost?'underscore':'Underscore')));
-        $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'nls', 'moment', 'brx-ajax'));
-        $this->registerScript( 'brx-ajax', 'brx.ajax.js', array('underscore-brx'));
+        $this->registerScript( 'brx-parser', 'brx.Parser.js', array('underscore-brx', ($isAdminPost?'backbone':'Backbone')));
+        $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'brx-parser', 'nls', 'moment', 'brx-ajax'));
+        $this->registerScript( 'brx-ajax', 'brx.Ajax.js', array('underscore-brx'));
 
         $this->registerScript( 'backbone-wp-models', 'backbone.wp.models.js', array('backbone-brx'));
-        $this->registerScript( 'backbone-brx-pagination', 'backbone.brx.Pagination.view.js', array('backbone-brx'));
+        $this->registerScript( 'backbone-brx-pagination', 'brx.Pagination.view.js', array('backbone-brx'));
 
-        $this->registerScript( 'jquery-ajax-uploader', 'vendors/jquery.ajaxfileupload.js', array('jquery'));
+//        $this->registerScript( 'jquery-ajax-uploader', 'vendors/jquery.ajaxfileupload.js', array('jquery'));
         $this->registerScript( 'jquery-ajax-iframe-uploader', 'vendors/jquery.iframe-post-form.js', array('jquery'));
         $this->registerScript( 'jquery-galleria', 'vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
         $this->registerScript( 'jquery-masonry', 'vendors/jquery.masonry.min.js', array('jquery'));
 
         $this->registerScript( 'jquery-brx-utils', 'jquery.brx.utils.js', array('jquery',  'nls'));
-        $this->registerScript( 'jquery-brx-placeholder', 'jquery.brx.placeholder.js', array('jquery', 'jquery-ui-templated', 'jquery-brx-utils'));
-        $this->registerStyle( 'jquery-brx-spinner', 'jquery.brx.spinner.css');
-        $this->registerScript( 'jquery-brx-spinner', 'jquery.brx.spinner.js', array('jquery-ui-templated'));
+        $this->registerScript( 'jquery-brx-placeholder', 'jquery.brx.placeholder.js', array('jquery', 'jquery-ui-widget', 'underscore-brx'));
+//        $this->registerStyle( 'jquery-brx-spinner', 'jquery.brx.spinner.css');
+//        $this->registerScript( 'jquery-brx-spinner', 'jquery.brx.spinner.js', array('jquery-ui-templated'));
         $this->registerScript( 'jquery-brx-modalBox', 'jquery.brx.modalBox.js', array('jquery-ui-dialog'));
-        $this->registerScript( 'jquery-brx-form', 'jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
-        $this->registerScript( 'jquery-brx-setupForm', 'jquery.brx.setupForm.js', array('jquery-brx-form'));
+//        $this->registerScript( 'jquery-brx-form', 'jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
+//        $this->registerScript( 'jquery-brx-setupForm', 'jquery.brx.setupForm.js', array('jquery-brx-form'));
 
         $this->registerScript( 'backbone-brx-spinners', 'brx.spinners.view.js', array('backbone-brx'));
         $this->registerStyle( 'backbone-brx-spinners', 'brx.spinners.view.less');
@@ -373,7 +377,7 @@ class ZF_Core extends WpPlugin{
         $this->registerScript( 'backbone-brx-optionsForm', 'brx.OptionsForm.view.js', array('backbone-brx'));
         $this->registerScript( 'backbone-brx-jobControl', 'brx.JobControl.view.js', array('backbone-brx', 'jquery-ui-progressbar', 'backbone-brx-spinners'));
         $this->registerStyle( 'backbone-brx-jobControl', 'brx.JobControl.view.less', array('backbone-brx-spinners'));
-        $this->registerScript( 'backbone-brx-attachmentPicker', 'brx.AttachmentPicker.view.js', array('backbone-brx', 'backbone-brx-spinners', 'jquery-ajax-iframe-uploader'));
+        $this->registerScript( 'backbone-brx-attachmentPicker', 'brx.AttachmentPicker.view.js', array('backbone-brx', 'backbone-brx-spinners'/*, 'jquery-ajax-iframe-uploader'*/));
         $this->registerStyle( 'backbone-brx-attachmentPicker', 'brx.AttachmentPicker.view.less', array('backbone-brx-spinners'));
         $this->registerStyle('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.less');
         $this->registerScript('backbone-brx-taxonomyPicker', 'brx.TaxonomyPicker.view.js', array('jquery-brx-placeholder','backbone-brx'));
@@ -489,8 +493,9 @@ class ZF_Core extends WpPlugin{
 //        wp_enqueue_script('jquery-ui-templated');
 //        wp_enqueue_script('jquery-brx-placeholder');
 //        wp_enqueue_script('jquery-brx-modalBox');
-        wp_enqueue_style('jquery-brx-spinner');
-        wp_enqueue_script('jquery-brx-spinner');
+//        wp_enqueue_style('jquery-brx-spinner');
+//        wp_enqueue_script('jquery-brx-spinner');
+        wp_enqueue_script('brx-parser');
         wp_enqueue_script('backbone-wp-models');
         wp_enqueue_style('backbone-brx-modals');
         wp_enqueue_script('backbone-brx-modals');
@@ -498,18 +503,19 @@ class ZF_Core extends WpPlugin{
         wp_print_styles(); 
         
         $options = array(
-            'uiFramework' =>is_admin()?'jQueryUI':get_site_option('ZfCore.uiFramework', '')
+//            'uiFramework' =>is_admin()?'jQueryUI':get_site_option('ZfCore.uiFramework', '')
         );
                 
         ?>
                     
-        <!--div widget="generalSpinner"></div>
-        <div widget="modalBox"></div-->    
         <script>
         jQuery(document).ready(function($) {
             $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);
             if($.brx && $.brx.parseBackboneViews){
                 $.brx.parseBackboneViews();
+            }
+            if($.brx && $.brx.Parser){
+                $.brx.Parser.parse();
             }
         });        
         </script>

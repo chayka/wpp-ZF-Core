@@ -10,7 +10,7 @@
  *
  * @author borismossounov
  */
-class ZFCore_AutocompleteController extends Zend_Controller_Action{
+class ZF_Core_AutocompleteController extends Zend_Controller_Action{
 
     public function init(){
         Util::turnRendererOff();

@@ -233,7 +233,7 @@ class PostQueryModel{
                         $terms = $termIds;
                     }
                 }else{
-                    return this;
+                    return $this;
                 }
             }
         }

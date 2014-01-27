@@ -61,11 +61,13 @@ class JsonHelper {
         return die(self::packResponse($payload, $code, $message));
     }
     
-    public static function respondError($message = '', $code = 1, $payload = null){
+    public static function respondError($message = '', $code = 1, $payload = null, $httpResponseCode = 400){
+        Util::httpRespondCode($httpResponseCode);
         self::respond($payload, $code, $message);
     }
     
-    public static function respondErrors($errors, $payload = null){
+    public static function respondErrors($errors, $payload = null, $httpResponseCode = 400){
+        Util::httpRespondCode($httpResponseCode);
         if($errors instanceof WP_Error){
             $errors = self::packWpErrors($errors);
         }
@@ -73,7 +75,7 @@ class JsonHelper {
         if($count){
             if(1 == $count){
                 $key = key($errors);
-                self::respondError($errors[$key], $key, $payload);
+                self::respondError($errors[$key], $key, $payload, $httpResponseCode);
             }
             self::respond($payload, 'mass_errors', $errors);
         }

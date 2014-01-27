@@ -29,7 +29,7 @@ function brx_TaxonomyPicker_renderTaxonomyOption($term, $taxonomy){
     ));
     $ul = '';
     if(!is_wp_error($children) && $children && count($children)){
-        $ul = ($term?'<ul class="children">':'<ul class="options" attachpoint="optionsList">')."\n";
+        $ul = ($term?'<ul class="children">':'<ul class="options" data-attach-point="optionsList">')."\n";
         foreach($children as $child){
             $ul.= brx_TaxonomyPicker_renderTaxonomyOption($child, $taxonomy);
         }
@@ -65,15 +65,15 @@ if(!$this->modal){
     $this->modal = '';
 }
 ?>
-<div class="brx-taxonomy_picker" backbone-view="brx.TaxonomyPicker" <?php if($this->attachView):?>attachView="<?php echo $this->attachView?>"<?php endif;?> taxonomy="<?php echo $taxonomy?>" title="<?php echo $this->title;?>" max="<?php echo $this->max?>" forbidLevels="<?php echo $this->forbidLevels;?>" modal="<?php echo $this->modal;?>" <?php HtmlHelper::hidden(false);?>>
-    <input attachpoint="hiddenInput" name="<?php echo $taxonomy?>" type="hidden" value="<?php echo join(',', $this->ids);?>"/>
-    <ul class="box_selected" attachpoint="boxSelected"></ul>
-    <div class="link_select" attachpoint="linkSelect" attachevent="linkSelectClicked">Выбрать</div>
+<div class="brx-taxonomy_picker" data-view="brx.TaxonomyPicker" <?php if($this->attachView):?>data-attach-view="<?php echo $this->attachView?>"<?php endif;?> data-taxonomy="<?php echo $taxonomy?>" data-title="<?php echo $this->title;?>" data-max="<?php echo $this->max?>" data-array-forbidLevels="<?php echo $this->forbidLevels;?>" data-modal="<?php echo $this->modal;?>" <?php HtmlHelper::hidden(false);?>>
+    <input data-attach-point="hiddenInput" name="<?php echo $taxonomy?>" type="hidden" value="<?php echo join(',', $this->ids);?>"/>
+    <ul class="box_selected" data-attach-point="boxSelected"></ul>
+    <div class="link_select" data-attach-point="linkSelect" data-attach-event="linkSelectClicked">Выбрать</div>
     <div class="clearfloat"></div>
-    <div class="brx-taxonomy_picker-box_options" attachpoint="boxOptions">
-        <input class="input_search" type="text" attachpoint="inputSearch" attachevent="keyup: searchOptions"/>
-        <div class="nothing_found" attachpoint="boxNothing">Ничего не найдено</div>
-        <!--<ul class="options" attachpoint="optionsList">-->
+    <div class="brx-taxonomy_picker-box_options" data-attach-point="boxOptions">
+        <input class="input_search" type="text" data-attach-point="inputSearch" data-attach-event="keyup: searchOptions"/>
+        <div class="nothing_found" data-attach-point="boxNothing">Ничего не найдено</div>
+        <!--<ul class="options" data-attach-point="optionsList">-->
     <?php
         echo brx_TaxonomyPicker_renderTaxonomyOption(null, $taxonomy);
 //        wp_terms_checklist(0, $args = array(
@@ -87,24 +87,24 @@ if(!$this->modal){
     ?>
         <!--</ul>-->
         <div class="box_links">
-            <span class="link link_show_all" attachpoint="linkShowAll" attachevent="showAll">Показать все</span>
-            <span class="link link_show_search" attachpoint="linkShowSearch" attachevent="searchOptions">Показать результаты поиска</span>
-            <span class="link link_show_selected" attachpoint="linkShowSelected" attachevent="showSelected">Показать выбранные</span>
+            <span class="link link_show_all" data-attach-point="linkShowAll" data-attach-event="showAll">Показать все</span>
+            <span class="link link_show_search" data-attach-point="linkShowSearch" data-attach-event="searchOptions">Показать результаты поиска</span>
+            <span class="link link_show_selected" data-attach-point="linkShowSelected" data-attach-event="showSelected">Показать выбранные</span>
         </div>
         <div class="button_pane">
             <div class="info">
-                <div class="box_count_selected" attachpoint="boxCountSelected">
-                    Выбрано: <span attachpoint="viewCountSelected"></span>
+                <div class="box_count_selected" data-attach-point="boxCountSelected">
+                    Выбрано: <span data-attach-point="viewCountSelected"></span>
                 </div>
-                <div class="box_count_left" attachpoint="boxCountLeft">
-                    Осталось: <span attachpoint="viewCountLeft"></span>
+                <div class="box_count_left" data-attach-point="boxCountLeft">
+                    Осталось: <span data-attach-point="viewCountLeft"></span>
                 </div>
                 
                 
             </div>
             <div class="buttons">
-                <button widget="button" attachevent="buttonCancelClicked">Отмена</button>
-                <button widget="button" attachevent="buttonOkClicked">Ок</button>
+                <button data-attach-event="buttonCancelClicked">Отмена</button>
+                <button data-attach-event="buttonOkClicked">Ок</button>
             </div>
         </div>
     </div>

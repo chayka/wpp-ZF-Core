@@ -1,6 +1,6 @@
 (function($,_) {
 
-    _.declare = function(classname, parent, implementation){
+    _.declare = $.declare = function(classname, parent, implementation){
         var parts = classname.split('.');
         var root = $;
         var part = '';

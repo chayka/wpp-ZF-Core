@@ -11,7 +11,7 @@ require_once 'application/models/posts/PostModel.php';
  *
  * @author borismossounov
  */
-class ZFCore_PostModelController extends RestController {
+class ZF_Core_PostModelController extends RestController {
     public function init(){
         parent::init();
         $this->setModelClassName('PostModel');

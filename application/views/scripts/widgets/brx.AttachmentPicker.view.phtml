@@ -5,46 +5,46 @@
  * and open the template in the editor.
  */
 ?>
-<div class="brx-attachment_picker" <?php HtmlHelper::hidden();?> backbone-view="brx.AttachmentPicker" attachments-var="$.brx.attachments" <?php if($this->attachView):?>attachView="<?php echo $this->escape($this->attachView);?>"<?php endif;?> validExtensions-array="<?php echo join(',',$this->validExtensions);?>">
+<div class="brx-attachment_picker" <?php HtmlHelper::hidden();?> data-view="brx.AttachmentPicker" data-import-attachments="$.brx.attachments" <?php if($this->attachView):?>data-attach-view="<?php echo $this->escape($this->attachView);?>"<?php endif;?> data-array-validExtensions="<?php echo join(',',$this->validExtensions);?>">
     <div class="attachment_picker-info">
         <h2>Информация</h2>
         <div class="info-thumb-back">
-        <img src="" class="info-thumb" attachPoint="view.thumb"/>
+        <img src="" class="info-thumb" data-attach-point="viewer.thumb"/>
         </div>
-        <div class="info-filename" attachPoint="view.filename"></div>
-        <div class="info-dimensions" attachPoint="view.dimensions"></div>
-        <span class="link_delete" attachEvent="deleteAttachment">Удалить навсегда</span>
+        <div class="info-filename" data-attach-point="viewer.filename"></div>
+        <div class="info-dimensions" data-attach-point="viewer.dimensions"></div>
+        <span class="link_delete" data-attach-event="deleteAttachment">Удалить навсегда</span>
     </div>
     <div class="attachment_picker-library">
         <h2>Библиотека файлов</h2>
-        <div class="attachment_picker-attachments" attachPoint="boxAttachments">
+        <div class="attachment_picker-attachments" data-attach-point="boxAttachments">
         </div>
-        <form class="brx-attachment_picker-box_upload" attachPoint="boxUpload" enctype="multipart/form-data" method="POST" action="/api/upload/attachment/" target="iframe-post-form">
+        <form class="brx-attachment_picker-box_upload" data-attach-point="boxUpload" enctype="multipart/form-data" method="POST" action="/api/upload/attachment/" target="iframe-post-form">
             <div class="form_button_pane">
-                <button attachPoint="buttons.uploadFile">Загрузить</button>
+                <button data-attach-point="buttons.uploadFile">Загрузить</button>
             </div>
-            <div backbone-view="brx.SingleSpinner" attachView="uploadSpinner" class="brx_single_spinner"></div>
-            <div attachPoint="fields.fileUpload" class="form_field field_file_upload" check-required="Необходимо выбрать файл для загрузки">
+            <div data-view="brx.SingleSpinner" data-attach-view="uploadSpinner" class="brx_single_spinner"></div>
+            <div data-attach-point="fields.fileUpload" class="form_field field_file_upload" check-required="Необходимо выбрать файл для загрузки">
                 <label>Загрузить файл:</label>
                 <div class="form_field-input_box">
                     <div class="input_file">
-                        <input  name="file" type="file" attachPoint="inputs.fileUpload" attachevent="change: fileSelected" size="1" style=""/>
+                        <input  name="file" type="file" data-attach-point="inputs.fileUpload" data-attach-event="change: fileSelected" size="1" style=""/>
                         <button>Выбрать файл</button>
                     </div>
-                    <div class="filename_container" attachpoint="view.uploadFilename"></div>
+                    <div class="filename_container" data-attach-point="viewer.uploadFilename"></div>
                 </div>
                 <div class="form_field-tips"></div>
             </div>
         </form>
     </div>
     <div class="button_pane">
-        <button class="button_cancel" attachPoint="buttons.cancel" attachEvent="buttonCancelClicked">Отмена</button>
-        <button class="button_select" attachPoint="buttons.select" attachEvent="buttonSelectClicked">Выбрать миниатюру</button>
+        <button class="button_cancel" data-attach-point="buttons.cancel" data-attach-event="buttonCancelClicked">Отмена</button>
+        <button class="button_select" data-attach-point="buttons.select" data-attach-event="buttonSelectClicked">Выбрать миниатюру</button>
     </div>
     <script id="attachment-template" type="text/template">
-        <div class='attachment_picker-attachment' attachEvent="onClick">
-            <img class="attachment-image" src="" attachPoint="attachmentThumbnail" attachEvent="onClick"/>
-            <div class="attachment-id" attachPoint="attachmentId"></div>
+        <div class='attachment_picker-attachment' data-attach-event="onClick">
+            <img class="attachment-image" src="" data-attach-point="attachmentThumbnail" data-attach-event="onClick"/>
+            <div class="attachment-id" data-attach-point="attachmentId"></div>
         </div>
     </script>
 </div>

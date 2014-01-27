@@ -6,25 +6,24 @@
     <h2>Настройки почтового сервера</h2>
 </div>
 
-<!--<div class="bem-admin_setup_form " widget="brx.setupForm" url="/api/zf-setup/update-email-options" style="display: none;">-->
-<div class="brx-options_form" backbone-view="brx.OptionsForm" scope="" prefix="EmailHelper" style="display: none;">
+<div class="brx-options_form" data-view="brx.OptionsForm" data-scope="" data-prefix="EmailHelper" style="display: none;">
     <div class="form_fields">
-        <div class="form_field stretch field_template" attachpoint="fields.template">
+        <div class="form_field stretch field_template" data-attach-point="fields.template">
             <label class="width50">Шаблон стандартного письма:</label>
             <span class="form_field-input_box"><input name="template" type="text" value="<?php //echo $this->escape($this->template); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_mail_from" attachpoint="fields.mail_from">
+        <div class="form_field stretch field_mail_from" data-attach-point="fields.mail_from">
             <label class="width35">От кого (email):</label>
             <span class="form_field-input_box"><input name="mail_from" type="text" value="<?php //echo $this->escape($this->mail_from); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_from_name" attachpoint="fields.mail_from_name">
+        <div class="form_field stretch field_from_name" data-attach-point="fields.mail_from_name">
             <label class="width35">От кого (имя):</label>
             <span class="form_field-input_box"><input name="mail_from_name" type="text" value="<?php //echo $this->escape($this->mail_from_name); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_mailer" attachpoint="fields.mailer">
+        <div class="form_field stretch field_mailer" data-attach-point="fields.mailer">
             <label class="width35">Транспорт:</label>
             <span class="form_field-input_box">
                 <?php echo $this->formSelect('mailer', /*$this->mailer*/'php', array(), array(
@@ -36,17 +35,17 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_template" attachpoint="fields.smtp_host">
+        <div class="form_field stretch field_template" data-attach-point="fields.smtp_host">
             <label class="width35">SMTP-Сервер:</label>
             <span class="form_field-input_box"><input name="smtp_host" type="text" value="<?php //echo $this->escape($this->smtp_host); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_smtp_port" attachpoint="fields.smtp_port">
+        <div class="form_field stretch field_smtp_port" data-attach-point="fields.smtp_port">
             <label class="width35">SMTP-Порт:</label>
             <span class="form_field-input_box"><input name="smtp_port" type="text" value="<?php //echo $this->escape($this->smtp_port); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_smtp_ssl" attachpoint="fields.smtp_ssl">
+        <div class="form_field stretch field_smtp_ssl" data-attach-point="fields.smtp_ssl">
             <label class="width35">SSL:</label>
             <span class="form_field-input_box">
                 <?php echo $this->formSelect('smtp_ssl', /*$this->mailer*/'none', array(), array(
@@ -57,7 +56,7 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_smtp_auth" attachpoint="fields.smtp_auth">
+        <div class="form_field stretch field_smtp_auth" data-attach-point="fields.smtp_auth">
             <label class="width35">Авторизация по smtp:</label>
             <span class="form_field-input_box">
                 <?php echo $this->formSelect('smtp_auth', /*$this->mailer*/'0', array(), array(
@@ -68,19 +67,19 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_smtp_user" attachpoint="fields.smtp_user">
+        <div class="form_field stretch field_smtp_user" data-attach-point="fields.smtp_user">
             <label class="width35">Пользователь:</label>
             <span class="form_field-input_box"><input name="smtp_user" type="text" value="<?php // echo $this->escape($this->smtp_user); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
-        <div class="form_field stretch field_smtp_pass" attachpoint="fields.smtp_pass">
+        <div class="form_field stretch field_smtp_pass" data-attach-point="fields.smtp_pass">
             <label class="width35">Пароль:</label>
             <span class="form_field-input_box"><input name="smtp_pass" type="text" value="<?php // echo $this->escape($this->smtp_pass); ?>"/></span>
             <div class="form_field-tips"></div>
         </div>
     </div>
     <div class="button_pane">
-        <button class="button button-large button-primary" attachevent="saveOptions">Сохранить</button>
+        <button class="button button-large button-primary" data-attach-event="saveOptions">Сохранить</button>
     </div>
     <script type="text/javascript">
     //    window.setupOptions = <?php //echo JsonHelper::encode($this->options);?>;

@@ -85,7 +85,7 @@
                 var full = model.getImageData_Full();
 
                 this.$el.addClass('show_info');
-                this.get('view.thumb').attr('src', (full||model.getImageData_Thumbnail()).url);
+                this.get('viewer.thumb').attr('src', (full||model.getImageData_Thumbnail()).url);
 
                 var src = '';
                 if(full){
@@ -96,8 +96,8 @@
                         src = m.shift();
                     }
                 }
-                this.get('view.filename').text(src?src:model.getTitle());
-                this.get('view.dimensions').text(full?_.template('<%= width %>x<%= height %>', full):'');
+                this.get('viewer.filename').text(src?src:model.getTitle());
+                this.get('viewer.dimensions').text(full?_.template('<%= width %>x<%= height %>', full):'');
                 console.dir({'model':model});
             }else{
                 this.$el.removeClass('show_info');
@@ -142,7 +142,7 @@
             if(m){
                 txt = m.shift();
             }
-            this.get('view.uploadFilename').text(txt);  
+            this.get('viewer.uploadFilename').text(txt);  
             this.checkUploadForm();
         },
 
@@ -168,10 +168,10 @@
             msgBox.text(msg);
             if(msg){
                 msgBox.addClass('form_field-tips_error');
-                this.get('view.uploadFilename').addClass('ui-state-error');
+                this.get('viewer.uploadFilename').addClass('ui-state-error');
             }else{
                 msgBox.removeClass('form_field-tips_error');
-                this.get('view.uploadFilename').removeClass('ui-state-error');
+                this.get('viewer.uploadFilename').removeClass('ui-state-error');
             }
             
             return nonempty && validFormats;
@@ -186,7 +186,7 @@
                     + "png, jpg, gif";
                 }
                 var field = 'messageBox';
-                if(!$.brx.utils.empty(this.fields('key'))){
+                if(!_.empty(this.fields('key'))){
                     field = key;
                 }
                 if(field!=='messageBox'){
@@ -198,43 +198,72 @@
         },
                 
         setupUploadForm: function(){
-            this.get('boxUpload').iframePostForm({
-                iframeID : 'iframe-post-form',
-                json: 'true',
-                post: $.proxy(function(form){
+            
+            this.prepareAjaxForm('boxUpload', {
+                spinner: false,
+                errorMessage: 'Ошибка загрузки файла',
+                send: $.proxy(function(){
                     if(this.checkUploadForm()){
-//                        console.dir({this:this});
                         this.showUploadSpinner('Загрузка файла...');
                         return true;
                         
                     }
                     return false;
                 }, this),
-                complete: $.proxy(function (data, status){
-                    this.hideUploadSpinner();
-                    console.dir({'uploadFile.success':{args: arguments}});
-                    if(data && 0 === data.code){
-                        var short = false;
-                        if(!this.get('attachments').length){
-                            short = true;
-                            this.hide();
-                        }
-                        this.get('attachments').add(data.payload);  
-                        this.get('boxUpload')[0].reset();
-                        this.fileSelected();
-                        this.selectById(data.payload.id);
-                        if(short){
-                            this.buttonSelectClicked();
-                        }
-                        
-//                        this.set('catalogItemTypes', data.payload.item_types);
-//                        this.get('views.totalOutdated').text( parseInt(data.payload.total_outdated));
-                    }else{
-                        this.handleAjaxErrors(data);
-                        this.showMessage();
+                success: $.proxy(function(data, xhr){
+                    var short = false;
+                    if(!this.get('attachments').length){
+                        short = true;
+                        this.hide();
                     }
+                    this.get('attachments').add(data.payload);  
+                    this.get('boxUpload')[0].reset();
+                    this.fileSelected();
+                    this.selectById(data.payload.id);
+                    if(short){
+                        this.buttonSelectClicked();
+                    }
+                }, this),
+                error: $.proxy(function(){
+                }, this),
+                complete: $.proxy(function(){
+                    this.hideUploadSpinner();
                 }, this)
             });
+            
+//            this.get('boxUpload').iframePostForm({
+//                iframeID : 'iframe-post-form',
+//                json: 'true',
+//                post: $.proxy(function(form){
+//                    if(this.checkUploadForm()){
+//                        this.showUploadSpinner('Загрузка файла...');
+//                        return true;
+//                        
+//                    }
+//                    return false;
+//                }, this),
+//                complete: $.proxy(function (data, status){
+//                    this.hideUploadSpinner();
+//                    console.dir({'uploadFile.success':{args: arguments}});
+//                    if(data && 0 === data.code){
+//                        var short = false;
+//                        if(!this.get('attachments').length){
+//                            short = true;
+//                            this.hide();
+//                        }
+//                        this.get('attachments').add(data.payload);  
+//                        this.get('boxUpload')[0].reset();
+//                        this.fileSelected();
+//                        this.selectById(data.payload.id);
+//                        if(short){
+//                            this.buttonSelectClicked();
+//                        }
+//                    }else{
+//                        this.handleAjaxErrors(data);
+//                        this.showMessage();
+//                    }
+//                }, this)
+//            });
             
         },
         

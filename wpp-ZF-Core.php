@@ -511,9 +511,9 @@ class ZF_Core extends WpPlugin{
         <script>
         jQuery(document).ready(function($) {
             $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);
-            if($.brx && $.brx.parseBackboneViews){
-                $.brx.parseBackboneViews();
-            }
+//            if($.brx && $.brx.parseBackboneViews){
+//                $.brx.parseBackboneViews();
+//            }
             if($.brx && $.brx.Parser){
                 $.brx.Parser.parse();
             }

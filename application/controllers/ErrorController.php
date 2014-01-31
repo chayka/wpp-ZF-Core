@@ -23,12 +23,14 @@ class ZF_Core_ErrorController extends Zend_Controller_Action
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ROUTE:
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_CONTROLLER:
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ACTION:
-                // 404 error -- controller or action not found
-                $httpResponseCode = 404;
-                $this->getResponse()->setHttpResponseCode($httpResponseCode);
-                $priority = Zend_Log::NOTICE;
-                $message = 'Page not found';
-                break;
+//                // 404 error -- controller or action not found
+//                $httpResponseCode = 404;
+//                $this->getResponse()->setHttpResponseCode($httpResponseCode);
+//                $priority = Zend_Log::NOTICE;
+//                $message = 'Page not found';
+//                break;
+                WpHelper::setNotFound(true);
+                return;
             default:
                 // application error
                 $httpResponseCode = 500;

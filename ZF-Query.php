@@ -70,6 +70,7 @@ class ZF_Query extends WP_Query {
         $requestUri = preg_replace('%^\/(api|widget)?\/?%', '', $requestUri);
         foreach(self::$forbiddenRoutes as $mask){
             if(preg_match($mask, $requestUri)){
+                die('forbidden');
                 return true;
             }
         }

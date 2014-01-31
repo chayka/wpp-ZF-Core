@@ -83,22 +83,23 @@ class ZF_Query extends WP_Query {
             unset($request->query_vars['error']);
         }
         parse_str($_SERVER['QUERY_STRING'], $params);
+        $isForbidden = self::isForbiddenRoute($_SERVER['REQUEST_URI']);
         $isZF = isset(self::$routes['index']) 
                 && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI'])
-                || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
+                || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m)
+                || $isForbidden;
         $isAPI = Util::getItem($m, 1, false);
                 
         if(self::isForbiddenRoute($_SERVER['REQUEST_URI'])){
-            $_SERVER['REQUEST_URI'] = '/not-found-404/';
             $isZF = true;
         }
         
-        if($isAPI){
-            $uri = preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
-            die(ZF_Query::processRequest($uri));
-        }
         
-        if ($isZF || $isAPI/*isset($params[ZF_MARKER])*/) {
+        if ($isZF) {
+            if($isAPI){
+                $uri = $isForbidden ? '/not-found-404/':preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
+                die(ZF_Query::processRequest($uri));
+            }
             $request->query_vars['pagename']='zf';
             ini_set('display_errors', 1);
             error_reporting(E_ALL);
@@ -136,6 +137,10 @@ class ZF_Query extends WP_Query {
     public static function processRequest($uri = '', $appId = null){
         if(!$uri){
             $uri = $_SERVER['REQUEST_URI'];
+        }
+        if(self::isForbiddenRoute($uri)){
+            WpHelper::setNotFound(true);
+            return '';
         }
         $tmpUri = $_SERVER['REQUEST_URI'];
         $_SERVER['REQUEST_URI'] = $uri;
@@ -316,14 +321,10 @@ class ZF_Query extends WP_Query {
         global $wp_query;
         
         $this->request = '';
-//        try {
-            $zf_response = self::processRequest();
-            if(WpHelper::getNotFound()){
-                $zf_response = self::processRequest('/not-found-404/');
-            }
-//        }catch(Exception $e){
-//            echo '('.$e->getMessage().')';
-//        }
+        $zf_response = self::processRequest();
+        if(WpHelper::getNotFound()){
+            $zf_response = self::processRequest('/not-found-404/');
+        }
         $posts = WpHelper::getPosts();
         if($posts){
             $wpq = WpHelper::getQuery();

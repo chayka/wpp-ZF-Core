@@ -195,7 +195,8 @@ class AclHelper {
     }
 
     public static function show404() {
-        header("Location: /404/");
+        header("Location: /not-found-404/");
+        die();
     }
 
 }

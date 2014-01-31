@@ -23,6 +23,7 @@ class ZF_Query extends WP_Query {
 
     protected static $applications = array();
     protected static $routes = array();
+    protected static $forbiddenRoutes = array();
     protected static $widgets = array();
     
     protected static $_post = null;
@@ -47,9 +48,35 @@ class ZF_Query extends WP_Query {
 //        }
     }
     
+    public static function forbidRoute($mask, $id = null){
+        if($id){
+            self::$forbiddenRoutes[$id] = $mask;
+        }else{
+            self::$forbiddenRoutes[] = $mask;
+        }
+    }
+    
+    public static function forbidRoutes($routes){
+        foreach($routes as $id=>$mask){
+            if(is_numeric($id)){
+                self::forbidRoute($mask);
+            }else{
+                self::forbidRoute($mask, $id);
+            }
+        }
+    }
+    
+    public static function isForbiddenRoute($requestUri){
+        $requestUri = preg_replace('%^\/(api|widget)?\/?%', '', $requestUri);
+        foreach(self::$forbiddenRoutes as $mask){
+            if(preg_match($mask, $requestUri)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static function parseRequest(){
-//        phpinfo();
-//        die('hello');
         BlockadeHelper::inspectUri($_SERVER['REQUEST_URI']);
         if(isset($request->query_vars['error'])){
             unset($request->query_vars['error']);
@@ -58,10 +85,11 @@ class ZF_Query extends WP_Query {
         $isZF = isset(self::$routes['index']) 
                 && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI'])
                 || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m);
-//        $isAPI = preg_match('%^\/api|widget\/%',$_SERVER['REQUEST_URI']);
         $isAPI = Util::getItem($m, 1, false);
-//        Util::print_r(self::$routes);
-//        die($isZF);
+                
+        if(self::isForbiddenRoute($_SERVER['REQUEST_URI'])){
+            $_SERVER['REQUEST_URI'] = '/not-found-404/';
+        }
         
         if($isAPI){
             $uri = preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
@@ -69,7 +97,6 @@ class ZF_Query extends WP_Query {
         }
         
         if ($isZF || $isAPI/*isset($params[ZF_MARKER])*/) {
-//            echo " ZF call detected ";
             $request->query_vars['pagename']='zf';
             ini_set('display_errors', 1);
             error_reporting(E_ALL);

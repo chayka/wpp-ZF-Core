@@ -394,7 +394,7 @@ class ZF_Core extends WpPlugin{
         
         $this->registerStyle( 'admin-setupForm', 'bem-admin_setup_form.less');
         $this->registerScript( 'jquery-ui-datepicker-ru', 'jquery.ui.datepicker-ru.js');
-        $this->registerScript( 'jquery-ui-progressbar', 'jquery.ui.progressbar.js');
+//        $this->registerScript( 'jquery-ui-progressbar', 'jquery.ui.progressbar.js');
         $this->registerScript( 'bootstrap', ($minimize?'vendors/bootstrap.min.js':'vendors/bootstrap.js'), array('jquery'));
         $this->registerStyle( 'bootstrap', ($minimize?'bootstrap.min.css':'bootstrap.css'));
         $this->registerStyle( 'bootstrap-responsive', ($minimize?'bootstrap-responsive.min.css':'bootstrap-responsive.css'));

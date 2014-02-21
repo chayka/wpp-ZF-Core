@@ -105,7 +105,8 @@
         },
                 
         deleteAttachment: function(){
-            $.brx.modalConfirm(_.template('Действительно удалить файл <%= post_title %> ?', this.getSelectedModel().attributes), $.proxy(function(){
+//            $.brx.modalConfirm(_.template('Действительно удалить файл <%= post_title %> ?', this.getSelectedModel().attributes), $.proxy(function(){
+            $.brx.Modals.confirm(_.template('Действительно удалить файл <%= post_title %> ?', this.getSelectedModel().attributes), $.proxy(function(){
                 this.getSelectedModel().destroy();
                 if(this.getInt('attachmentId')===this.getInt('initialId')){
                     this.trigger('attachmentSelected', null);
@@ -113,7 +114,7 @@
                 this.selectById(0);
             },this));
         },
-    
+        
         show: function(id){
             var width = 805;
             if(this.get('attachments').length){
@@ -124,15 +125,23 @@
             }
             this.setInt('initialId', id);
             this.selectById(id);
-            this.$el.dialog({
+            $.brx.Modals.show(this.$el, {
                 title: this.get('title'),
-                width: width,
-                modal: this.get('modal')
+                modal: this.get('modal'),
+                css: {
+                    width: width+'px'
+                }
             });
+//            this.$el.dialog({
+//                title: this.get('title'),
+//                width: width,
+//                modal: this.get('modal')
+//            });
         },
                 
         hide: function(){
-            this.$el.dialog('close');
+//            this.$el.dialog('close');
+            $.brx.Modals.hide(this.$el);
         },
                 
         fileSelected: function(){

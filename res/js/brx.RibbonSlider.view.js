@@ -29,8 +29,13 @@
             if(this.get('direction')==='auto'){
                 var slider = this.get('slider');
                 var itemViews = slider.find('.brx-ribbon_slider-item');
-                
+                console.dir('');
                 var direction = slider.width() === itemViews.width() ? 'vertical':'horizontal';
+                console.dir({getDirection:{
+                    direction: direction,
+                    slider_width: slider.width(),
+                    itemViews_width: itemViews.width()
+                }});
                 
                 this.$el.removeClass('vertical horizontal').addClass(direction);
                 return direction;

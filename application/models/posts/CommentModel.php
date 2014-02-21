@@ -609,7 +609,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
             $status = get_post_status($post);
 
             $status_obj = get_post_status_object($status);
-            $msgCommentsClosed = __('Sorry, comments are closed for this item.');
+            $msgCommentsClosed = NlsHelper::_('Sorry, comments are closed for this item.');
             if (!comments_open($postId)) {
                 $this->validationErrors['comment_closed'] = $msgCommentsClosed;
                 return false;
@@ -636,7 +636,7 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
                 }
             } else {
                 if (get_option('comment_registration') || 'private' == $status){
-                    $this->validationErrors[ErrorHelper::CODE_AUTH_REQUIRED] = __('Sorry, you must be logged in to post a comment.');
+                    $this->validationErrors[ErrorHelper::CODE_AUTH_REQUIRED] = NlsHelper::_('Sorry, you must be logged in to post a comment.');
                     return false;
                 }else{
                     if (!Util::getItem($input, 'comment_author')) {

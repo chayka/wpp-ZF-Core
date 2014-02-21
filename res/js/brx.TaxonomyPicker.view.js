@@ -249,22 +249,32 @@
         linkSelectClicked: function(){
             this.set('initialIds', this.get('ids'));
             this.checkOptions(this.get('ids'));
-            this.get('boxOptions').dialog({
+            $.brx.Modals.show(this.get('boxOptions'), {
                 title: this.get('title'),
-                width: 400,
-                modal: this.get('modal')
+                modal: this.get('modal'),
+                css:{
+                    width: '400px'
+                }
+                
             });
+//            this.get('boxOptions').dialog({
+//                title: this.get('title'),
+//                width: 400,
+//                modal: this.get('modal')
+//            });
             this.get('inputSearch').blur();
         },
         
         buttonOkClicked: function(){
-            this.get('boxOptions').dialog('close');
+//            this.get('boxOptions').dialog('close');
+            $.brx.Modals.hide(this.get('boxOptions'));
             this.get('hiddenInput').val(this.get('ids').join(',')).trigger('change');
             this.renderSelectedOptions();
         },
         
         buttonCancelClicked: function(){
-            this.get('boxOptions').dialog('close');
+//            this.get('boxOptions').dialog('close');
+            $.brx.Modals.hide(this.get('boxOptions'));
             var ids = this.get('initialIds');
             this.checkOptions(ids);
             this.renderSelectedOptions();

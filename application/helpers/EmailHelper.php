@@ -25,12 +25,8 @@ class EmailHelper {
 
         // configure base stuff
         $mail->setSubject($subject);
-//        echo $html;
-//        preg_match('%^.*wp-content\/%',plugin_dir_path(__FILE__), $m);
-//        $contentDir = $m[0];
-//        $fn = $contentDir.'/themes/wpt-MCC/application/views/scripts/email/template.phtml';
         $fn = get_template_directory().'/application/views/scripts/email/template.phtml';
-//        die(get_template_directory());
+
         if(file_exists($fn)){
             $view = new Zend_View();
             $view->setBasePath(get_template_directory().'/application/views');

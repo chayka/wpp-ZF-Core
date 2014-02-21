@@ -1,6 +1,22 @@
-body.brx-modals-shown{
+@import '/wp-content/plugins/wpp-ZF-Core/res/css/styles.less';
+
+body.brx-modal-shown{
     .brx-modal_fader{
-        
+        text-align: center;
+        display: block;
+        position: fixed;
+        overflow-x: auto;
+        overflow-y: scroll;
+        background-color: rgba(0,0,0, .1);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+/*        .brx-modal_window{
+            position: relative;
+            z-index: auto;
+        }*/
     }
 }
 
@@ -9,34 +25,75 @@ body.brx-modals-shown{
 }
 
 .brx-modal_window{
-    .container_header{
-        .header_title{
-            
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10001;
+    text-align: center;
+    display: block;
+    overflow-x: auto;
+    overflow-y: scroll;
+        
+    .window_container{
+        position: relative;
+        top: 0;
+        background-color: white;
+        display: inline-block;
+        min-width: 300px;
+        margin: 0 auto;
+
+        .container_header{
+            position: relative;
+            border-bottom: 1px solid #eeeeee;
+            text-align: left;
+            .header_title{
+                margin-left: 10px;
+                margin-right: 40px;
+                line-height: 30px;
+            }
+            .header_btn_close{
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                font-size: 20px;
+                text-align: center;
+                cursor: pointer;
+            }
         }
-        .header_btn_close{
-            
+        .container_content{
+            padding: 20px 10px;
+            text-align: left;
         }
-    }
-    .container_content{
+        .container_footer{
+            border-top: 1px solid #eeeeee;
+            .footer_buttons{
+                padding: 10px;
+                text-align: right;
+                button{
+                    margin-left: 1em;
+                }
+            }
+        }
         
     }
-    .container_footer{
-        .footer_buttons{
-            button{
-                
-            }
+    
+    .modal_alert{
+        .container_content{
+
+        }
+    }
+    
+    .modal_confirm{
+        .container_content{
+
         }
     }
 }
 
-.brx-modal_window.modal_alert{
-    .container_content{
-        
-    }
-}
-.brx-modal_window.modal_confirm{
-    .container_content{
-        
-    }
-}
 

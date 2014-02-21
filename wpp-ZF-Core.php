@@ -187,19 +187,19 @@ class ZF_Core extends WpPlugin{
 
     public static function registerCustomPostTypeContentFragment() {
         $labels = array(
-            'name' => _x('Content fragment', 'post type general name'),
-            'singular_name' => _x('Content fragment', 'post type singular name'),
-            'add_new' => _x('Add fragment', 'item'),
-            'add_new_item' => __('Add fragment'),
-            'edit_item' => __('Edit fragment'),
-            'new_item' => __('New fragment'),
-            'all_items' => __('All fragments'),
-            'view_item' => __('View fragment'),
-            'search_items' => __('Search fragments'),
-            'not_found' => __('No fragments found'),
-            'not_found_in_trash' => __('No deleted fragments found'),
+            'name' => NlsHelper::_('Content fragment'), //'post type general name'
+            'singular_name' => NlsHelper::_('Content fragment'), //'post type singular name'
+            'add_new' => NlsHelper::_('Add fragment'), //'item'
+            'add_new_item' => NlsHelper::_('Add fragment'),
+            'edit_item' => NlsHelper::_('Edit fragment'),
+            'new_item' => NlsHelper::_('New fragment'),
+            'all_items' => NlsHelper::_('All fragments'),
+            'view_item' => NlsHelper::_('View fragment'),
+            'search_items' => NlsHelper::_('Search fragments'),
+            'not_found' => NlsHelper::_('No fragments found'),
+            'not_found_in_trash' => NlsHelper::_('No deleted fragments found'),
             'parent_item_colon' => 'Parent fragment:',
-            'menu_name' => __('Content fragments')
+            'menu_name' => NlsHelper::_('Content fragments')
         );
         $args = array(
             'labels' => $labels,
@@ -267,15 +267,15 @@ class ZF_Core extends WpPlugin{
     
     public static function registerTaxonomyContentFagmentTag(){
         $labels = array(
-            'name' => _x('Fragment Tags', 'taxonomy general name'),
-            'singular_name' => _x('Fragment Tag', 'taxonomy singular name'),
-            'search_items' => __('Search tags'),
-            'all_items' => __('All tags'),
-            'edit_item' => __('Edit'),
-            'update_item' => __('Update'),
-            'add_new_item' => __('Add tag'),
-            'new_item_name' => __('New tag name'),
-            'menu_name' => __('Fragment Tags'),
+            'name' => NlsHelper::_('Fragment Tags'), //'taxonomy general name'),
+            'singular_name' => NlsHelper::_('Fragment Tag'), //'taxonomy singular name'),
+            'search_items' => NlsHelper::_('Search tags'),
+            'all_items' => NlsHelper::_('All tags'),
+            'edit_item' => NlsHelper::_('Edit'),
+            'update_item' => NlsHelper::_('Update'),
+            'add_new_item' => NlsHelper::_('Add tag'),
+            'new_item_name' => NlsHelper::_('New tag name'),
+            'menu_name' => NlsHelper::_('Fragment Tags'),
         );
 
         register_taxonomy(self::TAXONOMY_CONTENT_FRAGMENT_TAG, 
@@ -317,12 +317,14 @@ class ZF_Core extends WpPlugin{
 
         $isAdminPost = is_admin() && (strpos($_SERVER['REQUEST_URI'], 'post.php'));
 
+        // backbone & underscore
         $this->registerScript( 'Underscore', ($minimize?'vendors/underscore.min.js':'vendors/underscore.js'), array('jquery'));
         $this->registerScript( 'Backbone', ($minimize?'vendors/backbone.min.js':'vendors/backbone.js'), array('jquery', ($isAdminPost?'underscore': 'Underscore')));
         $this->registerScript( 'nls', 'vendors/nls.js', array(($isAdminPost?'underscore': 'Underscore')));
 
         $this->registerScript( 'require', ($minimize?'vendors/require.min.js':'vendors/require.js'));
 
+        // lesscss    
         $this->registerScript( 'less', ($minimize?'vendors/less-1.3.1.min.js':'vendors/less-1.3.3.js'));
         $this->registerStyle( 'less-styles', 'styles.less?ver=1.0');
 
@@ -333,16 +335,14 @@ class ZF_Core extends WpPlugin{
         // moment.js
         $lang = NlsHelper::getLang();
         $this->registerScript( 'moment-base', ($minimize?'vendors/moment/min/moment.min.js':'vendors/moment/moment.js'), array());
-//        $this->registerScript( 'moment-lang', ($minimize?'vendors/moment/min/lang/'.$lang.'.js':'vendors/moment/lang/'.$lang.'.js'), array());
-
         $diskFile = ZF_CORE_PATH.'res/js/vendors/moment/lang/'.$lang.'.js';
-
         if($lang!='en' && file_exists($diskFile)){
             $this->registerScript( 'moment', ($minimize?'vendors/moment/min/lang/'.$lang.'.js':'vendors/moment/lang/'.$lang.'.js'), array('moment-base'));
         }else{
             $this->registerScript( 'moment', ($minimize?'vendors/moment/min/moment.min.js':'vendors/moment/moment.js'));
         }
-        
+
+        // touch-swipe
         $this->registerScript('jquery-touch-swipe', $minimize?'vendors/jquery.touchSwipe.min.js':'vendors/jquery.touchSwipe.js');
         
 //        $this->registerScript( 'jquery-ui-templated', 'jquery.ui.templated.js', array('jquery-ui-core', 'jquery-ui-dialog','jquery-ui-widget', 'jquery-brx-utils', 'moment'));
@@ -351,12 +351,15 @@ class ZF_Core extends WpPlugin{
         $this->registerScript( 'brx-parser', 'brx.Parser.js', array('underscore-brx', ($isAdminPost?'backbone':'Backbone')));
         $this->registerScript( 'backbone-brx', 'backbone.brx.js', array(($isAdminPost?'backbone':'Backbone'), 'underscore-brx', 'brx-parser', 'nls', 'moment', 'brx-ajax'));
         $this->registerScript( 'brx-ajax', 'brx.Ajax.js', array('underscore-brx'));
+        $this->registerStyle( 'brx-modals', 'brx.Modals.less', array());
+        $this->registerScript( 'brx-modals', 'brx.Modals.js', array('backbone-brx'));
 
         $this->registerScript( 'backbone-wp-models', 'backbone.wp.models.js', array('backbone-brx'));
+        
         $this->registerScript( 'backbone-brx-pagination', 'brx.Pagination.view.js', array('backbone-brx'));
 
 //        $this->registerScript( 'jquery-ajax-uploader', 'vendors/jquery.ajaxfileupload.js', array('jquery'));
-        $this->registerScript( 'jquery-ajax-iframe-uploader', 'vendors/jquery.iframe-post-form.js', array('jquery'));
+//        $this->registerScript( 'jquery-ajax-iframe-uploader', 'vendors/jquery.iframe-post-form.js', array('jquery'));
         $this->registerScript( 'jquery-galleria', 'vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
         $this->registerScript( 'jquery-masonry', 'vendors/jquery.masonry.min.js', array('jquery'));
 
@@ -364,7 +367,7 @@ class ZF_Core extends WpPlugin{
         $this->registerScript( 'jquery-brx-placeholder', 'jquery.brx.placeholder.js', array('jquery', 'jquery-ui-widget', 'underscore-brx'));
 //        $this->registerStyle( 'jquery-brx-spinner', 'jquery.brx.spinner.css');
 //        $this->registerScript( 'jquery-brx-spinner', 'jquery.brx.spinner.js', array('jquery-ui-templated'));
-        $this->registerScript( 'jquery-brx-modalBox', 'jquery.brx.modalBox.js', array('jquery-ui-dialog'));
+//        $this->registerScript( 'jquery-brx-modalBox', 'jquery.brx.modalBox.js', array('jquery-ui-dialog'));
 //        $this->registerScript( 'jquery-brx-form', 'jquery.brx.form.js', array('jquery-ui-templated','jquery-brx-spinner', 'jquery-brx-placeholder', 'jquery-ui-autocomplete'));
 //        $this->registerScript( 'jquery-brx-setupForm', 'jquery.brx.setupForm.js', array('jquery-brx-form'));
 
@@ -397,7 +400,7 @@ class ZF_Core extends WpPlugin{
         $this->registerStyle( 'bootstrap-responsive', ($minimize?'bootstrap-responsive.min.css':'bootstrap-responsive.css'));
 
 
-        $this->registerStyle( 'normalize', 'normalize.css');
+        $this->registerStyle( 'normalize', 'normalize.1.1.3.css');
         
         $this->registerScript( 'modenizr', 'vendors/modernizr-2.6.2.min.js');
 
@@ -487,18 +490,12 @@ class ZF_Core extends WpPlugin{
     public function addJQueryWidgets(){
         wp_enqueue_style('jquery-ui');
         wp_enqueue_script('jquery-effects-fade');
-//        wp_enqueue_script('jquery-effects-drop');
-//        wp_enqueue_script('jquery-effects-blind');
-//        wp_enqueue_script('jquery-ui-widget');
-//        wp_enqueue_script('jquery-ui-templated');
-//        wp_enqueue_script('jquery-brx-placeholder');
-//        wp_enqueue_script('jquery-brx-modalBox');
-//        wp_enqueue_style('jquery-brx-spinner');
-//        wp_enqueue_script('jquery-brx-spinner');
         wp_enqueue_script('brx-parser');
         wp_enqueue_script('backbone-wp-models');
         wp_enqueue_style('backbone-brx-modals');
         wp_enqueue_script('backbone-brx-modals');
+        wp_enqueue_style('brx-modals');
+        wp_enqueue_script('brx-modals');
         wp_print_scripts();
         wp_print_styles(); 
         
@@ -511,9 +508,6 @@ class ZF_Core extends WpPlugin{
         <script>
         jQuery(document).ready(function($) {
             $.declare('brx.options.ZfCore', <?php echo JsonHelper::encode($options)?>);
-//            if($.brx && $.brx.parseBackboneViews){
-//                $.brx.parseBackboneViews();
-//            }
             if($.brx && $.brx.Parser){
                 $.brx.Parser.parse();
             }

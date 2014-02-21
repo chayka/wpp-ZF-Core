@@ -719,10 +719,10 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $key = preg_replace('/[^a-z0-9]/i', '', $key);
 
         if (empty($key) || !is_string($key)) {
-            return new WP_Error('invalid_key', __('Invalid key'));
+            return new WP_Error('invalid_key', NlsHelper::_('Invalid key'));
         }
         if (empty($login) || !is_string($login)) {
-            return new WP_Error('invalid_key', __('Invalid key'));
+            return new WP_Error('invalid_key', NlsHelper::_('Invalid key'));
         }
         $user = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->users WHERE user_activation_key = %s AND user_login = %s", $key, $login));
 
@@ -731,7 +731,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             unset($_SESSION['activationlogin']);
             unset($_SESSION['activationpopup']);
             session_commit();
-            return new WP_Error('invalid_key', __('Invalid key'));
+            return new WP_Error('invalid_key', NlsHelper::_('Invalid key'));
         }
         return self::unpackDbRecord($user);
     }

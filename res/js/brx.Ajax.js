@@ -65,6 +65,9 @@
                 if(arg && !_.isUndefined(arg.responseText)){
                     return arg;
                 }
+                if(arg && !_.isUndefined(arg.xhr) && !_.isUndefined(arg.xhr.responseText)){
+                    return arg.xhr;
+                }
             }
             
             return null;
@@ -170,7 +173,8 @@
                 }else if(_.isFunction(this.setMessage)){
                     this.setMessage(message, true);   
                 }else{
-                    $.brx.modalAlert(message, '', 'modal_alert');
+//                    $.brx.modalAlert(message, '', 'modal_alert');
+                    $.brx.Modals.alert(message);
                 }
                 
                 if(_.isFunction(error)){
@@ -182,46 +186,13 @@
             options.error = errorHandler;
             
             var successHandler = $.proxy(function(/*jqXHR, textStatus, errorThrown*/){
-//                var xhr = $.brx.Ajax.detectArgXHR(arguments);
                 var data = $.brx.Ajax.detectArgData(arguments);
-//                for(var i=0; i<arguments.length; i++){
-//                    var arg = arguments[i];
-//                    if(arg && !_.isUndefined(arg.responseText)){
-//                        xhr = arg;
-//                        continue;
-//                    }
-//                    if(arg && !_.isUndefined(arg.payload)){
-//                        data = arg;
-//                    }
-//                }
+
                 if(data && data.code === 0 && _.isFunction(success)){
                     success.apply(this, arguments);
                 }else{
                     errorHandler.apply(this, arguments);
                 }
-//                }else if(xhr){
-//                    data = $.brx.Ajax.processResponse(xhr.responseText, errorMessage);
-//                    var errors = $.brx.Ajax.handleErrors(data);
-//                    var message = errorMessage;
-//                    for(var i in errors){
-//                        message = errors[i] || errorMessage;
-//                        break;
-//                    }
-//                    if(_.isFunction(this.processErrors)){
-//                        this.processErrors(errors);
-//                    }else if(_.isFunction(this.setMessage)){
-//                        this.setMessage(message, true);   
-//                    }else{
-//                        $.brx.modalAlert(message, '', 'modal_alert');
-//                    }
-//                    
-//                }else{
-//                    if(_.isFunction(this.setMessage)){
-//                        this.setMessage(errorMessage, true);   
-//                    }else{
-//                        $.brx.modalAlert(errorMessage, '', 'modal_alert');
-//                    }                    
-//                }
             }, this);
             
             options.success = successHandler;

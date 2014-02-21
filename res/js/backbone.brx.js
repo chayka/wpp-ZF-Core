@@ -434,7 +434,8 @@
         
         showMessage: function(){
             if(this.option('message.text.length')){
-                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
+//                $.brx.modalAlert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
+                $.brx.Modals.alert(this.options.message.text, '', this.options.message.isError? 'modal_alert':'modal_info');
             }
         },
         
@@ -479,7 +480,7 @@
         
         destroyModel: function(options, model){
             model = model || this.getModel();
-            model.destroy(this.prepareModelSyncOptions(options));
+            model.destroy(this.prepareAjax(options));
         }
         
         

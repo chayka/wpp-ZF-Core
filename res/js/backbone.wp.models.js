@@ -506,35 +506,6 @@
                 },this)
             });
         
-//            $.ajax(url, {
-//                data:{
-//                    id: this.id
-//                },
-//                dataType: 'json',
-//                type: 'post'
-//            })
-//
-//            .done($.proxy(function(data){
-//                if(0 === data.code){
-//                    this.set(data.payload);
-//                }else{
-//                    var message = data.message 
-//                        || 'Voting failed';
-//                    $.brx.modalAlert(message);
-//                }
-//            },this))
-//
-//            .fail($.proxy(function(response){
-//                var message = $.brx.utils.processFail(response) 
-//                    || 'Voting failed';
-//                $.brx.modalAlert(message);//'Пароль изменен');
-//            },this))
-//
-//            .always($.proxy(function(){
-//                if(_.isFunction(callback)){
-//                    callback.apply(null, arguments);
-//                }
-//            },this));
         },
                 
         voteUp: function(callback){

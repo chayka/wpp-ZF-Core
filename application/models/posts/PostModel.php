@@ -791,8 +791,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param integer $id
      * @return PostModel 
      */
-    public static function selectById($id, $useCache = true){
-        if($useCache){
+    public static function selectById($id = 0, $useCache = true){
+        if($useCache && $id){
             $item = Util::getItem(self::$postsCacheById, $id);
             if($item){
                 return $item;
@@ -855,11 +855,12 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * Get PostQueryModel object to create a query.
      * Call ->select() to fetch queried models;
      * The count of found rows can be found by calling postsFound() aftermath.
+     * @param boolean $gloaba set to true if you need import from $wp_query
      * 
      * @return PostQueryModel 
      */
-    public static function query(){
-        $query = new PostQueryModel();
+    public static function query($globalImport = false){
+        $query = new PostQueryModel($globalImport);
         return $query;
     }
 
@@ -870,20 +871,33 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param array $wpPostsQueryArgs
      * @return array(PostModel)
      */
-    public static function selectPosts($wpPostsQueryArgs){
+    public static function selectPosts($wpPostsQueryArgs = array()){
         
-//        Util::print_r($wpPostsQueryArgs);
-//        die('(@)');
+        global $wp_query;
+        
         $posts = array();
-        self::$wpQuery = new WP_Query($wpPostsQueryArgs);
-//        $dbRecords = get_posts($wpPostsQueryArgs);
-        $dbRecords = self::$wpQuery->get_posts($wpPostsQueryArgs);
+        
+        if(empty($wpPostsQueryArgs)){
+            if(!self::$wpQuery){
+                self::$wpQuery = $wp_query;
+//                Util::print_r($wp_query);
+            }
+        }else{
+            self::$wpQuery = new WP_Query($wpPostsQueryArgs);
+        }
+        
+//        self::$wpQuery = empty($wpPostsQueryArgs)? $wp_query : new WP_Query($wpPostsQueryArgs);
+        
+        $dbRecords = self::$wpQuery->get_posts();
+        
         foreach ($dbRecords as $dbRecord) {
             $posts[] = self::unpackDbRecord($dbRecord);
         }
-//        Util::print_r($posts);
+        
         self::$postsFound=self::$wpQuery->found_posts;
+        
         return $posts;
+        
     }
     
     /**

@@ -79,9 +79,11 @@ class ZF_Query extends WP_Query {
     
     public static function parseRequest(){
         BlockadeHelper::inspectUri($_SERVER['REQUEST_URI']);
+
         if(isset($request->query_vars['error'])){
             unset($request->query_vars['error']);
         }
+        
         parse_str($_SERVER['QUERY_STRING'], $params);
         $isForbidden = self::isForbiddenRoute($_SERVER['REQUEST_URI']);
         $isZF = isset(self::$routes['index']) 
@@ -93,7 +95,6 @@ class ZF_Query extends WP_Query {
         if(self::isForbiddenRoute($_SERVER['REQUEST_URI'])){
             $isZF = true;
         }
-        
         
         if ($isZF) {
             if($isAPI){

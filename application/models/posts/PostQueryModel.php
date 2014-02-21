@@ -4,8 +4,12 @@ class PostQueryModel{
     
     protected $vars = array();
     
-    public function __construct() {
-        ;
+    public function __construct($globalImport = false) {
+        global $wp_the_query, $wp_query;
+        if($globalImport){
+            $q = $wp_the_query?$wp_the_query:$wp_query;
+            $this->vars = $q->query_vars;
+        }
     }
     
     public function getVars(){

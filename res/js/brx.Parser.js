@@ -12,40 +12,40 @@
             this.attr(xAttrName, this.attr(attrName));
         }
         return this.removeAttr(attrName);
-    }
+    };
     
     $.fn.restoreParserAttr = function(attrName){
         var re = /^data-/;
         var xAttrName = re.test(attrName)?attrName.replace(re, 'data-x-'):'x-'+attrName;
         if(this.attr(xAttrName)){
-            this.attr(attrName, this.attr(xAttrName))
+            this.attr(attrName, this.attr(xAttrName));
         }
         return this.removeAttr(xAttrName);
 //        return this.attr(attrName, this.data(attrName)).removeData(attrName);
-    }
+    };
     
     $.fn.storeParserAttrs = function(){
         var v = this;
-        v.find('[data-attach-point]').each(function(i){$(this).storeParserAttr('data-attach-point')});
-        v.find('[data-attach-widget]').each(function(i){$(this).storeParserAttr('data-attach-widget')});
-        v.find('[data-attach-view]').each(function(i){$(this).storeParserAttr('data-attach-view')});
-        v.find('[data-attach-event]').each(function(i){$(this).storeParserAttr('data-attach-event')});
-        v.find('[data-widget]').each(function(i){$(this).storeParserAttr('data-widget')});
-        v.find('[data-plugin]').each(function(i){$(this).storeParserAttr('data-plugin')});
-        v.find('[data-view]').each(function(i){$(this).storeParserAttr('data-view')});
+        v.find('[data-attach-point]').each(function(i){$(this).storeParserAttr('data-attach-point');});
+        v.find('[data-attach-widget]').each(function(i){$(this).storeParserAttr('data-attach-widget');});
+        v.find('[data-attach-view]').each(function(i){$(this).storeParserAttr('data-attach-view');});
+        v.find('[data-attach-event]').each(function(i){$(this).storeParserAttr('data-attach-event');});
+        v.find('[data-widget]').each(function(i){$(this).storeParserAttr('data-widget');});
+        v.find('[data-plugin]').each(function(i){$(this).storeParserAttr('data-plugin');});
+        v.find('[data-view]').each(function(i){$(this).storeParserAttr('data-view');});
         return v;
-    }
+    };
     
     $.fn.restoreParserAttrs = function(){
-        this.find('[data-x-attach-point]').each(function(i){$(this).restoreParserAttr('data-attach-point')});
-        this.find('[data-x-attach-widget]').each(function(i){$(this).restoreParserAttr('data-attach-widget')});
-        this.find('[data-x-attach-view]').each(function(i){$(this).restoreParserAttr('data-attach-view')});
-        this.find('[data-x-attach-event]').each(function(i){$(this).restoreParserAttr('data-attach-event')});
-        this.find('[data-x-widget]').each(function(i){$(this).restoreParserAttr('data-widget')});
-        this.find('[data-x-plugin]').each(function(i){$(this).restoreParserAttr('data-plugin')});
-        this.find('[data-x-view]').each(function(i){$(this).restoreParserAttr('data-view')});
+        this.find('[data-x-attach-point]').each(function(i){$(this).restoreParserAttr('data-attach-point');});
+        this.find('[data-x-attach-widget]').each(function(i){$(this).restoreParserAttr('data-attach-widget');});
+        this.find('[data-x-attach-view]').each(function(i){$(this).restoreParserAttr('data-attach-view');});
+        this.find('[data-x-attach-event]').each(function(i){$(this).restoreParserAttr('data-attach-event');});
+        this.find('[data-x-widget]').each(function(i){$(this).restoreParserAttr('data-widget');});
+        this.find('[data-x-plugin]').each(function(i){$(this).restoreParserAttr('data-plugin');});
+        this.find('[data-x-view]').each(function(i){$(this).restoreParserAttr('data-view');});
         return this;
-    }
+    };
  
     _.declare('brx.Parser');
     
@@ -146,21 +146,21 @@
             }
         }
 
-        var exported = view.$el.attr('data-export') || view.$el.attr('populate')
+        var exported = view.$el.attr('data-export') || view.$el.attr('populate');
 
         if(exported){
             _.setVar(exported, view);
         }
 
-    }
+    };
     
     /**
      * Function to create view object
      * 
-     * @param string|constructor view
-     * @param DOMElement element
-     * @param object options
-     * @returns $.brx.View
+     * @param {string|constructor} view
+     * @param {DOMElement} element
+     * @param {object} options
+     * @returns {$.brx.View}
      */
     $.brx.Parser.createView = function(view, element, options){
         if(view){
@@ -185,8 +185,8 @@
      * Function to create view object on a queried element
      * $('.selector').createBackboneView = function('brx.View', {});
      * 
-     * @param string|constructor view
-     * @param object options
+     * @param {string|constructor} view
+     * @param {object} options
      * @returns $
      */
     $.fn.createView = function(view, options){
@@ -213,24 +213,26 @@
     $.brx.Parser.createWidget = function(widget, element, options){
         if(widget){
             options = options || {};
-            var m = widget.match(/([\w\d]+)\.([\w\d]+)/)
+            var m = widget.match(/([\w\d]+)\.([\w\d]+)/);
             if(m){
 //                var namespace = m[1];
                 widget = m[2];
             }
             element = element || $('<div></div>')[0];
 //            var forbidden = ['id', 'class', 'style', 'href', 'src', 'widget' ];
-            var r = $(element)[widget](options).data(widget);
+            var uiWidget = 'ui'+widget.substr(0,1).toUpperCase()+widget.substr(1);
+//            var r = $(element)[widget](options).data(widget);
+            var r = $(element)[widget](options);
 
-            return r;
+            return r.data(uiWidget) || r.data(widget); 
         }
         return null;
-    }
+    };
     
     $.fn.createWidget = function(widget, options){
         $.brx.Parser.createWidget(widget, this, options);
         return this;
-    }
+    };
     
     $.brx.Parser.parseWidgets = function(){
         $('[data-widget-template],[widgetTemplate]').each(function(i){
@@ -240,9 +242,9 @@
             var widget = $(this).attr("data-widget") || $(this).attr("widget") ;
             $(this).createWidget(widget);
         });
-        $(document).restoreParserAttrs()
+        $(document).restoreParserAttrs();
         
-    }
+    };
     
     $.brx.Parser.parsePlugins = function(){
         $('[data-plugin], [plugin]').each(function(j){
@@ -258,13 +260,13 @@
                     .storeParserAttr('plugin');
         });
         
-    }
+    };
 
     $.brx.Parser.parse = function(){
         $.brx.Parser.parsePlugins();
         $.brx.Parser.parseViews();
         $.brx.Parser.parseWidgets();
-    }
+    };
     
 
 

@@ -296,7 +296,8 @@ class ZF_Core extends WpPlugin{
         $this->addAction('activated_plugin', 'thisPluginGoesFirst');
 //        add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
 //        add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
-        $this->addAction('wp_footer', 'addJQueryWidgets', 100);
+        $this->addAction('wp_footer', 'addUiFramework', 100);
+        $this->addAction('admin_footer', 'addUiFramework_Console', 100);
 //        add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
         Util::sessionStart();
         if(empty($_SESSION['timezone'])){
@@ -304,7 +305,7 @@ class ZF_Core extends WpPlugin{
             $this->addAction('wp_footer', 'fixTimezone');
         }
         
-        $this->addAction('admin_print_styles', 'addAdminStyles');
+//        $this->addAction('admin_print_styles', 'addAdminStyles');
         
     }
     
@@ -444,10 +445,10 @@ class ZF_Core extends WpPlugin{
 
     }
 
-    public function addAdminStyles(){
-        wp_enqueue_style('brx-forms');
-        wp_enqueue_style('brx-wp-admin');
-    }
+//    public function addAdminStyles(){
+//        wp_enqueue_style('brx-forms');
+//        wp_enqueue_style('brx-wp-admin');
+//    }
     
     public static function getJQueryUIThemeCss($theme = ''){
         if(!$theme){
@@ -487,13 +488,14 @@ class ZF_Core extends WpPlugin{
     }
 
     
-    public function addJQueryWidgets(){
+    public function addUiFramework(){
+        WidgetHelper::renderMultiSpinner();
         wp_enqueue_style('jquery-ui');
         wp_enqueue_script('jquery-effects-fade');
         wp_enqueue_script('brx-parser');
         wp_enqueue_script('backbone-wp-models');
-        wp_enqueue_style('backbone-brx-modals');
-        wp_enqueue_script('backbone-brx-modals');
+//        wp_enqueue_style('backbone-brx-modals');
+//        wp_enqueue_script('backbone-brx-modals');
         wp_enqueue_style('brx-modals');
         wp_enqueue_script('brx-modals');
         wp_print_scripts();
@@ -511,6 +513,24 @@ class ZF_Core extends WpPlugin{
             if($.brx && $.brx.Parser){
                 $.brx.Parser.parse();
             }
+        });        
+        </script>
+                    
+        <?php
+    }
+    
+    public function addUiFramework_Console(){
+        wp_enqueue_style('brx-forms');
+        wp_enqueue_style('brx-wp-admin');
+        $this->addUiFramework();
+        ?>
+                    
+        <script>
+        jQuery(document).ready(function($) {
+            $.extend($.brx.Modals.buttonStyling, {
+                'default': 'button button-large',
+                'primary': 'button button-large button-primary'
+            });
         });        
         </script>
                     

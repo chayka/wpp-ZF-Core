@@ -7,6 +7,12 @@ _.declare('brx.Modals', {
     _current: null,
     _lastIndex: 0,
     
+    buttonStyling: {
+        'default': '',
+        'primary': '',
+        'danger': '',
+        'link': ''
+    },
     
     _getIndex: function(){
         if(!$.brx.Modals._lastIndex){
@@ -237,6 +243,11 @@ _.declare('brx.Modals.Window', $.brx.View, {
                     if(buttonClass){
                         button.addClass(buttonClass);
                     }
+                    var role = _.getItem(data, 'role', 'default');
+                    var roleClass = _.getItem($.brx.Modals.buttonStyling, role);
+                    if(roleClass){
+                        button.addClass(roleClass);
+                    }
                     button.bind('click', $.proxy(this.close, this));
 //                    button.bind('click', $.brx.Modals.hide);
                     this.get('buttonsBox').append(button);
@@ -259,6 +270,11 @@ _.declare('brx.Modals.Window', $.brx.View, {
                     }
                     if(buttonClass){
                         button.addClass(buttonClass);
+                    }
+                    var role = _.getItem(data, 'role', 'default');
+                    var roleClass = _.getItem($.brx.Modals.buttonStyling, role);
+                    if(roleClass){
+                        button.addClass(roleClass);
                     }
                     button.bind('click', $.proxy(this.close, this));
 //                    button.bind('click', $.brx.Modals.hide);

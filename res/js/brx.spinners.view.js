@@ -79,8 +79,10 @@
         
         postCreate: function(){
             this.$el.hide();
-            this.listenTo(Backbone.Events, 'brx.MultiSpinner.show', $.proxy(this.show, this));
-            this.listenTo(Backbone.Events, 'brx.MultiSpinner.hide', $.proxy(this.hide, this));
+            if(this.listenTo){// Backbone 0.9.2 in wordpress admin does not know such methods
+                this.listenTo(Backbone.Events, 'brx.MultiSpinner.show', $.proxy(this.show, this));
+                this.listenTo(Backbone.Events, 'brx.MultiSpinner.hide', $.proxy(this.hide, this));
+            }
 //            this.unbind('mouseenter').mouseenter($.proxy(function(){
 //                this.$el.addClass('hover');
 //            }, this));

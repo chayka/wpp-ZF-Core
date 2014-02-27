@@ -27,10 +27,10 @@ defined('ZF_CORE_APPLICATION_PATH')
     || define('ZF_CORE_APPLICATION_PATH', realpath($pluginDir . '/application'));
 // Add /library directory to our include path
 set_include_path(implode(PATH_SEPARATOR, array(
-    get_include_path(), 
     realpath($pluginDir . '/library'),
     ZF_CORE_APPLICATION_PATH,
     realpath($pluginDir),
+    get_include_path(), 
 )));
 
 require_once 'library/ZendB/Util.php';

@@ -154,7 +154,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                 $this->getTaxonomy(), 
                 $this->packDbRecord(true));
         if(is_wp_error($res)){
-            throw new Exception($res->get_error_message(), $res->get_error_code());
+            throw new Exception($res->get_error_message()/*, $res->get_error_code()*/);
         }
         return is_wp_error($res)?null:$res->term_taxonomy_id;
     }

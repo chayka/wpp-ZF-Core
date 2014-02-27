@@ -7,6 +7,32 @@ class PaginationModel{
     protected $itemsPerPage = 10;
     protected $pageLinkPattern = '/page/.page.';
     
+    protected static $instance = null;
+    
+    /**
+     * 
+     * @return PaginationModel
+     */
+    public static function getInstance(){
+        if(!self::$instance){
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * 
+     * @param WP_Query $wpQuery
+     */
+    public function setup($wpQuery = null){
+        if(!$wpQuery){
+            $wpQuery = PostModel::getWpQuery();
+        }
+        $this->setCurrentPage($wpQuery->get('paged'));
+        $this->setTotalPages($wpQuery->max_num_pages);
+        $this->setItemsPerPage($wpQuery->get('posts_per_page'));
+    }
+    
     public function getTotalPages() {
         return $this->totalPages;
     }

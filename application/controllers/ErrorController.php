@@ -29,7 +29,7 @@ class ZF_Core_ErrorController extends Zend_Controller_Action
 //                $priority = Zend_Log::NOTICE;
 //                $message = 'Page not found';
 //                break;
-                WpHelper::setNotFound(true);
+                ZF_Query::setNotFound(true);
                 return;
             default:
                 // application error

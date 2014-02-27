@@ -1,2 +1,2 @@
-<?php the_post();?>
-<?php echo $post->post_content; ?>
+<?php the_post();
+echo $post->post_content;

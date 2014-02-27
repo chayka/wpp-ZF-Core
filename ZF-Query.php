@@ -25,6 +25,7 @@ class ZF_Query extends WP_Query {
     protected static $routes = array();
     protected static $forbiddenRoutes = array();
     protected static $widgets = array();
+    protected static $options = array(); 
     
     protected static $_post = null;
     
@@ -86,8 +87,9 @@ class ZF_Query extends WP_Query {
         
         parse_str($_SERVER['QUERY_STRING'], $params);
         $isForbidden = self::isForbiddenRoute($_SERVER['REQUEST_URI']);
-        $isZF = isset(self::$routes['index']) 
-                && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI'])
+        $isHome = isset(self::$routes['index']) 
+                && (empty($_SERVER['REQUEST_URI']) || '/'==$_SERVER['REQUEST_URI']);
+        $isZF = $isHome
                 || preg_match('%^\/((api|widget)\/)?('.  join('|', array_keys(self::$routes)).')(\/|\z)%',$_SERVER['REQUEST_URI'], $m)
                 || $isForbidden;
         $isAPI = Util::getItem($m, 1, false);
@@ -97,6 +99,7 @@ class ZF_Query extends WP_Query {
         }
         
         if ($isZF) {
+            self::setIsMainPage($isHome);
             if($isAPI){
                 $uri = $isForbidden ? '/not-found-404/':preg_replace('%^\/(api|widget)%', '', $_SERVER['REQUEST_URI']);
                 die(ZF_Query::processRequest($uri));
@@ -140,7 +143,7 @@ class ZF_Query extends WP_Query {
             $uri = $_SERVER['REQUEST_URI'];
         }
         if(self::isForbiddenRoute($uri)){
-            WpHelper::setNotFound(true);
+            self::setNotFound(true);
             return '';
         }
         $tmpUri = $_SERVER['REQUEST_URI'];
@@ -148,6 +151,7 @@ class ZF_Query extends WP_Query {
         if(!$appId){
             $route = preg_match('%^\/([^\/]+)%', $uri, $m)?$m[1]:'index';
             $appId = Util::getItem(self::$routes, $route);
+            self::setIsMainPage('index' == $route);
         }
         if($appId){
             $appInfo = Util::getItem(self::$applications, $appId);
@@ -242,7 +246,7 @@ class ZF_Query extends WP_Query {
             self::$_post->setCommentCount(0);
             self::$_post->setPingStatus('closed');
         }
-        return self::$post;
+        return self::$_post;
     }
 
     public static function setPostId($val){
@@ -285,6 +289,14 @@ class ZF_Query extends WP_Query {
         return self::getPost()->getTitle();
     }
     
+    public static function setPostSlug($val){
+        self::getPost()->setSlug($val);
+    }
+    
+    public static function getPostSlug(){
+        return self::getPost()->getSlug();
+    }
+    
     public static function setPostExcerpt($val){
         self::getPost()->setExcerpt($val);
     }
@@ -317,57 +329,119 @@ class ZF_Query extends WP_Query {
         return self::getPost()->getCommentStatus();
     }
     
+    public static function setPingStatus($val){
+        self::getPost()->setPingStatus($val);
+    }
+    
+    public static function getPingStatus(){
+        return self::getPost()->getPingStatus();
+    }
+    
+    public static function getOptions(){
+        return self::$options;
+    }
+            
+    public static function getOption($key, $default = ''){
+        return Util::getItem(self::$options, $key, $default);
+    }
+    
+    public static function setOption($key, $value){
+        self::$options[$key]=$value;
+    }
+    
+    public static function getIsMainPage(){
+        return self::getOption('is-main-page');
+    }
+    
+    public static function setIsMainPage($is = true){
+        return self::setOption('is-main-page', $is);
+    }
+    
+    public static function getIsArchive(){
+        return self::getOption('is-archive');
+    }
+    
+    public static function setIsArchive($is = true){
+        return self::setOption('is-archive', $is);
+    }
+    
+    public static function getIsSearch(){
+        return self::getOption('is-search');
+    }
+    
+    public static function setIsSearch($is = true){
+        return self::setOption('is-search', $is);
+    }
+    
+    public static function getNotFound(){
+        return self::getOption('not-found');
+    }
+    
+    public static function setNotFound($notFound = true){
+        Util::turnRendererOff();
+        return self::setOption('not-found', $notFound);
+    }
+    
+    public static function getPageTemplate() {
+        return self::getOption('page-template');
+    }
+
+    public static function setPageTemplate($pageTemplate) {
+        self::setOption('page-template', $pageTemplate);
+    }
+    
     public function &get_posts() {
         global $wp_the_query;
         global $wp_query;
         
         $this->request = '';
+//        $this->is_home = self::getIsMainPage();
         $zf_response = self::processRequest();
-        if(WpHelper::getNotFound()){
+        if(self::getNotFound()){
             $zf_response = self::processRequest('/not-found-404/');
         }
-        $posts = WpHelper::getPosts();
-        if($posts){
-            $wpq = WpHelper::getQuery();
-            if($wpq){
-                if($wpq instanceof WP_Query){
-                    $this->copyFrom($wpq);
-                }  elseif (is_array($wpq)) {
-                    $this->query_vars = $this->fill_query_vars($wpq);
-//                Util::print_r($wpq);
-                }
-            }
-            
-//            Util::print_r($this->query_vars);
-            global $post;
-            $post = reset($posts);
-            $this->posts = $posts;
-            $this->post = $post;
-            $this->post_count = count($this->posts);
-            $this->current_post = -1;
-
-            $this->is_single = 0;
-            $this->is_page = 0;
-            $this->is_404 = WpHelper::getNotFound();
-            $this->is_search = WpHelper::getIsSearch();
-            $this->is_archive = WpHelper::getIsArchive();
-            $this->is_home = 0;
-//            Util::print_r($posts);
-        }else{
+//        $posts = WpHelper::getPosts();
+//        if($posts){
+//            $wpq = WpHelper::getQuery();
+//            if($wpq){
+//                if($wpq instanceof WP_Query){
+//                    $this->copyFrom($wpq);
+//                }  elseif (is_array($wpq)) {
+//                    $this->query_vars = $this->fill_query_vars($wpq);
+//                }
+//            }
+//            
+////            Util::print_r($this->query_vars);
+//            global $post;
+//            $post = reset($posts);
+//            $this->posts = $posts;
+//            $this->post = $post;
+//            $this->post_count = count($this->posts);
+//            $this->current_post = -1;
+//
+//            $this->is_single = 0;
+//            $this->is_page = 0;
+//            $this->is_404 = self::getNotFound();
+//            $this->is_search = self::getIsSearch();
+//            $this->is_archive = self::getIsArchive();
+//            $this->is_home = 0;//self::getIsMainPage();
+////            Util::print_r($posts);
+//        }else{
+//            die('@');
 //            echo $zf_response;
             $post_zf = array(
-                "ID" => WpHelper::getPostId(),
-                "post_author" => WpHelper::getPostAuthor(),
+                "ID" => self::getPostId(),//WpHelper::getPostId(),
+                "post_author" => self::getPostAuthor(),//WpHelper::getPostAuthor(),
                 "post_date" => '',
                 "post_date_gmt" => '',
                 "post_content" => $zf_response,
-                "post_title" => WpHelper::getPostTitle(),
-                "post_excerpt" => WpHelper::getPostDescription(),
-                "post_status" => "publish",
-                "comment_status" => "closed",
-                "ping_status" => "closed",
+                "post_title" => self::getPostTitle(),//HtmlHelper::getHeadTitle(),
+                "post_excerpt" => self::getPostExcerpt(),//HtmlHelper::getMetaDescription(),
+                "post_status" => self::getPostStatus(),//"publish",
+                "comment_status" => self::getCommentStatus(),//"closed",
+                "ping_status" =>  self::getPingStatus(),//"closed",
                 "post_password" => "",
-                "post_name" => "",
+                "post_name" => self::getPostSlug(),//"",
                 "to_ping" => "",
                 "pinged" => "",
                 "post_modified" => "",
@@ -376,23 +450,23 @@ class ZF_Query extends WP_Query {
                 "post_parent" => 0,
                 "guid" => "",
                 "menu_order" => 1,
-                "post_type" => WpHelper::getPostType(),
+                "post_type" => 'zf',
                 "post_mime_type" => "",
                 "comment_count" => "0",
                 "ancestors" => array(),
                 "filter" => "",
-                "page_template" => WpHelper::getPageTemplate(),
-                "nav_menu_id" => WpHelper::getNavMenuId(),
-                "nav_menu" => WpHelper::getNavMenu(),
-                "sidebar_id" => WpHelper::getSideBarId(),
-                "sidebar_static" => WpHelper::getSideBarStatic()
+                "page_template" => self::getPageTemplate(),//'', //WpHelper::getPageTemplate(),
+//                "nav_menu_id" => WpHelper::getNavMenuId(),
+//                "nav_menu" => WpHelper::getNavMenu(),
+//                "sidebar_id" => WpHelper::getSideBarId(),
+//                "sidebar_static" => WpHelper::getSideBarStatic()
             );
 
             global $post;
             $post = (object) $post_zf;
             
             $this->post = $post;
-            if(!WpHelper::getNotFound()){
+            if(!self::getNotFound()){
                 $this->is_single = 1;
                 $this->posts = array($post);
                 $this->post_count = count($this->posts);
@@ -408,16 +482,16 @@ class ZF_Query extends WP_Query {
             }
             $this->current_post = -1;
 
-            $this->is_search = WpHelper::getIsSearch();
+            $this->is_search = self::getIsSearch();
             $this->is_page = 0;
-            $this->is_404 = WpHelper::getNotFound();
-            $this->is_archive = WpHelper::getIsArchive();
-            $this->is_home = 0;
+            $this->is_404 = self::getNotFound();
+            $this->is_archive = self::getIsArchive();
+            $this->is_home = 0;//self::getIsMainPage();
             $this->comment = null;
             $this->comments = array();
             $this->comment_count = 0;
             $wp_the_query = $this;
-        }
+//        }
         
 
 // эти 2 строки нужны, чтобы wordPress (особеннно в версии 3.x) не думал, что у него запросили нечто некорректное. 

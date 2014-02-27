@@ -52,7 +52,7 @@ class HtmlHelper {
      * 
      * @param int|object|PostModel $post
      */
-    public static function setPostMeta($post){
+    public static function setPost($post){
         if(is_object($post)){
             if(!($post instanceof PostModel)){
                 $post = PostModel::unpackDbRecord($post);
@@ -77,6 +77,14 @@ class HtmlHelper {
             $keywords = array_unique($keywords);
             self::setMetaKeywords(join(', ', $keywords));
         }
+    }
+    
+    public static function setSidebarId($id){
+        self::setMeta('sidebar-id', $id);
+    }
+    
+    public static function getSidebarId(){
+        return self::getMeta('sidebar-id');
     }
     
     public static function hidden($condition = true){

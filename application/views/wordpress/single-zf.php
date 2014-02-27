@@ -12,7 +12,7 @@
  * @since Twenty Ten 1.0
  */
 
+the_post();
 get_header(); ?>
-<?php the_post();?>
 <?php echo $post->post_content; ?>
-<?php get_footer(); ?>
+<?php get_footer();

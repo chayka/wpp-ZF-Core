@@ -1076,7 +1076,7 @@
             for(var key in errors){
                 var errorMessage = errors[key];
                 var field = 'messageBox';
-                if(!_.empty(this.options.fields[key])){
+                if(_.getItem(this.options.fields, key)){
                     field = key;
                 }
                 if(field!=='messageBox'){

@@ -973,6 +973,18 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
     
     /**
+     * Delete post meta value
+     * 
+     * @param integer $postId
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public static function deletePostMeta($postId, $key, $value = ''){
+        return delete_post_meta($postId, $key, $value);
+    }
+    
+    /**
      * Get post meta single key-value pair or all key-values
      * 
      * @param string $key Optional. The meta key to retrieve. By default, returns data for all keys.
@@ -993,6 +1005,17 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      */
     public function updateMeta($key, $value, $oldValue = '') {
         self::updatePostMeta($this->getId(), $key, $value, $oldValue);
+    }
+    
+    /**
+     * Delete post meta value
+     * 
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public function deleteMeta($key, $value = ''){
+        return self::deletePostMeta($this->getId(), $key, $value);
     }
 
     /**

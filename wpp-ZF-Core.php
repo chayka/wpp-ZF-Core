@@ -35,6 +35,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once 'library/ZendB/Util.php';
 require_once 'application/classes/WpTheme.php';
+require_once 'application/classes/WpSidebarWidget.php';
 require_once 'application/helpers/LessHelper.php';
 require_once 'application/helpers/OptionHelper.php';
 require_once 'ZF-Query.php';

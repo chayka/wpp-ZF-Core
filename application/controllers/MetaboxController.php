@@ -27,10 +27,14 @@ class ZF_Core_MetaboxController extends Zend_Controller_Action{
 
         $params = InputHelper::getParams();
         foreach($params as $key => $value){
-            $matach = array();
+            $match = array();
             
             if(preg_match('%^metabox_([\w\d_]+)$%i', $key, $match)){
-                PostModel::updatePostMeta($postId, $match[1], $value);
+                if($value){
+                    PostModel::updatePostMeta($postId, $match[1], $value);
+                }else{
+                    PostModel::deletePostMeta($postId, $match[1]);
+                }
             }
         }
         

@@ -6,7 +6,7 @@ class WpSidebarWidget extends WP_Widget {
     
     protected static $args;
     
-    protected $scriptPath;
+    protected $scriptPath; 
 
     public static function getArgs(){
         return self::$args;
@@ -105,7 +105,7 @@ class WpSidebarWidget extends WP_Widget {
         $view = $this->getView($instance);
         $tpl = sprintf('sidebar/%s-form.phtml', $this->id_base);
         try{
-        echo $view->render($tpl);
+            echo $view->render($tpl);
         }  catch (Exception $e){
             return parent::form($instance);
         }

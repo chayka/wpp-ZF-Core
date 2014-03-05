@@ -66,12 +66,15 @@ class NlsHelper {
             $locale = new Zend_Locale('en-us');
             try {
                 $option = OptionHelper::getOption('nlsLanguage', 'auto');
-//                die($option);
+                if(!$option){
+                    $option = 'auto';
+                }
                 $locale = new Zend_Locale('auto' == $option? Zend_Locale::BROWSER: $option);
             } catch (Zend_Locale_Exception $e) {
                 $locale = new Zend_Locale('en-us');
             }
             self::$locale = $locale;
+//            Util::print_r($locale);
         }
         return self::$locale;
     }

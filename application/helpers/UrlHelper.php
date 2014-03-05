@@ -13,9 +13,9 @@
 class UrlHelper {
 
     public static function getRouter($clearParams = true){
-        $router = Util::getFront()->getRouter();
+        $router = Util::getFront()?Util::getFront()->getRouter():null;
 
-        if($clearParams){
+        if($router && $clearParams){
             $router->clearParams();
         }
 

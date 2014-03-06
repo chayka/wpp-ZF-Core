@@ -718,6 +718,16 @@
             }
             return values;
         },
+        
+        getFieldsVisibleValues: function(byLabels){
+            var values = {};
+            for(var fieldId in this.options.fields){
+                var key = byLabels?this.labels(fieldId).text():fieldId;
+                values[key] = this.getFieldValue(fieldId);
+            }
+            return values;
+            
+        },
                 
         setupFieldChecks: function(fieldId){
             this.inputs(fieldId).blur($.proxy(function(event){

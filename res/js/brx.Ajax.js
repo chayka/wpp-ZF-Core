@@ -102,7 +102,7 @@
             options = options || {};
             
             options = _.extend(defaults, options);
-            
+            console.dir({this: this});
             var spinner = _.getItem(options, 'spinner', null);
             var spinnerId = _.getItem(options, 'spinnerId');
             var spinnerFieldId = _.getItem(options, 'spinnerFieldId');

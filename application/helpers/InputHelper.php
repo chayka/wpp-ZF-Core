@@ -62,11 +62,14 @@ class InputHelper {
 //        return $chain->filter($value);
     }
     
-    public static function getParams() {
+    public static function getParams($omitStandard = false) {
         $params = Util::getFront()->getRequest()->getParams();
         $result = array();
+        $standard = array('action', 'controller', 'module');
         foreach ($params as $key => $value) {
-            $result[$key] = self::getParam($key);
+            if(!$omitStandard || !in_array($key, $standard)){
+                $result[$key] = self::getParam($key);
+            }
         }
 
         return $result;

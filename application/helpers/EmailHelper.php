@@ -10,6 +10,10 @@ class EmailHelper {
         }
     }
     
+    public static function getNotificationEmail(){
+        return get_option('EmailHelper.notification_email');
+    }
+    
     public static function send($subject, $html, $to, $from = '', $cc = '', $bcc = '', $linkToWebVersion = ''){
         $mailFrom = get_option('EmailHelper.mail_from', 'postmaser@'.$_SERVER['SERVER_NAME']);
         $mailFromName = get_option('EmailHelper.mail_from', $_SERVER['SERVER_NAME']);

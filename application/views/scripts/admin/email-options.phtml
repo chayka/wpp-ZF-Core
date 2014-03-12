@@ -8,11 +8,11 @@
 
 <div class="brx-options_form" data-view="brx.OptionsForm" data-scope="" data-prefix="EmailHelper" style="display: none;">
     <div class="form_fields">
-        <!--div class="form_field stretch field_template" data-attach-point="fields.template">
-            <label class="width50">Шаблон стандартного письма:</label>
-            <span class="form_field-input_box"><input name="template" type="text" value="<?php //echo $this->escape($this->template); ?>"/></span>
+        <div class="form_field stretch field_notification_email" data-attach-point="fields.notification_email">
+            <label class="width50">Email для уведомлений:</label>
+            <span class="form_field-input_box"><input name="notification_email" type="text" value="<?php //echo $this->escape($this->template); ?>"/></span>
             <div class="form_field-tips"></div>
-        </div-->
+        </div>
         <div class="form_field stretch field_mail_from" data-attach-point="fields.mail_from">
             <label class="width35">От кого (email):</label>
             <span class="form_field-input_box"><input name="mail_from" type="text" value="<?php //echo $this->escape($this->mail_from); ?>"/></span>

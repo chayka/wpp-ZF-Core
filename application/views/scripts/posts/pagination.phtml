@@ -41,7 +41,9 @@
 
     foreach($links as $link){
         if($link['link']){
-            $classes = $link['text'] == $this->model->getCurrentPage()? 'active ':'';
+            $pagenum = intval($link['text']);
+            $classes = $pagenum && $pagenum == $this->model->getCurrentPage()? 'active ':'';
+//            printf('[%s == %s = %s]', $link['text'], $this->model->getCurrentPage(), $this->model->getCurrentPage()==$link['text']?'true':'false');
             $classes.= $link['link'] == '#'? 'disabled ':'';
             $classes.= Util::getItem($link, 'class').' ';
             ?>

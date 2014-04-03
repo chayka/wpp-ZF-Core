@@ -49,7 +49,7 @@
 //                    onTopOut: function(element){}  // callback on TSB leaves rule region from the top border
 //                    onBottomIn: function(element){}  // callback on TSB enters rule region from the bottom border
 //                    onBottomOut: function(element){}  // callback on TSB leaves rule region from the bottom border
-//                    onScroll: function(offset, length){}  // callback on scroll event while TSB is in the rule region
+//                    onScroll: function(element, offset, length){}  // callback on scroll event while TSB is in the rule region
 //                                      // offset - is the offset (px) of the TSB from the rule region top border
 //                                      // length - is the rule region size (px)
 //                    onDirectionChanged: function(element, direction){}
@@ -335,6 +335,9 @@
      * @param {$(DOMnode)} $container description
      */
     $.scrolly.addItem = $.scrolly.addItemToScrollLayout = function(id, $element, rules, $container) {
+        if(!$element.length){
+            return false;
+        }
         if($element.length > 1){
             $element.each(function(i){
                 var clonedRules = [];
@@ -370,6 +373,7 @@
                 rules: rules
             };
         }
+        return true;
     };
 
     /**

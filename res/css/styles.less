@@ -98,6 +98,14 @@
     -o-transition: @t; /* Opera */
 }
 
+.animation(@a){
+    animation: @a;
+    -ms-animation: @a;
+    -moz-animation: @a;
+    -o-animation: @a;
+    -webkit-animation: @a;
+}
+
 .sprite-icon(@url-background, @width, @height){
     display: inline-block;
     width: @width;

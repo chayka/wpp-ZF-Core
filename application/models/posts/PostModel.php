@@ -1033,10 +1033,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * Set post terms
      * 
      * @param array(sring|WP_Term|TermModel) $terms
+     * @param string $taxonomy taxonomy
      * @return \PostModel
      */
-    public function setTerms($terms) {
-        $this->terms = $terms;
+    public function setTerms($terms, $taxonomy = null) {
+        if($taxonomy){
+            $this->terms[$taxonomy] = $terms;
+        }else{
+            $this->terms = $terms;
+        }
         return $this;
     }
     
@@ -1094,6 +1099,34 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             }
         }
         return $this->terms;
+    }
+    
+    /**
+     * Update set of post's terms in DB
+     * @param array(string|int|WP_Term|TermModel) $terms if ommited $this->getTerms($taxonomy) is taken
+     * @param string $taxonomy if ommited $terms should be like array('post_tag' => ... , 'category' => ... )
+     * @param boolean $append append or replace
+     */
+    public function updateTerms($terms = null, $taxonomy = null, $append = false){
+        if(!$terms){
+            $terms = $this->getTerms($taxonomy);
+        }
+        if(!$taxonomy){
+            foreach ($terms as $taxonomy=>$trms){
+                $this->updateTerms($trms, $taxonomy, $append);
+            }
+        }else{
+            $trms = $terms;
+            if(is_array($terms) && count($terms)){
+                if(is_object(reset($terms))) {
+                    $trms = array();
+                    foreach($terms as $key=>$value){
+                        $trms[$key]= is_taxonomy_hierarchical($taxonomy)?$value->term_id:$value->name;
+                    }
+                }
+            }
+            wp_set_post_terms($this->getId(), $trms, $taxonomy, $append);
+        }
     }
     
     /**

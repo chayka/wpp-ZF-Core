@@ -140,7 +140,8 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         if(is_wp_error($res)){
             throw new Exception($res->get_error_message(), $res->get_error_code());
         }
-        return is_wp_error($res)?null:$res->term_taxonomy_id;
+        $this->setId(is_wp_error($res)?null:$res->term_taxonomy_id);
+        return $this->getId();
     }
 
     public function update() {
@@ -150,7 +151,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         if(!$this->getTaxonomy()){
             throw new Exception('TermModel: no taxonomy set', 2);
         }
-        $res = wp_insert_term($this->getId(), 
+        $res = wp_update_term($this->getId(), 
                 $this->getTaxonomy(), 
                 $this->packDbRecord(true));
         if(is_wp_error($res)){
@@ -180,7 +181,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             $dbRecord['name'] = $this->getName();
             $dbRecord['term_group'] = $this->getGroup();
         }
-        
+//        Util::print_r($dbRecord);
         return $dbRecord;
     }
 

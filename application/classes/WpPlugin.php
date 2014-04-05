@@ -24,6 +24,8 @@ abstract class WpPlugin{
             || define($this->appId.'_PATH', $this->basePath);
         defined($this->appId.'_URL') 
             || define( $this->appId.'_URL',  $this->baseUrl);
+        defined($this->appId.'_APPLICATION_PATH')
+            || define($this->appId.'_APPLICATION_PATH', $this->basePath.'application');
 //        Util::print_r($this->basePath().'res/css');
         LessHelper::addImportDir($this->getBasePath().'res/css');
         $minimize = OptionHelper::getOption('minimizeMedia');

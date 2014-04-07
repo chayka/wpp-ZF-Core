@@ -26,11 +26,11 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function getId() {
-        return $this->getRelationId();
+        return $this->getTermId();
     }
 
     public function setId($val){
-        return $this->setRelationId($val);
+        return $this->setTermId($val);
     }
     
     public function getTermId() {
@@ -140,7 +140,12 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         if(is_wp_error($res)){
             throw new Exception($res->get_error_message(), $res->get_error_code());
         }
-        $this->setId(is_wp_error($res)?null:$res->term_taxonomy_id);
+        if(!is_wp_error($res)){
+//            echo "TermModel->insert: ";
+//            Util::print_r($res);
+            $this->setTermId(Util::getItem($res, 'term_id', 0));
+            $this->setRelationId(Util::getItem($res, 'term_taxonomy_id', 0));
+        }
         return $this->getId();
     }
 
@@ -157,7 +162,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         if(is_wp_error($res)){
             throw new Exception($res->get_error_message()/*, $res->get_error_code()*/);
         }
-        return is_wp_error($res)?null:$res->term_taxonomy_id;
+        return is_wp_error($res)?null:$res;
     }
 
     public function delete($args = array()) {
@@ -206,6 +211,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     /**
+     * Selects ter by term_taxonomy_id
      * 
      * @global type $wpdb
      * @param int $id

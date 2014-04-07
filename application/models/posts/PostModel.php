@@ -1108,23 +1108,34 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @param boolean $append append or replace
      */
     public function updateTerms($terms = null, $taxonomy = null, $append = false){
+//        echo "updateTerms\n";
         if(!$terms){
+//            echo "getting terms\n";
             $terms = $this->getTerms($taxonomy);
+            Util::print_r($terms);
         }
         if(!$taxonomy){
+//            echo "no taxonomy set\n";
             foreach ($terms as $taxonomy=>$trms){
+//                echo "setting by taxonomy: $taxonomy \n";
                 $this->updateTerms($trms, $taxonomy, $append);
             }
         }else{
+//            echo "taxonomy set: $taxonomy \n";
             $trms = $terms;
             if(is_array($terms) && count($terms)){
+//                echo "is array\n";
                 if(is_object(reset($terms))) {
+//                    echo "is object\n";
                     $trms = array();
                     foreach($terms as $key=>$value){
+//                        Util::print_r($value);
                         $trms[$key]= is_taxonomy_hierarchical($taxonomy)?$value->term_id:$value->name;
                     }
                 }
             }
+//            echo "wp_set_post_terms \nid: ".$this->getId();
+//            Util::print_r($trms);
             wp_set_post_terms($this->getId(), $trms, $taxonomy, $append);
         }
     }

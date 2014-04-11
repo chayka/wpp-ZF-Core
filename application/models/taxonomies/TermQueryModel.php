@@ -49,11 +49,11 @@ class TermQueryModel{
     /**
      * Select first matching term
      * 
-     * @param string|array(string) $taxonomies
+     * @param string|array(string) $taxonomy
      * @return TermModel
      */
-    public function selectOne($taxonomies = null){
-        $terms = $this->select($taxonomies);
+    public function selectOne($taxonomy = null){
+        $terms = $this->select($taxonomy);
         return count($terms)?reset($terms):null;
     }
     
@@ -400,9 +400,10 @@ class PostTermQueryModel {
      * @param string|array(string) $taxonomies
      * @return TermModel
      */
-    public function selectOne($taxonomies = null){
-        $terms = $this->select();
-        return count($terms)?reset($terms):null;
+    public function selectOne($taxonomy){
+        $terms = $this->select(null, $taxonomy);
+//        Util::print_r($terms);
+        return count($terms[$taxonomy])?reset($terms[$taxonomy]):null;
     }
     
     /**

@@ -233,7 +233,7 @@ class TermModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     
     /**
      * 
-     * @param string $field
+     * @param string $field Either 'slug', 'name', 'id' (term_id), or 'term_taxonomy_id'
      * @param string $value
      * @param string $taxonomy
      * @param const $output

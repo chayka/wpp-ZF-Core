@@ -564,7 +564,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         if(!$visit){
             $this->getReviewsCount();
             $this->reviewsCount++;
-            update_post_meta($this->getId(), 'reviews_count', $this->reviewsCount);
+            $this->updateMeta('reviews_count', $this->reviewsCount);
+//            update_post_meta($this->getId(), 'reviews_count', $this->reviewsCount);
             $_SESSION['visited'][$today][$this->getId()] = true;
         }
         
@@ -992,9 +993,30 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return mixed Will be an array if $single is false. Will be value of meta data field if $single
      */
     public function getMeta($key = '', $single = true) {
-        return  self::getPostMeta($this->getId(), $key, $single);
+        $k = $single?$key:$key.'_arr';
+        if(!isset($this->meta[$k])){
+            $this->meta[$k] = self::getPostMeta($this->getId(), $key, $single);
+        }
+        return $this->meta[$k];
     }
 
+    /**
+     * Update post meta value for the specified key in the DB
+     * If value is empty then delete it
+     * 
+     * @param string $key
+     * @param string $value
+     * @param string $oldValue
+     * @return bool False on failure, true if success.
+     */
+    public function updateOrDeleteMeta($key, $value='', $oldValue = '') {
+        if($value){
+            return $this->updateMeta($key, $value, $oldValue);
+        }else{
+            return $this->deleteMeta($key, $oldValue);
+        }
+    }
+    
     /**
      * Update post meta value for the specified key in the DB
      * 
@@ -1004,7 +1026,13 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return bool False on failure, true if success.
      */
     public function updateMeta($key, $value, $oldValue = '') {
-        self::updatePostMeta($this->getId(), $key, $value, $oldValue);
+        if($oldValue){
+            unset($this->meta[$key]);
+            unset($this->meta[$key.'_arr']);
+        }else{
+            $this->meta[$key] = $value;
+        }
+        return self::updatePostMeta($this->getId(), $key, $value, $oldValue);
     }
     
     /**
@@ -1015,6 +1043,8 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return bool
      */
     public function deleteMeta($key, $value = ''){
+        unset($this->meta[$key]);
+        unset($this->meta[$key.'_arr']);
         return self::deletePostMeta($this->getId(), $key, $value);
     }
 

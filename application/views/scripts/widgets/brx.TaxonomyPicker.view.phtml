@@ -38,9 +38,10 @@ function brx_TaxonomyPicker_renderTaxonomyOption($term, $taxonomy){
     if(!$term){
         return $ul;
     }
-    $li = sprintf('<li id="li-%s-%d"><input value="%d" type="checkbox" id="cb-%s-%d" /><label for="cb-%s-%d">%s</label>%s</li>'."\n", 
+    $li = sprintf('<li id="li-%s-%d" class="%s closed"><div class="handle"></div><input value="%d" type="checkbox" id="cb-%s-%d" /><label for="cb-%s-%d">%s</label>%s</li>'."\n", 
         $taxonomy,
         $term->term_id,
+        $ul?'has_children':'',
         $term->term_id,
         $taxonomy,
         $term->term_id,
@@ -75,7 +76,15 @@ if(!$this->modal){
         <div class="nothing_found" data-attach-point="boxNothing">Ничего не найдено</div>
         <!--<ul class="options" data-attach-point="optionsList">-->
     <?php
-        echo brx_TaxonomyPicker_renderTaxonomyOption(null, $taxonomy);
+        if($this->rootTerms){
+            echo '<ul class="options" data-attach-point="optionsList">';
+            foreach($this->rootTerms as $term){
+                echo brx_TaxonomyPicker_renderTaxonomyOption($term, $taxonomy);
+            }
+            echo '</ul>';
+        }else{
+            echo brx_TaxonomyPicker_renderTaxonomyOption(null, $taxonomy);
+        }
 //        wp_terms_checklist(0, $args = array(
 //            'descendants_and_self'  => 0,
 //            'selected_cats'         => false,

@@ -68,12 +68,13 @@
         li{
             clear: both;
             margin: 6px 0 0;
-            padding-right: 4px;
+            /*padding-right: 4px;*/
             list-style: none;
+            
             input[type=checkbox]{
                 float: left;
                 /*margin-top: 4px;*/
-                margin-left: 2px;
+                /*margin-left: 2px;*/
             }
             label{
                 padding: 2px;
@@ -88,10 +89,11 @@
                 margin-left: 16px;
             }
         }
+        
 
         >li>label{
             font-weight: bold;
-            font-size: 1.1em;
+            /*font-size: 1.1em;*/
             margin-bottom: 0.5ex;
         }
 
@@ -99,13 +101,71 @@
             margin-bottom: 1.1em;
         }
 
-        li.state_highlight > label{
-            background-color: #f1f1f1;
-            .border-radius(3px);
+        li:hover {
+            > label{
+                background-color: #f1f1f1;
+                .border-radius(3px);
+            }
         }
 
-        > li.state_highlight > label{
-            background-color: inherit;
+        
+    }
+    
+    ul.options.mode_all{
+        li > ul{
+            display: none;
+        }
+        li.has_children{
+            >.handle{
+                display: inline-block;
+                /*background-color: red;*/
+                width: 16px;
+                height: 16px;
+                float: left;
+                margin: 2px;
+                background-image: url(../img/treenode.png);
+                background-size: 32px 16px;
+                opacity: .8;
+            }
+            >input[type=checkbox]+label{
+                padding-left: 40px;
+            }
+        }
+        li.open {
+            >.handle{
+                /*background-color: blue;*/
+                background-position: -16px 0;
+            }
+            > ul{
+                display: block;
+            }
+        }
+        
+    }
+    
+    ul.options.mode_search{
+        li{
+            display: none;
+        }
+        li.found{
+            display: block !important;
+            ul{
+                display: block;
+                
+            }
+        }
+    }
+    
+    ul.options.mode_selected{
+        li{
+            display: none;
+        }
+        li.selected{
+            display: block !important;
+            ul{
+                display: block;
+                
+            }
         }
     }
     

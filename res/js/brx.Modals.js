@@ -194,6 +194,7 @@ _.declare('brx.Modals.Window', $.brx.View, {
             event.stopPropagation();
         });
         $(window).resize($.proxy(this.onResize, this));
+        this.get('container').resize($.proxy(this.onResize, this));
     },
     
     getFader: function(){

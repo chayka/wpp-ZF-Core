@@ -7,6 +7,7 @@
             taxonomy: 'category',
             viewMode: 'all',
             modal: 0,
+            modalOptions: {},
             max: 10,
             title: 'Выберите категории',
             forbidLevels: []
@@ -27,13 +28,19 @@
                 var input = $(element);
                 var label = input.next();
                 var li = input.parent();
-                input.change($.proxy(this.checkedOption, this));
-                li.hover(function(event){
-                    $(this).addClass('state_highlight');
-                }, function(event){
-                    $(this).removeClass('state_highlight');
+                var handle = input.prev();
+                handle.click(function(){
+                    $(this).parent().toggleClass('closed open')
+                    .trigger($.Event('resize'));
                 });
-                li.attr('content', label.text().toLowerCase());
+                input.change($.proxy(this.checkedOption, this));
+//                li.hover(function(event){
+//                    $(this).addClass('state_highlight');
+//                }, function(event){
+//                    $(this).removeClass('state_highlight');
+//                });
+                li.attr('data-content', label.text().toLowerCase());
+                li.attr('data-label', label.text());
             },this));
             
             if(this.get('forbidLevels').length){
@@ -49,6 +56,11 @@
                     this.get('boxOptions').find(selector)
                     .each(function(key, element){
                         var input = $(element);
+                        var handle = input.next();
+                        handle.click(function(){
+                            $(this).parent().toggleClass('closed open')
+                            .trigger($.Event('resize'));
+                        });
                         input.hide()
                             .removeAttr('checked')
                             .removeAttr('id')
@@ -67,20 +79,34 @@
                 this.get('hiddenInput').val(this.get('ids').join(','));
             }
             this.renderSelectedOptions();
+            this.get('inputSearch').placeholder('val', '');
+            this.searchOptions();
             this.$el.show();
             
         },
         
         searchOptions: function(){
             var term = this.get('inputSearch').placeholder('val').toLowerCase();
+            this.get('optionsList').find('li.contains').each(function(key, element){
+                var li = $(element);
+//                if(!term.length || !li.is("li[data-content*='"+term+"']")){
+                    li.find('> label').text(li.attr('data-label'));
+//                }
+            });
+            this.get('optionsList').find('li').removeClass('contains found');
             if(term.length){
                 this.set('viewMode', 'search');
-                this.get('optionsList').find('li').hide();
-                var count = this.get('optionsList').find("li[content*='"+term+"']")
+                this.get('optionsList').removeClass('mode_all mode_selected').addClass('mode_search');
+//                this.get('optionsList').find('li').hide();
+                var count = this.get('optionsList').find("li[data-content*='"+term+"']")
                     .each(function(key, element){
                         var li = $(element);
+                        li.addClass('contains');
+                        var re = new RegExp(term, 'gi');
+                        li.find('> label').html(li.attr('data-label').replace(re, function(m){return '<b>'+m+'</b>';}));
                         while('LI' === li[0].nodeName){
-                            li.show();
+//                            li.show();
+                            li.addClass('found');
                             li = li.parent().parent();
                         }
                     }).length;
@@ -95,19 +121,28 @@
                 
             }else{
                 this.set('viewMode', 'all');
+                this.get('optionsList').removeClass('mode_search mode_selected').addClass('mode_all');
                 this.get('boxNothing').hide();
                 this.get('optionsList').show();
-                this.get('optionsList').find('li').show();
+                this.showAll();
+//                this.get('optionsList').find('li').show();
             }
             this.renderLinks();
         },
         
         checkedOption: function(){
-                console.log(' checkedOption max: '+this.get('max'));
+            console.log(' checkedOption max: '+this.get('max'));
+            this.get('optionsList').find('li.selected').removeClass('selected');
             this.set('ids', []);
             var checkedOptions = this.get('optionsList').find('input[type=checkbox]:checked');
             checkedOptions.each($.proxy(function(id, element){
-                this.pushId($(element).val());
+                var input =$(element);
+                this.pushId(input.val());
+                var li = input.parent();
+                while('LI' === li[0].nodeName){
+                    li.addClass('selected');
+                    li = li.parent().parent();
+                }
             }, this));
             if(this.get('max')){
                 console.log('max: '+this.get('max'));
@@ -181,30 +216,26 @@
         
         showAll: function(){
             this.set('viewMode', 'all');
+            this.get('optionsList').removeClass('mode_search mode_selected').addClass('mode_all');
             this.get('boxNothing').hide();
-            this.get('optionsList').show().find('li').show();
+//            this.get('optionsList').show().find('li').show();
             this.renderLinks();
         },
         
         showSelected: function(){
             this.set('viewMode', 'selected');
-                this.get('optionsList').find('li').hide();
-                var count = this.get('optionsList').find("li input:checkbox:checked")
-                    .each(function(key, element){
-                        var li = $(element).parent();
-                        while('LI' === li[0].nodeName){
-                            li.show();
-                            li = li.parent().parent();
-                        }
-                    }).length;
-//                if(count){
-//                    this.get('boxNothing').hide();
-//                    this.get('optionsList').show();
-//                }else{
-//                    this.get('boxNothing').show();
-//                    this.get('optionsList').hide();
-//                }
-//                console.info('search: '+ term+" found: "+count);
+            this.get('optionsList').removeClass('mode_all mode_search').addClass('mode_selected');
+            this.get('optionsList').find('li').removeClass('selected');
+//            this.get('optionsList').find('li').hide();
+            var count = this.get('optionsList').find("li input:checkbox:checked")
+                .each(function(key, element){
+                    var li = $(element).parent();
+                    while('LI' === li[0].nodeName){
+//                        li.show();
+                        li.addClass('selected');
+                        li = li.parent().parent();
+                    }
+                }).length;
                 
             this.renderLinks();
         },
@@ -249,14 +280,15 @@
         linkSelectClicked: function(){
             this.set('initialIds', this.get('ids'));
             this.checkOptions(this.get('ids'));
-            $.brx.Modals.show(this.get('boxOptions'), {
+            var options = $.extend({
                 title: this.get('title'),
                 modal: this.get('modal'),
                 css:{
                     width: '400px'
                 }
                 
-            });
+            }, this.get('modalOptions'));
+            $.brx.Modals.show(this.get('boxOptions'), options);
 //            this.get('boxOptions').dialog({
 //                title: this.get('title'),
 //                width: 400,

@@ -12,6 +12,11 @@
  */
 class UrlHelper {
 
+    /**
+     * 
+     * @param type $clearParams
+     * @return Zend_Controller_Router_Abstract
+     */
     public static function getRouter($clearParams = true){
         $router = Util::getFront()?Util::getFront()->getRouter():null;
 

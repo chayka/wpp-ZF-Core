@@ -2,6 +2,7 @@
 
 require_once "Zend/Translate.php";
 require_once "Zend/Locale.php";
+require_once "Zend/Registry.php";
 
 class NlsHelper {
 
@@ -74,6 +75,7 @@ class NlsHelper {
                 $locale = new Zend_Locale('en-us');
             }
             self::$locale = $locale;
+            Zend_Registry::set('Zend_Locale', $locale);
 //            Util::print_r($locale);
         }
         return self::$locale;

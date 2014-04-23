@@ -491,6 +491,7 @@ class ZF_Core extends WpPlugin{
     
     public function addUiFramework(){
         WidgetHelper::renderMultiSpinner();
+        //TODO: remove jquery ui and effects
         wp_enqueue_style('jquery-ui');
         wp_enqueue_script('jquery-effects-fade');
         wp_enqueue_script('brx-parser');

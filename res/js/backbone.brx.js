@@ -859,19 +859,19 @@
             }
             switch(state){
                 case 'clear':
-                    input.removeClass( "ui-state-error" );
-                    field.removeClass( "form_field-state_error");
-                    tips.text('').removeClass( "ui-state-highlight");
+                    input && input.removeClass( "ui-state-error" );
+                    field && field.removeClass( "form_field-state_error");
+                    tips && tips.text('').removeClass( "ui-state-highlight");
                     break;
                 case 'error' :
-                    input.addClass( "ui-state-error" );
-                    field.addClass( "form_field-state_error");
-                    tips.html( message ).addClass('form_field-tips_error');
+                    input && input.addClass( "ui-state-error" );
+                    field && field.addClass( "form_field-state_error");
+                    tips && tips.html( message ).addClass('form_field-tips_error');
                     break;
                 case 'hint' :
-                    input.removeClass( "ui-state-error" );
-                    field.removeClass( "form_field-state_error");
-                    tips.html( message ).removeClass('form_field-tips_error');
+                    input && input.removeClass( "ui-state-error" );
+                    field && field.removeClass( "form_field-state_error");
+                    tips && tips.html( message ).removeClass('form_field-tips_error');
                     break;
             }
         },
@@ -1067,7 +1067,7 @@
         },
 
         checkFields: function(fieldIds){
-            fieldIds = fieldIds || _.keys(this.options.inputs);
+            fieldIds = fieldIds || _.keys(this.options.fields);
             var valid = true;
             for(var i in fieldIds){
                 var fieldId = fieldIds[i];

@@ -6,6 +6,7 @@
             attachments: null,
             attachmentId: 0,
             initialId: 0,
+            callback: null,
             views: {},
             validExtensions:[]
         },
@@ -72,10 +73,16 @@
                 
         buttonSelectClicked: function(){
             this.trigger('attachmentSelected', this.getSelectedModel());
+            var callback = this.get('callback');
+            if(callback && _.isFunction(callback)){
+                callback(this.getSelectedModel());
+                this.set('callback', null);
+            }
             this.hide();
         },
                 
         buttonCancelClicked: function(){
+            this.set('callback', null);
             this.hide();
         },
                 
@@ -115,7 +122,10 @@
             },this));
         },
         
-        show: function(id){
+        show: function(id, callback){
+            if(callback){
+                this.set('callback', callback);
+            }
             var width = 805;
             if(this.get('attachments').length){
                 this.$el.removeClass('empty_library');
@@ -132,11 +142,6 @@
                     width: width+'px'
                 }
             });
-//            this.$el.dialog({
-//                title: this.get('title'),
-//                width: width,
-//                modal: this.get('modal')
-//            });
         },
                 
         hide: function(){

@@ -364,6 +364,7 @@ class ZF_Core extends WpPlugin{
 //        $this->registerScript( 'jquery-ajax-iframe-uploader', 'vendors/jquery.iframe-post-form.js', array('jquery'));
         $this->registerScript( 'jquery-galleria', 'vendors/galleria/galleria-1.2.8.min.js', array('jquery'));
         $this->registerScript( 'jquery-masonry', 'vendors/jquery.masonry.min.js', array('jquery'));
+        $this->registerScript( 'masonry', 'vendors/masonry.pkgd.min.js');
 
         $this->registerScript( 'jquery-brx-utils', 'jquery.brx.utils.js', array('jquery',  'nls'));
         $this->registerScript( 'jquery-brx-placeholder', 'jquery.brx.placeholder.js', array('jquery', 'jquery-ui-widget', 'underscore-brx'));

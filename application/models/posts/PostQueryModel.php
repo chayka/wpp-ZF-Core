@@ -907,4 +907,243 @@ class PostQueryModel{
         return $this->fields('id=>parent');
     }
     
+    /**
+     * Get date query model available for setup
+     * @return \PostDateQueryModel
+     */
+    public function setupDateQuery(){
+        return new PostDateQueryModel($this);
+    }
+    
+    public function dateQuery($dateQuery){
+        $this->vars['date_query'][]=$dateQuery;
+    }
+    
+}
+
+class PostDateQueryModel{
+    protected $postQuery = null;
+    protected $vars = array();
+    
+    public function __construct($postQuery) {
+        $this->postQuery = $postQuery;
+    }
+    
+    /**
+     * Get all vars
+     * 
+     * @return array
+     */
+    public function getVars(){
+        return $this->vars;
+    }
+    
+    /**
+     * 
+     * @param type $key
+     * @param type $value
+     * @return \PostDateQueryModel
+     */
+    public function setVar($key, $value){
+        $this->vars[$key] = $value;
+        return $this;
+    }
+    
+    /**
+     * Set year comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function year($value){
+        $this->setVar('year', $value);
+        return $this;
+    }
+    
+    /**
+     * Set month comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function month($value){
+        $this->setVar('month', $value);
+        return $this;
+    }
+    
+    /**
+     * Set week comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function week($value){
+        $this->setVar('week', $value);
+        return $this;
+    }
+    
+    /**
+     * Set day comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function day($value){
+        $this->setVar('day', $value);
+        return $this;
+    }
+    
+    /**
+     * Set hour comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function hour($value){
+        $this->setVar('hour', $value);
+        return $this;
+    }
+    
+    /**
+     * Set minute comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function minute($value){
+        $this->setVar('minute', $value);
+        return $this;
+    }
+    
+    /**
+     * Set second comparison value
+     * 
+     * @param int $value
+     * @return PostDateQueryModel 
+     */
+    public function second($value){
+        $this->setVar('second', $value);
+        return $this;
+    }
+    
+    /**
+     * Set after comparison value
+     * 
+     * @param int $year - year or string strtotime()-compatible
+     * @param int $month
+     * @param int $day
+     * @return \PostDateQueryModel
+     */
+    public function after($year, $month = null, $day = null){
+        $this->setVar('after', is_string($year) && strtotime($year)?
+                $year:
+                array(
+                    'year' => $year,
+                    'month' => $month,
+                    'day' => $day
+                ));
+        return $this;
+    }
+       
+    /**
+     * Set before comparison value
+     * 
+     * @param int $year - year or string strtotime()-compatible
+     * @param int $month
+     * @param int $day
+     * @return \PostDateQueryModel
+     */
+    public function before($year, $month = null, $day = null){
+        $this->setVar('before', is_string($year) && strtotime($year)?
+                $year:
+                array(
+                    'year' => $year,
+                    'month' => $month,
+                    'day' => $day
+                ));
+        return $this;
+    }
+    
+    /**
+     * Set inclusive comparison flag
+     * 
+     * @param boolean $value
+     * @return \PostDateQueryModel
+     */
+    public function inclusive($value){
+        $this->setVar('second', $value);
+        return $this;
+    }
+    
+    /**
+     * Set Comparison Column name
+     * @param type $value
+     * @return \PostDateQueryModel
+     */
+    public function column($value){
+        $this->setVar('column', $value);
+        return $this;
+    }
+    
+    /**
+     * Set Comparison type
+     * @param type $value '=', '!=', '>', '>=', '<', '<=', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN'
+     * @return \PostDateQueryModel
+     */
+    public function compare($value){
+        $this->setVar('compare', $value);
+        return $this;
+    }
+    
+    /**
+     * Set Comparison type
+     * @param type $value '=', '!=', '>', '>=', '<', '<=', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN'
+     * @return \PostDateQueryModel
+     */
+    public function relation($value){
+        $this->setVar('relation', $value);
+        return $this;
+    }
+    
+    /**
+     * Push date query to post query and return post query
+     * @return PostQueryModel
+     */
+    public function push(){
+        $this->postQuery->dateQuery($this->getVars());
+        return $this->postQuery;
+    }
+    
+    /**
+     * Push date query to post query and return new date query
+     * @return PostQueryModel
+     */
+    public function next(){
+        $this->postQuery->pushDateQuery($this->getVars());
+        
+        return new PostDateQueryModel($this->postQuery);
+    }
+    
+    /**
+     * Push date query to post query and return new date query
+     * @return PostQueryModel
+     */
+    public function pushAnd(){
+        $this->relation('AND');
+        $this->postQuery->pushDateQuery($this->getVars());
+        
+        return new PostDateQueryModel($this->postQuery);
+    }
+    
+    /**
+     * Push date query to post query and return new date query
+     * @return PostQueryModel
+     */
+    public function pushOr(){
+        $this->relation('OR');
+        $this->postQuery->pushDateQuery($this->getVars());
+        
+        return new PostDateQueryModel($this->postQuery);
+    }
+    
 }

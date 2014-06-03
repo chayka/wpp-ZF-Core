@@ -87,4 +87,3 @@ abstract class WpTheme extends WpPlugin{
     
 }
 
-

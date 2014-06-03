@@ -62,9 +62,10 @@ class HtmlHelper {
         }
         
         self::setHeadTitle($post->getTitle());
-        self::setMetaDescription($post->getExcerpt());
+        $pmdesc = $post->getMeta('description');
+        self::setMetaDescription($pmdesc?$pmdesc:$post->getExcerpt());
         $terms = $post->loadTerms();
-        $pmkw = get_post_meta($post->getId(), 'keywords', true);
+        $pmkw = $post->getMeta('keywords');
         if($pmkw){
             self::setMetaKeywords($pmkw);
         }else{

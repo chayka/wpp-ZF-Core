@@ -923,20 +923,26 @@
 
         checkRegexp: function ( fieldName, regexp, errorMessage ) {
             var field = this.fields(fieldName);
-            var short = field.attr('data-check-regexp'); // 'Неверный формат телефона...|/\d{7}/i'
+            var short = field.attr('data-check-regexp'); // 'Неверный формат телефона...|/\d{7}/i|forbid'
             var shorts = _.empty(short)?[]:short.split('|');
             var patternAndModifiers = /\/(.*)\/(\w*)$/.exec(_.getItem(shorts, 1));
             var message = _.getItem(shorts, 0) || field.attr('data-check-regexp-message') || field.attr('check-regexp-message');
             var pattern = _.getItem(patternAndModifiers, 1) || field.attr('data-check-regexp-pattern') || field.attr('check-regexp-pattern');
             var modifiers = _.getItem(patternAndModifiers, 2) || field.attr('data-check-regexp-modifiers') || field.attr('check-regexp-modifiers');
+            var forbid = _.getItem(shorts, 2) || field.attr('data-check-regexp-forbid');
             
             regexp = regexp 
                 || new RegExp(pattern, modifiers);
             errorMessage = errorMessage 
                 || message
                 || 'Неверный формат';
-            var input = this.options.inputs[fieldName];
-            if ( !( regexp.test( input.val() ) ) ) {
+            var value = this.getFieldValue(fieldName);
+            console.dir({'field value': value});
+            var valid = !( regexp.test( value ) );
+            if(forbid && forbid.length){
+                valid = !valid;
+            }
+            if ( valid ) {
                 this.setFormFieldStateError(fieldName, errorMessage );
                 return false;
             } else {

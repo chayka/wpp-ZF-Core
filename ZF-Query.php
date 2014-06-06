@@ -78,7 +78,29 @@ class ZF_Query extends WP_Query {
         return false;
     }
     
+    public static function checkSingleDomain(){
+        $server = Util::serverName();
+//        die(OptionHelper::getOption('singleDomain'));
+        switch(OptionHelper::getOption('singleDomain')){
+            case 'www':
+                if(false === strpos($_SERVER['SERVER_NAME'], 'www.'.$server)){
+                    header('Location: //www.'.$server.$_SERVER['REQUEST_URI'], true, 301);
+                    die();
+                }
+                break;
+            case 'no-www':
+                if(false !== strpos($_SERVER['SERVER_NAME'], 'www.'.$server)){
+                    header('Location: //'.$server.$_SERVER['REQUEST_URI'], true, 301);
+                    die();
+                }
+                break;
+        }
+    }
+    
     public static function parseRequest(){
+        
+        self::checkSingleDomain();
+        
         BlockadeHelper::inspectUri($_SERVER['REQUEST_URI']);
 
         if(isset($request->query_vars['error'])){

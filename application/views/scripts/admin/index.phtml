@@ -26,6 +26,17 @@
             </span>
             <div class="form_field-tips"></div>
         </div>
+        <div class="form_field stretch field_single_domain" data-attach-point="fields.singleDomain">
+            <label class="width35">Один домен:</label>
+            <span class="form_field-input_box">
+                <select>
+                    <option value="">Отключено</option>
+                    <option value="www">www.<?php echo Util::serverName();?></option>
+                    <option value="no-www"><?php echo Util::serverName();?></option>
+                </select>
+            </span>
+            <div class="form_field-tips"></div>
+        </div>
         <div class="form_field stretch field_minimize_media" data-attach-point="fields.minimizeMedia">
             <label class="width35">Минимизация статики:</label>
             <span class="form_field-input_box">

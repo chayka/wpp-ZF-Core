@@ -48,7 +48,7 @@ class CurlHelper {
     }
     
     public static function download($filename, $url, $params=array(), $timeout=0){
-        if(is_writable($filename)){
+//        if(is_writable($filename)){
             $ch = self::prepareRequest($url, $params, $timeout);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 0);
             $fp = fopen ($filename, 'w+');
@@ -65,7 +65,7 @@ class CurlHelper {
             fclose($fp);
             fclose($fpVerbose);
             return file_exists($filename)?filesize($filename):0;
-        }
+//        }
         
         return 0;
     }

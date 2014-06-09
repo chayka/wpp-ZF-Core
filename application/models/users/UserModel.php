@@ -96,6 +96,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setId($id) {
         $this->id = $id;
+        return $this;
     }
 
     public function getLogin() {
@@ -104,6 +105,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setLogin($login) {
         $this->login = $login;
+        return $this;
     }
 
     public function getPassword() {
@@ -112,6 +114,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setPassword($password) {
         $this->password = $password;
+        return $this;
     }
 
     public function getNicename() {
@@ -120,6 +123,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setNicename($nicename) {
         $this->nicename = $nicename;
+        return $this;
     }
 
     public function getUrl() {
@@ -128,6 +132,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setUrl($url) {
         $this->url = $url;
+        return $this;
     }
 
     public function getDisplayName() {
@@ -136,6 +141,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setDisplayName($displayName) {
         $this->displayName = $displayName;
+        return $this;
     }
 
 //    public function getNickname() {
@@ -152,6 +158,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setFirstName($firstName) {
         $this->firstName = $firstName;
+        return $this;
     }
 
     public function getLastName() {
@@ -160,6 +167,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setLastName($lastName) {
         $this->lastName = $lastName;
+        return $this;
     }
 
     public function getDescription() {
@@ -168,6 +176,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setDescription($description) {
         $this->description = $description;
+        return $this;
     }
 
     public function getRichEditing() {
@@ -176,6 +185,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setRichEditing($richEditing) {
         $this->richEditing = $richEditing;
+        return $this;
     }
 
     public function getCapabilities(){
@@ -219,6 +229,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setRole($role) {
         $this->role = $role;
+        return $this;
     }
 
     public function getEmail() {
@@ -227,6 +238,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setEmail($email) {
         $this->email = $email;
+        return $this;
     }
 
     public function getRegistered() {
@@ -235,6 +247,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setRegistered($registered) {
         $this->registered = $registered;
+        return $this;
     }
 
     public function getJabber() {
@@ -243,6 +256,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setJabber($jabber) {
         $this->jabber = $jabber;
+        return $this;
     }
 
     public function getAim() {
@@ -251,6 +265,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setAim($aim) {
         $this->aim = $aim;
+        return $this;
     }
 
     public function getYim() {
@@ -259,6 +274,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setYim($yim) {
         $this->yim = $yim;
+        return $this;
     }
     
     public function getProfileLink(){
@@ -271,6 +287,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
 
     public function setWpUser($wpUser) {
         $this->wpUser = $wpUser;
+        return $this;
     }
 
     /**

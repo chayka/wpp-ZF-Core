@@ -52,12 +52,18 @@ class CurlHelper {
             $ch = self::prepareRequest($url, $params, $timeout);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 0);
             $fp = fopen ($filename, 'w+');
+            $fpVerbose = fopen(dirname($filename).'/curl.verbose.log', 'a+');
+	    curl_setopt ($ch, CURLOPT_VERBOSE, 1);
+	    curl_setopt ($ch, CURLOPT_STDERR, $fpVerbose);
+	    curl_setopt ($ch, CURLOPT_WRITEHEADER, $fpVerbose);
+
             curl_setopt($ch, CURLOPT_FILE, $fp);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_exec($ch); // get curl response
             curl_close($ch);
             fclose($fp);
+            fclose($fpVerbose);
             return file_exists($filename)?filesize($filename):0;
         }
         

@@ -47,6 +47,23 @@ class CurlHelper {
         return self::performRequest($ch);
     }
     
+    public static function download($filename, $url, $params=array(), $timeout=0){
+        if(is_writable($filename)){
+            $ch = self::prepareRequest($url, $params, $timeout);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 0);
+            $fp = fopen ($filename, 'w+');
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_exec($ch); // get curl response
+            curl_close($ch);
+            fclose($fp);
+            return file_exists($filename)?filesize($filename):0;
+        }
+        
+        return 0;
+    }
+    
     public static function ping($url, $retry = 3, $timeout = 2) {
         $data = '';
         $try = 0;

@@ -280,6 +280,14 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     public function getProfileLink(){
         return get_author_posts_url($this->getId(), $this->getNicename());
     }
+    
+    public function getAvatarPath(){
+        return '';
+    }
+    
+    public function getAvatarLink(){
+        return apply_filters('avatar_link', '', $this);
+    }
 
     public function getWpUser() {
         return $this->wpUser;
@@ -558,6 +566,19 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     public static function setJsonMetaFields($metaFields) {
         self::$jsonMetaFields = $metaFields;
     }
+    
+    public static function addJsonMetaField($fieldName){
+        if(false !== array_search($fieldName, self::$jsonMetaFields)){
+            self::$jsonMetaFields[]=$fieldName;
+        }
+    }
+    
+    public static function removeJsonMetaField($fieldName){
+        $i = array_search($fieldName, self::$jsonMetaFields);
+        if(false !== $i){
+            self::$jsonMetaFields = array_splice(self::$jsonMetaFields, $i, 1);
+        }
+    }
 
 
     public function packJsonItem() {
@@ -579,7 +600,10 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['aim'] = $this->getAim();
         $jsonItem['yim'] = $this->getYim();
         $jsonItem['profile_link'] = $this->getProfileLink();
-        $meta = array();
+        $jsonItem['avatar_link'] = $this->getAvatarLink();
+        $meta = array(
+//            'fb_user_id' => $this->getMeta('fb_user_id'),
+        );
         foreach(self::$jsonMetaFields as $field){
             $meta[$field] = $this->getMeta($field);
         }

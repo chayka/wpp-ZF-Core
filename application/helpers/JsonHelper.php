@@ -61,6 +61,19 @@ class JsonHelper {
         return die(self::packResponse($payload, $code, $message));
     }
     
+    /**
+     * 
+     * @param Exception $e
+     */
+    public static function respondException( $e){
+        Util::httpRespondCode(500);
+        self::respond(array(
+            'file'=>$e->getFile(),
+            'line'=>$e->getLine(),
+            'trace'=>$e->getTrace(),
+        ), $e->getCode(), $e->getMessage());
+    }
+    
     public static function respondError($message = '', $code = 1, $payload = null, $httpResponseCode = 400){
         Util::httpRespondCode($httpResponseCode);
         self::respond($payload, $code, $message);

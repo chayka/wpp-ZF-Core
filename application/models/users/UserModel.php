@@ -568,7 +568,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
     
     public static function addJsonMetaField($fieldName){
-        if(false !== array_search($fieldName, self::$jsonMetaFields)){
+        if(false === array_search($fieldName, self::$jsonMetaFields)){
             self::$jsonMetaFields[]=$fieldName;
         }
     }

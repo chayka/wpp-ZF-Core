@@ -138,7 +138,18 @@
                 attrs = key;
                 options = val;
             } else {
-                (attrs = {})[key] = val;
+//                (attrs = {})[key] = val;
+                attr = {};
+                var parts = key.split('.');
+                var root = attr;
+                for(var i = 0; i < parts.length - 1; i++){
+                    var part = parts[i];
+                    if(!_.has(root, part)){
+                        root[part] = {};
+                    }
+                    root = root[part];
+                }
+                root[_.last(parts)] = val;
             }
 
             options || (options = {});

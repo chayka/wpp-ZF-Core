@@ -141,7 +141,7 @@
 //                (attrs = {})[key] = val;
                 attrs = {};
                 var parts = key.split('.');
-                var root = attr;
+                var root = attrs;
                 for(var i = 0; i < parts.length - 1; i++){
                     var part = parts[i];
                     if(!_.has(root, part)){

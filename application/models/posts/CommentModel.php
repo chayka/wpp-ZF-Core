@@ -917,6 +917,19 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
         self::$jsonMetaFields = $metaFields;
     }
 
+    public static function addJsonMetaField($fieldName){
+        if(false === array_search($fieldName, self::$jsonMetaFields)){
+            self::$jsonMetaFields[]=$fieldName;
+        }
+    }
+    
+    public static function removeJsonMetaField($fieldName){
+        $i = array_search($fieldName, self::$jsonMetaFields);
+        if(false !== $i){
+            self::$jsonMetaFields = array_splice(self::$jsonMetaFields, $i, 1);
+        }
+    }
+
 
     /**
      * Packs this post into assoc array for JSON representation.

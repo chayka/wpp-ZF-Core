@@ -281,14 +281,14 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return get_author_posts_url($this->getId(), $this->getNicename());
     }
     
-    public function getAvatarPath(){
-        return '';
-    }
-    
-    public function getAvatarLink(){
-        return apply_filters('avatar_link', '', $this);
-    }
-
+//    public function getAvatarPath(){
+//        return apply_filters('avatar_path', null, $this);
+//    }
+//    
+//    public function getAvatarLink(){
+//        return apply_filters('avatar_link', null, $this);
+//    }
+//
     public function getWpUser() {
         return $this->wpUser;
     }
@@ -600,7 +600,7 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $jsonItem['aim'] = $this->getAim();
         $jsonItem['yim'] = $this->getYim();
         $jsonItem['profile_link'] = $this->getProfileLink();
-        $jsonItem['avatar_link'] = $this->getAvatarLink();
+//        $jsonItem['avatar_link'] = $this->getAvatarLink();
         $meta = array(
 //            'fb_user_id' => $this->getMeta('fb_user_id'),
         );

@@ -132,7 +132,7 @@ class ZF_Core extends WpPlugin{
     }
 
     public static function autoloader($class) {
-    //    echo "zfCoreAutoloader($class)";
+//        echo "zfCoreAutoloader(<b>$class</b>) \n";
         if(false && strpos($class, 'Helper')){
             include_once 'application/helpers'.PATH_SEPARATOR.$class.'.php'; 
         }else{

@@ -139,7 +139,7 @@
                 options = val;
             } else {
 //                (attrs = {})[key] = val;
-                attr = {};
+                attrs = {};
                 var parts = key.split('.');
                 var root = attr;
                 for(var i = 0; i < parts.length - 1; i++){

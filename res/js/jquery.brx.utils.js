@@ -28,7 +28,7 @@
     
     $.brx.utils.fbavatar = function(fbUserId, size){
         var size = parseInt(size) || 80;
-        return '//graph.facebook.com/'+fbUserId+'/picture/?type=square?height='+size+'&width='+size;
+        return '//graph.facebook.com/'+fbUserId+'/picture/?type=square&height='+size+'&width='+size;
     };
     
     $.brx.utils.loadPage = function(loc){

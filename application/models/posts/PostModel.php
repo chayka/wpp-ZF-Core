@@ -888,14 +888,21 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         }
         
 //        self::$wpQuery = empty($wpPostsQueryArgs)? $wp_query : new WP_Query($wpPostsQueryArgs);
-        
-        $dbRecords = self::$wpQuery->get_posts();
-        
-        foreach ($dbRecords as $dbRecord) {
+        $posts = array();
+        self::$postsFound=self::$wpQuery->found_posts;
+        while(self::$wpQuery->have_posts()){
+            $dbRecord = self::$wpQuery->next_post();
             $posts[] = self::unpackDbRecord($dbRecord);
+            
         }
         
-        self::$postsFound=self::$wpQuery->found_posts;
+        return $posts;
+//        $dbRecords = self::$wpQuery->get_posts();
+//        
+//        foreach ($dbRecords as $dbRecord) {
+//            $posts[] = self::unpackDbRecord($dbRecord);
+//        }
+        
         
         return $posts;
         

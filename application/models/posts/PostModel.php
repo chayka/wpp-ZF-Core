@@ -1253,6 +1253,15 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
                 ->orderBy('comment_ID');
     }
     
+    public function getAttachments($type){
+        $rawAttacments = get_attached_media($type, $this->getId());
+        $attachments = array();
+        foreach($rawAttacments as $id => $raw){
+            $attachments[$id] = PostModel::unpackDbRecord($raw);
+        }
+        return $attachments;
+    }
+    
     /**
      * Get attachment url
      * @return string

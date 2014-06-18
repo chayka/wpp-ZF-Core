@@ -18,23 +18,12 @@ class SocialHelper {
     public static function fbInit($appId = 'YOUR_APP_ID', $locale = 'en_US', $fbLoginJsCallback = null){
         $html = new Zend_View();
         $html->setScriptPath(ZF_CORE_APPLICATION_PATH.'/views/scripts/social/');
-//        print_r($params);
         $html->appId = $appId;
         $html->locale = $locale;
         $html->callback = $fbLoginJsCallback;
         echo $html->render('fb-init.phtml');
     }
 
-    public static function fbPhpApiAutoloader($class){
-        if(preg_match('%^Facebook%', $class)){
-            $parts = explode('\\', $class);
-            require_once 'facebook-php-sdk-v4'.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.  join(DIRECTORY_SEPARATOR, $parts).'.php';
-        }
-    }
-    
-    public static function fbRegisterAutoloader(){
-        spl_autoload_register(array('SocialHelper', 'fbPhpApiAutoloader'));
-    }
     
     public static function linkedInInit($locale = 'en_US'){
         $html = new Zend_View();

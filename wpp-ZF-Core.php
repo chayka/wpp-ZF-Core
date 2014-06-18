@@ -295,11 +295,8 @@ class ZF_Core extends WpPlugin{
 
     public function registerActions(){
         $this->addAction('activated_plugin', 'thisPluginGoesFirst');
-//        add_action("activated_plugin", array("ZF_Core", "thisPluginGoesFirst"));
-//        add_action('admin_menu', array('ZF_Core', 'registerConsolePages'));
         $this->addAction('wp_footer', 'addUiFramework', 100);
         $this->addAction('admin_footer', 'addUiFramework_Console', 100);
-//        add_action('wp_footer', array('ZF_Core', 'addJQueryWidgets'), 100);
         Util::sessionStart();
         if(empty($_SESSION['timezone'])){
 //            add_action('wp_footer', array('ZF_Core', 'fixTimezone'));

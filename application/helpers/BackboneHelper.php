@@ -10,7 +10,7 @@ class BackboneHelper{
     
     public static function getView($populateId = ''){
         wp_enqueue_script('backbone-wp-modells');
-        wp_print_scripts();
+//        wp_print_scripts();
         $view = new Zend_View();
         $view->setScriptPath(ZF_CORE_PATH.'application/views/scripts/backbone/');
         if($populateId){
@@ -25,9 +25,6 @@ class BackboneHelper{
     }
 
     public static function populateUser($userOrId = null, $populateId = ''){
-        if(self::isInitialized($populateId)) {
-            return;
-        }
         $user = null;
         if($userOrId){
             $user = ($userOrId instanceof UserModel)?$userOrId:  UserModel::selectById($userOrId);
@@ -35,6 +32,9 @@ class BackboneHelper{
         }else{
             $user = UserModel::currentUser();
             $populateId = $populateId?$populateId:'wp.currentUser';
+        }
+        if(self::isInitialized($populateId)) {
+            return;
         }
         $view = self::getView($populateId);
         $view->user = $user;
@@ -48,6 +48,26 @@ class BackboneHelper{
         $view = self::getView($populateId);
         $view->users=array_values($users?$users:UserModel::getUserCacheById());
         echo $view->render('users.phtml');
+    }
+    
+    public static function populatePost($zfPost = null, $populateId = ''){
+        global $post;
+        $user = null;
+        if($zfPost){
+            if(is_object($zfPost)){
+                $zfPost = ($zfPost instanceof PostModel)?$zfPost:  PostModel::unpackDbRecord($zfPost);
+                $populateId = $populateId?$populateId:'wp.post_'.$zfPost->getId();
+            }
+        }else{
+            $zfPost = PostModel::unpackDbRecord($post);
+            $populateId = $populateId?$populateId:'wp.currentPost';
+        }
+        if(self::isInitialized($populateId)) {
+            return;
+        }
+        $view = self::getView($populateId);
+        $view->post = $zfPost;
+        echo $view->render('post.phtml');
     }
     
     public static function populatePosts($posts = null, $populateId = 'wp.posts'){

@@ -94,7 +94,7 @@ class AclHelper {
             $message = NlsHelper::_('Dear user, access to this page is forbidden for you.');
         }
         if($front->getParam('noViewRenderer')){
-            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED, UserModel::currentUser());
         }else{
             $view = new Zend_View();
             $view->setScriptPath(ZF_CORE_APPLICATION_PATH.'/views/scripts');
@@ -113,7 +113,7 @@ class AclHelper {
             if(!$message){
                 $message = 'Необходимо авторизоваться на сайте';
             }
-            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_AUTH_REQUIRED, UserModel::currentUser());
         }
     }
     
@@ -138,34 +138,46 @@ class AclHelper {
         return !empty ($userId);
     }
     
-    public static function apiOwnershipForbidden(/*AG_PostModel*/ $obj, $message = ''){
-        $user = UserModel::currentUser();
-        if($obj->getUserId() == $user->getId() && !$user->hasRole('administrator')){
-            if(!$message){
-                $message = 'Данная операция с собственным объектом невозможна';
-            }
-            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
-        }
-    }
-    
     public static function isOwner(/*PostModel*/ $obj){
         $user = UserModel::currentUser();
-        return ($obj->getUserId() && ($obj->getUserId() == $user->getId()) || $user->hasRole('administrator'));
+        $isOwner = false;
+        if($obj instanceof UserModel){
+            $isOwner = $obj->getId() == $user->getId();
+        }else{
+            $isOwner = $obj->getUserId() == $user->getId();
+        }
+        return ($isOwner || $user->hasRole('administrator'));
     }
     
     public static function apiOwnershipRequired(/*PostModel*/ $obj, $message = ''){
-        $user = UserModel::currentUser();
-        if($obj->getUserId() != $user->getId() && !$user->hasRole('administrator')){
+        $valid = self::isOwner($obj);
+        if(!$valid){
             if(!$message){
                 $message = 'У вас недостаточно прав для модификации данного объекта';
             }
-            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED);
+            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED, UserModel::currentUser());
         }
     }
     
     public static function isNotOwner(/*AG_PostModel*/ $obj){
         $user = UserModel::currentUser();
-        return ($obj->getUserId() != $user->getId() || $user->hasRole('administrator'));
+        $isOwner = false;
+        if($obj instanceof UserModel){
+            $isOwner = $obj->getId() == $user->getId();
+        }else{
+            $isOwner = $obj->getUserId() == $user->getId();
+        }
+        return (!$isOwner || $user->hasRole('administrator'));
+    }
+    
+    public static function apiOwnershipForbidden(/*AG_PostModel*/ $obj, $message = ''){
+        $user = UserModel::currentUser();
+        if(self::isNotOwner($obj)){
+            if(!$message){
+                $message = 'Данная операция с собственным объектом невозможна';
+            }
+            JsonHelper::respondError($message, ErrorHelper::CODE_PERMISSION_REQUIRED, UserModel::currentUser());
+        }
     }
     
     public static function isUserRole($role, $user = null){

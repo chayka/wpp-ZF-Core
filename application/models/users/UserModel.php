@@ -546,9 +546,24 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
             wp_get_current_user();
 
             if($current_user && $current_user->ID){
-                $role = $wpdb->prefix . 'capabilities';
-                $roles = array_keys($current_user->$role);
-                $current_user->role = reset($roles);
+//                $role = $wpdb->prefix . 'capabilities';
+//                Util::print_r($current_user);
+                $roles = array_keys($current_user->roles);
+                if(in_array('administrator', $roles)){
+                    $current_user->role = 'administrator';
+                }else if(in_array('editor', $roles)){
+                    $current_user->role = 'editor';
+                }else if(in_array('author', $roles)){
+                    $current_user->role = 'author';
+                }else if(in_array('contributor', $roles)){
+                    $current_user->role = 'contributor';
+                }else if(in_array('subscriber', $roles)){
+                    $current_user->role = 'subscriber';
+                }else {
+                    $current_user->role = reset($roles);
+                }
+                
+//                $current_user->role = reset($roles);
                 if(!$current_user->role){
                     $current_user->role = 'guest';
                 }
@@ -723,7 +738,8 @@ class UserModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     }
 
     public function validateInput($input = array(), $action = 'create') {
-        return true;
+        $valid = apply_filters('UserModel.validateInput', true, $this, $input, $action);
+        return $valid;
     }
     
     /**

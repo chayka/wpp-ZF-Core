@@ -600,9 +600,14 @@ class CommentModel implements DbRecordInterface, JsonReadyInterface, InputReadyI
             $postId = Util::getItem($input, 'comment_post_ID', 0);
             $post = get_post($postId);
 
+            $valid = apply_filters('CommentModel.validateInput', true, this, $input, $action);
+            if(!$valid){
+                return false; 
+            }
+            
             if (empty($post->comment_status)) {
                 do_action('comment_id_not_found', $postId);
-                exit;
+                return false;
             }
 
             // get_post_status() will get the parent status for attachments.

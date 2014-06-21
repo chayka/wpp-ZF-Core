@@ -94,6 +94,12 @@ class HtmlHelper {
         }
     }
     
+    public static function visible($condition = true){
+        if(!$condition){
+            echo 'style="display: none;"';
+        }
+    }
+    
     public static function checked($condition = true){
         if($condition){
             echo 'checked="checked"';

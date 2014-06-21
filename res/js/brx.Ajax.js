@@ -6,11 +6,11 @@
             $.brx.Ajax.errorHandlers[id] = handler;
         },
     
-        handleError: function(code, message){
+        handleError: function(code, message, payload){
             var res = false;
             for(var id in $.brx.Ajax.errorHandlers){
                 var handler = $.brx.Ajax.errorHandlers[id];
-                res = res || handler(code, message);
+                res = res || handler(code, message, payload);
             }
 
             return res;
@@ -22,7 +22,7 @@
             }
             if('mass_errors' == data.code){
                 for(var code in data.message){
-                    if($.brx.Ajax.handleError(code, data.message[code])){
+                    if($.brx.Ajax.handleError(code, data.message[code], data.payload)){
                         delete data.message[code];
                     }
                 }
@@ -30,7 +30,7 @@
             }
 
             var errors = {};
-            if(!$.brx.Ajax.handleError(data.code, data.message)){
+            if(!$.brx.Ajax.handleError(data.code, data.message, data.payload)){
 //                console.dir({'handleErrors.data': data});
                 errors[data.code] = data.message;
             }

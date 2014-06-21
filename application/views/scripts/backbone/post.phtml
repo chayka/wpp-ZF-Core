@@ -1,0 +1,7 @@
+<script type="text/javascript">
+(function($){
+    $(document).ready(function($){
+        _.declare('<?php echo $this->populateId;?>', new $.wp.PostModel(<?php echo JsonHelper::encode($this->post)?>));
+    });
+}(jQuery));
+</script>

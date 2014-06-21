@@ -642,6 +642,26 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         return $post && $post->ID ? get_permalink($post->ID):null;
     }
     
+    public function getHrefEdit($checkPermissions = false, $context = 'display'){
+        $action = '';
+	if ( 'revision' === $this->getType() ){
+            $action = '';
+        }elseif ( 'display' == $context ){
+            $action = '&amp;action=edit';
+        }else{
+            $action = '&action=edit';
+        }
+	$post_type_object = get_post_type_object( $this->getType() );
+	if ( !$post_type_object ){
+            return;
+        }
+	if ( $checkPermissions && !current_user_can( 'edit_post', $this->getId() ) ){
+            return;
+        }
+	return apply_filters( 'get_edit_post_link', admin_url( sprintf($post_type_object->_edit_link . $action, $this->getId()) ), $this->getId(), $context );
+        
+    }
+    
     /**
      * DbRecordInterface method, returns corresponding DB Table ID column name
      * 
@@ -1631,7 +1651,7 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
      * @return boolean is input valid
      */
     public function validateInput($input = array(), $action = 'create') {
-        $valid = true; //apply_filters('PostModel.validateInput', true, $input, $action);
+        $valid = apply_filters('PostModel.validateInput', true, this, $input, $action);
         return $valid;
     }
 

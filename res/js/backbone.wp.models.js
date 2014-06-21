@@ -293,7 +293,14 @@
         parse: function(response, options){
             this.total = parseInt(response.payload.total);
             this.page = parseInt(response.payload.page);
-            return response.payload.items;
+            if(_.isArray(response.payload.items)){
+                return response.payload.items;
+            }
+            var items = [];
+            for(var id in response.payload.items){
+                items.push(response.payload.items[id]);
+            }
+            return items;
         }
 
     });
@@ -537,7 +544,14 @@
         parse: function(response, options){
             this.total = parseInt(response.payload.total);
             this.page = parseInt(response.payload.page);
-            return response.payload.items;
+            if(_.isArray(response.payload.items)){
+                return response.payload.items;
+            }
+            var items = [];
+            for(var id in response.payload.items){
+                items.push(response.payload.items[id]);
+            }
+            return items;
         }
 
     });
@@ -677,6 +691,30 @@
             return this.get('role', 'guest');
         },
         
+        isSubscriber: function(){
+            return 'subscriber' === this.getRole();
+        },
+        
+        isContributor: function(){
+            return 'contributor' === this.getRole();
+        },
+        
+        isAuthor: function(){
+            return 'author' === this.getRole();
+        },
+        
+        isEditor: function(){
+            return 'editor' === this.getRole();
+        },
+        
+        isAdmin: function(){
+            return 'administrator' === this.getRole();
+        },
+        
+        isAdministrator: function(){
+            return this.isAdmin();
+        },
+        
         setJabber: function(val){
             return this.set('jabber', val);
         },
@@ -727,7 +765,14 @@
         parse: function(response, options){
             this.total = parseInt(response.payload.total);
             this.page = parseInt(response.payload.page);
-            return response.payload.items;
+            if(_.isArray(response.payload.items)){
+                return response.payload.items;
+            }
+            var items = [];
+            for(var id in response.payload.items){
+                items.push(response.payload.items[id]);
+            }
+            return items;
         }
 
     });

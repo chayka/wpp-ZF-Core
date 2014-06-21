@@ -280,7 +280,14 @@
 
         parse: function(response, options){
             this.total = parseInt(response.payload.total);
-            return response.payload.items;
+            var items = [];
+            if(_.isArray(response.payload.items)){
+                return response.payload.items;
+            }
+            for(var id in response.payload.items){
+                items.push(response.payload.items[id]);
+            }
+            return items;
         },
                 
         showSpinner: function(message, id){
@@ -801,9 +808,9 @@
                 textarea.css('height', 'auto');
                 var height = textarea.css('box-sizing')==='border-box'?
                     parseInt(textarea.css('borderTopWidth')) +
-                    parseInt(textarea.css('paddingTop')) +
+//                    parseInt(textarea.css('paddingTop')) +
                     textarea.prop('scrollHeight')+
-                    parseInt(textarea.css('paddingBottom')) +
+//                    parseInt(textarea.css('paddingBottom')) +
                     parseInt(textarea.css('borderBottomWidth')):
                     textarea.prop('scrollHeight');
                 textarea.css('height', height+'px');

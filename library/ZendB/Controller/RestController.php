@@ -108,6 +108,10 @@ class RestController extends Zend_Rest_Controller{
         $table = call_user_func(array($class, 'getDbTable'));
         $key =  call_user_func(array($class, 'getDbIdColumn'));
         $model = call_user_func(array($class, 'selectById'), $id);
+        if(!$model->validateInput(array(), 'delete')){
+            $errors = $model->getValidationErrors();
+            JsonHelper::respondErrors($errors);
+        }
         $result = $model->delete();//WpDbHelper::delete($table, $key, $id);
         if($result){
             apply_filters($class.'.deleted', $model);

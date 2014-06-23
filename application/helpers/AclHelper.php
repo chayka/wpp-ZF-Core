@@ -141,10 +141,12 @@ class AclHelper {
     public static function isOwner(/*PostModel*/ $obj){
         $user = UserModel::currentUser();
         $isOwner = false;
-        if($obj instanceof UserModel){
-            $isOwner = $obj->getId() == $user->getId();
-        }else{
-            $isOwner = $obj->getUserId() == $user->getId();
+        if($user->getId()){
+            if($obj instanceof UserModel){
+                $isOwner = $obj->getId() == $user->getId() ;
+            }else{
+                $isOwner = $obj->getUserId() == $user->getId();
+            }
         }
         return ($isOwner || $user->hasRole('administrator'));
     }

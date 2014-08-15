@@ -314,7 +314,7 @@ class ZF_Core extends WpPlugin{
     
     public function registerResources($minimize = false){
 
-        $isAdminPost = is_admin() && (strpos($_SERVER['REQUEST_URI'], 'post.php'));
+        $isAdminPost = is_admin() && (strpos($_SERVER['REQUEST_URI'], 'post.php') || strpos($_SERVER['REQUEST_URI'], 'revision.php'));
 
         // backbone & underscore
         $this->registerScript( 'Underscore', ($minimize?'vendors/underscore.min.js':'vendors/underscore.js'), array('jquery'));

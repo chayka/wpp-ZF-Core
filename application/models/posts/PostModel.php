@@ -827,10 +827,13 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
     /**
      * Select model from DB by slug
      * 
-     * @param integer $id
+     * @param string $slug
+     * @param string $postType
+     * @param bool $useCache
+     * @param bool $isPreview
      * @return PostModel 
      */
-    public static function selectBySlug($slug, $postType = 'ANY', $useCache = true){
+    public static function selectBySlug($slug, $postType = 'ANY', $useCache = true, $isPreview = false){
         if($useCache){
             $id = Util::getItem(self::$postsCacheBySlug, $slug);
             $item = Util::getItem(self::$postsCacheById, $id);
@@ -841,7 +844,12 @@ class PostModel implements DbRecordInterface, JsonReadyInterface, InputReadyInte
         $args = array('name'=>$slug);
         if($postType){
             $args['post_type'] = $postType;
-            $args['post_status'] = 'publish';
+            if($isPreview){
+                $args['post_status'] = 'any';
+                $args['preview'] = true;
+            }else{
+                $args['post_status'] = 'publish';
+            }
         }
         $posts = self::selectPosts($args);
         return count($posts)?reset($posts):null;
